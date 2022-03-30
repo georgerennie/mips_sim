@@ -2,13 +2,9 @@
 #define _ARCH_STATE_H_
 
 #include <inttypes.h>
-#include <stddef.h>
 
 // Architectural State
 typedef struct {
-	// Instruction Register - written to in IF, used in ID
-	uint32_t ir;
-
 	// Program Counter
 	uint32_t pc;
 

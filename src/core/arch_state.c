@@ -5,10 +5,10 @@
 
 void mips_state_init(mips_state_t* state) {
 	*state = (mips_state_t){
-	    .ir  = 0,
 	    .pc  = 0,
 	    .gpr = {0},
 	};
+
 #ifdef __ESBMC
 	// Allow any initial register state for ESBMC
 	for (uint8_t i = 0; i < sizeof(state->gpr) / sizeof(state->gpr[0]); i++) {

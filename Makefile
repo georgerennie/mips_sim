@@ -13,7 +13,8 @@ SRCS := \
 	$(SRC)/core/arch_state.c \
 	$(SRC)/core/instruction_decoder.c \
 	$(SRC)/core/execution_engine.c \
-	$(SRC)/core/memory_access.c
+	$(SRC)/core/memory_access.c \
+	$(SRC)/core/writeback.c
 
 CC_INCLUDES += -I$(SRC)
 

@@ -2,17 +2,28 @@
 #define _EXECUTION_ENGINE_H_
 
 #include <inttypes.h>
-#include "instruction_decoder.h"
+#include "memory_access.h"
+
+typedef enum {
+	ALU_OP_NOP,
+
+	ALU_OP_ADD,
+	ALU_OP_SUB,
+
+	ALU_OP_AND,
+	ALU_OP_OR,
+	ALU_OP_XOR,
+	ALU_OP_NOR,
+} alu_op_t;
 
 typedef struct {
-	uint32_t result;
+	alu_op_t op;           // ALU Operation
+	uint32_t arg_a, arg_b; // Arguments to the ALU
 
-	// Passthrough from ID
-	mem_access_type_t mem_access_type;
-	uint8_t           mem_bytes;
-	uint8_t           writeback_reg;
-} execution_bundle_t;
+	memory_access_bundle_t mem;
+} execute_bundle_t;
 
-execution_bundle_t execute_instruction(const decode_bundle_t *bundle);
+memory_access_bundle_t execute_instruction(const execute_bundle_t* bundle);
+void execute_bundle_init(execute_bundle_t* bundle);
 
 #endif

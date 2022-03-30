@@ -1,5 +1,6 @@
 #ifndef _ESBMC_UTIL_H_
 #define _ESBMC_UTIL_H_
+#include <assert.h>
 #include <inttypes.h>
 
 #ifdef __ESBMC
@@ -13,7 +14,7 @@ int32_t  nondet_i32();
 
 #else
 
-	#define __ESBMC_assume(CLAUSE)
+	#define __ESBMC_assume(CLAUSE) assert(CLAUSE)
 
 #endif
 #endif

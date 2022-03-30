@@ -1,6 +1,5 @@
 #include "execution_engine.h"
 #include <assert.h>
-#include <inttypes.h>
 
 static inline uint32_t compute_alu_op(alu_op_t op, uint32_t a, uint32_t b) {
 	switch (op) {
@@ -18,13 +17,15 @@ static inline uint32_t compute_alu_op(alu_op_t op, uint32_t a, uint32_t b) {
 	}
 }
 
-execution_bundle_t execute_instruction(const decode_bundle_t *decode) {
-	execution_bundle_t bundle = {
-	    .result          = compute_alu_op(decode->alu_op, decode->alu_arg_a, decode->alu_arg_b),
-	    .mem_access_type = decode->mem_access_type,
-	    .mem_bytes       = decode->mem_bytes,
-	    .writeback_reg   = decode->writeback_reg,
-	};
+memory_access_bundle_t execute_instruction(const execute_bundle_t* bundle) {
+	memory_access_bundle_t mem = bundle->mem;
+	mem.wb.value               = compute_alu_op(bundle->op, bundle->arg_a, bundle->arg_b);
+	return mem;
+}
 
-	return bundle;
+inline void execute_bundle_init(execute_bundle_t* bundle) {
+	bundle->op = ALU_OP_NOP;
+	bundle->arg_a = 0;
+	bundle->arg_b = 0;
+	memory_access_bundle_init(&bundle->mem);
 }
