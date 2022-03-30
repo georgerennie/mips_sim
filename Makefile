@@ -8,15 +8,27 @@ SRC := src
 SRCS := \
 	$(SRC)/main.c \
 	$(SRC)/util.c \
-	$(SRC)/asm_frontend.c
+	\
+	$(SRC)/core/core.c \
+	$(SRC)/core/arch_state.c \
+	$(SRC)/core/instruction_decoder.c \
+	$(SRC)/core/execution_engine.c \
+	$(SRC)/core/memory_access.c
+
+CC_INCLUDES += -I$(SRC)
 
 CC_WARNINGS += -Wall -Wpedantic -Wextra -Wconversion -Wshadow -Wdouble-promotion
-CC_WARNINGS += -Wunused-parameter -Wpadded
-CC_WARNINGS += -Wsign-conversion -Wfloat-conversion -Wundef -Wstack-usage=16
-CC_WARNINGS += -Wformat=2 -Wformat-overflow -Wformat-truncation
+CC_WARNINGS += -Wunused-parameter -Wsign-conversion -Wfloat-conversion
+CC_WARNINGS += -Wundef # -Wpadded
 
-CC_FLAGS += $(CC_WARNINGS) -O3 -flto -std=c11 -MMD
-ESBMC_FLAGS += $(CC_WARNINGS) -D__ESBMC
+CC_FLAGS += $(CC_WARNINGS) $(CC_INCLUDES) -O3 -flto -std=c11 -MMD
+
+ESBMC_FLAGS += $(CC_INCLUDES) $(CC_WARNINGS) -Wno-newline-eof -Wno-unused-parameter
+ESBMC_FLAGS += -D__ESBMC --memlimit 8g
+
+ESBMC_CHECK_FLAGS += --memory-leak-check --overflow-check --struct-fields-check
+ESBMC_CHECK_FLAGS += --interval-analysis
+ESBMC_CHECK_FLAGS += --k-induction-parallel --k-step 10
 
 ############## Auto Config #####################################################
 OBJS := $(SRCS:$(SRC)%.c=$(BUILD)%.o)
@@ -56,5 +68,5 @@ clean:
 
 # General check of useful single threaded properties, as well as embedded
 # properties with esbmc. Runs on the whole program
-check:
-	$(ESBMC) $(SRCS) --memory-leak-check --overflow-check --struct-fields-check
+check: $(SRCS)
+	@$(ESBMC) $^ $(ESBMC_FLAGS) $(ESBMC_CHECK_FLAGS)
