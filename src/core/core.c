@@ -37,6 +37,10 @@ static void propagate_stalls(mips_core_t* core) {
 }
 
 mips_trap_t mips_core_cycle(mips_core_t* core) {
+	// Register writeback - Do this before anything else as in real hardware
+	// WB would occur in the first half of the cycle, and ID in the second half
+	if (!core->stalls[4]) { writeback(&core->state, &core->wb_bundle); }
+
 	// Start next state as clone of current state
 	mips_core_t next_state = *core;
 	propagate_stalls(&next_state);
@@ -80,9 +84,6 @@ mips_trap_t mips_core_cycle(mips_core_t* core) {
 	if (!(core->stalls[3] || core->trap_stage > 3)) {
 		next_state.wb_bundle = access_memory(&core->mem_bundle, core->data_mem);
 	}
-
-	// Register writeback
-	if (!core->stalls[4]) { writeback(&next_state.state, &core->wb_bundle); }
 
 	mips_trap_t ret;
 	if (core->trap_stage >= 4) {
