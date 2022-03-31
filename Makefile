@@ -31,6 +31,7 @@ CC_INCLUDES += -I$(SRC)
 
 CC_WARNINGS += -Wall -Wpedantic -Wextra -Wconversion -Wshadow -Wdouble-promotion
 CC_WARNINGS += -Wunused-parameter -Wsign-conversion -Wfloat-conversion
+CC_WARNINGS += -Wconstant-conversion -Wint-conversion
 CC_WARNINGS += -Wundef # -Wpadded
 
 CC_CXX_FLAGS += $(CC_WARNINGS) $(CC_INCLUDES) -O3 -flto -MMD
@@ -42,7 +43,7 @@ ESBMC_FLAGS += -D__ESBMC --memlimit 8g
 
 ESBMC_CHECK_FLAGS += --memory-leak-check --overflow-check --struct-fields-check
 ESBMC_CHECK_FLAGS += --interval-analysis
-ESBMC_CHECK_FLAGS += --k-induction-parallel --k-step 10
+ESBMC_CHECK_FLAGS += --k-induction-parallel --k-step 5
 
 ############## Auto Config #####################################################
 OBJS := $(C_SRCS:$(SRC)%.c=$(BUILD)%.o) $(CPP_SRCS:$(SRC)%.cpp=$(BUILD)%.o)

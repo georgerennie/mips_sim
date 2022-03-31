@@ -14,11 +14,16 @@ inline int log_msg(const char *format, ...) {
 }
 
 inline int log_dbg(const char *format, ...) {
+	#ifndef NDEBUG
 	va_list args;
 	va_start(args, format);
 	int ret = vprintf(format, args);
 	va_end(args);
 	return ret;
+	#else
+	(void) format;
+	return 0;
+	#endif
 }
 
 inline int log_err(const char *format, ...) {

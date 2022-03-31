@@ -7,8 +7,9 @@
 
 namespace Assembler {
 
-std::vector<uint32_t> assemble(std::istream& assembly);
+// Produce little endian binary from assembly
+std::vector<uint8_t> assemble(std::istream& assembly);
 
-};
+}; // namespace Assembler
 
 #endif

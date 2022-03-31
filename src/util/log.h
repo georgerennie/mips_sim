@@ -9,18 +9,22 @@ extern "C" {
 #include "util.h"
 
 #ifndef __ESBMC
-	#include <stdio.h>
-	#include <stdlib.h>
+	#ifndef NDEBUG
+		#include <stdio.h>
+		#include <stdlib.h>
 
-	#define log_assert_fmt(COND, ...)                                                 \
-		{                                                                             \
-			if (!(COND)) {                                                            \
-				log_err("ASSERTION FAILED (%s:%d): " #COND "\n", __FILE__, __LINE__); \
-				log_err(__VA_ARGS__);                                                 \
-				exit(EXIT_FAILURE);                                                   \
-			}                                                                         \
-		}
-
+		#define log_assert_fmt(COND, ...)                                                 \
+			{                                                                             \
+				if (!(COND)) {                                                            \
+					log_err("ASSERTION FAILED (%s:%d): " #COND "\n", __FILE__, __LINE__); \
+					log_err(__VA_ARGS__);                                                 \
+					exit(EXIT_FAILURE);                                                   \
+				}                                                                         \
+			}
+	#else
+		#define log_assert_fmt(COND, ...) \
+			{}
+	#endif
 #else
 	#include <assert.h>
 	#define log_assert_fmt(COND, ...) assert(COND)

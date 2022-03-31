@@ -80,7 +80,7 @@ static uint32_t to_binary(const mips_instr_t& instr) {
 	return val;
 }
 
-std::vector<uint32_t> assemble(std::istream& assembly) {
+std::vector<uint8_t> assemble(std::istream& assembly) {
 	std::vector<mips_instr_t> instructions;
 	for (std::string line; std::getline(assembly, line);) {
 		// TODO: Check how many items in items
@@ -129,12 +129,21 @@ std::vector<uint32_t> assemble(std::istream& assembly) {
 		instructions.emplace_back(instr);
 	}
 
-	std::vector<uint32_t> binary_instructions;
-	std::transform(
-	    instructions.begin(), instructions.end(), std::back_inserter(binary_instructions),
-	    to_binary);
+	std::vector<uint8_t> binary;
+	binary.reserve(4 * instructions.size());
+	for (const auto instruction : instructions) {
+		const auto binary_instruction = to_binary(instruction);
+		// Little endian
+		binary.insert(
+		    binary.end(), {
+		                      static_cast<uint8_t>(binary_instruction),
+		                      static_cast<uint8_t>(binary_instruction >> 8),
+		                      static_cast<uint8_t>(binary_instruction >> 16),
+		                      static_cast<uint8_t>(binary_instruction >> 24),
+		                  });
+	}
 
-	return binary_instructions;
+	return binary;
 }
 
 } // namespace Assembler

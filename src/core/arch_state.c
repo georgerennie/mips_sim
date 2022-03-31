@@ -24,6 +24,6 @@ uint32_t gpr_read(const mips_state_t* state, uint8_t reg) {
 
 void gpr_write(mips_state_t* state, uint8_t reg, uint32_t value) {
 	log_assert(reg < 32);
-	log_dbg("Writing %d to reg %d\n", value, reg);
+	if (reg > 0) { log_dbg("Writing %d to reg %d\n", value, reg); }
 	if (reg > 0) { state->gpr[reg - 1] = value; }
 }

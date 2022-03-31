@@ -24,11 +24,12 @@ typedef struct {
 extern "C++" {
 	#include <span>
 
-constexpr span_t make_c_span(std::span<uint8_t> s) { return {s.data(), s.size_bytes()}; }
+inline span_t make_c_span(std::span<uint8_t> s) { return {s.data(), s.size_bytes()}; }
 }
 #endif
 
-// Get bounds checked pointer to element in span
+// Get bounds checked pointer to element in span. Indexing is done in bytes
+// so index needs to be multiplied by sizeof(T)
 uint8_t* span_e(span_t span, size_t idx);
 
 // Infallible malloc, terminates program if allocation fails
