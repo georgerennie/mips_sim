@@ -7,7 +7,7 @@
 
 typedef enum {
 	MEM_ACCESS_NONE = 0,
-	MEM_ACCESS_READ_UNSIGNED,
+	// MEM_ACCESS_READ_UNSIGNED, // Currently unused
 	MEM_ACCESS_READ_SIGNED,
 	MEM_ACCESS_WRITE,
 } memory_access_type_t;

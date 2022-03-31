@@ -14,26 +14,14 @@ namespace Assembler {
 
 static const std::map<std::string, std::tuple<mips_instr_format_t, mips_opcode_t, mips_funct_t>>
     opc_lookup = {
-        {"add", {MIPS_INSTR_FORMAT_R, MIPS_OPC_ADD, MIPS_FUNCT_ADD}},
         {"addu", {MIPS_INSTR_FORMAT_R, MIPS_OPC_ADDU, MIPS_FUNCT_ADDU}},
-        {"addi", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ADDI, MIPS_FUNCT_NONE}},
         {"addiu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ADDIU, MIPS_FUNCT_NONE}},
-
-        {"sub", {MIPS_INSTR_FORMAT_R, MIPS_OPC_SUB, MIPS_FUNCT_SUB}},
-        {"subu", {MIPS_INSTR_FORMAT_R, MIPS_OPC_SUBU, MIPS_FUNCT_SUBU}},
 
         {"and", {MIPS_INSTR_FORMAT_R, MIPS_OPC_AND, MIPS_FUNCT_AND}},
         {"or", {MIPS_INSTR_FORMAT_R, MIPS_OPC_OR, MIPS_FUNCT_OR}},
-        {"xor", {MIPS_INSTR_FORMAT_R, MIPS_OPC_XOR, MIPS_FUNCT_XOR}},
-        {"nor", {MIPS_INSTR_FORMAT_R, MIPS_OPC_NOR, MIPS_FUNCT_NOR}},
         {"andi", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ANDI, MIPS_FUNCT_NONE}},
         {"ori", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ORI, MIPS_FUNCT_NONE}},
 
-        {"lui", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LUI, MIPS_FUNCT_NONE}},
-
-        {"lb", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LB, MIPS_FUNCT_NONE}},
-        {"lbu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LBU, MIPS_FUNCT_NONE}},
-        {"lhu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LHU, MIPS_FUNCT_NONE}},
         {"lw", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LW, MIPS_FUNCT_NONE}},
 
         {"j", {MIPS_INSTR_FORMAT_J, MIPS_OPC_J, MIPS_FUNCT_NONE}},

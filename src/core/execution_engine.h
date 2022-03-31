@@ -8,12 +8,8 @@ typedef enum {
 	ALU_OP_NOP = 0,
 
 	ALU_OP_ADD,
-	ALU_OP_SUB,
-
 	ALU_OP_AND,
 	ALU_OP_OR,
-	ALU_OP_XOR,
-	ALU_OP_NOR,
 } alu_op_t;
 
 typedef struct {

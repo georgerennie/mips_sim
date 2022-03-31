@@ -21,25 +21,19 @@ writeback_bundle_t access_memory(const memory_access_bundle_t* bundle, span_t da
 	}
 
 	switch (bundle->access_type) {
-		case MEM_ACCESS_READ_UNSIGNED:
 		case MEM_ACCESS_READ_SIGNED: {
-			// Load 0-4 bytes from memory
-			// This is weird but ESBMC likes it. TODO: Can it be made nicer?
-			uint32_t load_val = 0;
-			if (bytes >= 1) { load_val |= load_byte(data_mem, addr, 0); }
-			if (bytes >= 2) { load_val |= load_byte(data_mem, addr, 1); }
-			if (bytes >= 4) {
-				load_val |= load_byte(data_mem, addr, 2);
-				load_val |= load_byte(data_mem, addr, 3);
+			log_assert_fmt(bytes == 4, "Currently only SW is supported");
+			// Load 0-4 bytes from memory little endian
+			uint32_t load_val = load_byte(data_mem, addr, 0);
+			load_val |= load_byte(data_mem, addr, 1);
+			load_val |= load_byte(data_mem, addr, 2);
+			load_val |= load_byte(data_mem, addr, 3);
+
+			switch (bytes) {
+				case 1: load_val = (uint32_t) (int8_t) load_val; break;
+				case 2: load_val = (uint32_t) (int16_t) load_val; break;
 			}
 
-			// Sign extend if needed
-			if (bundle->access_type == MEM_ACCESS_READ_SIGNED) {
-				switch (bytes) {
-					case 1: load_val = (uint32_t) (int8_t) load_val; break;
-					case 2: load_val = (uint32_t) (int16_t) load_val; break;
-				}
-			}
 			wb.value = load_val;
 		} break;
 

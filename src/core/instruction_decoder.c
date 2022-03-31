@@ -14,16 +14,10 @@ decode_result_t decode_instruction(const mips_state_t* state, uint32_t instructi
 
 	if (instr.format == MIPS_INSTR_FORMAT_R) {
 		switch (instr.r_data.funct) {
-			case MIPS_FUNCT_ADD:
 			case MIPS_FUNCT_ADDU: ret.exec.op = ALU_OP_ADD; break;
-
-			case MIPS_FUNCT_SUB:
-			case MIPS_FUNCT_SUBU: ret.exec.op = ALU_OP_SUB; break;
 
 			case MIPS_FUNCT_AND: ret.exec.op = ALU_OP_AND; break;
 			case MIPS_FUNCT_OR: ret.exec.op = ALU_OP_OR; break;
-			case MIPS_FUNCT_XOR: ret.exec.op = ALU_OP_XOR; break;
-			case MIPS_FUNCT_NOR: ret.exec.op = ALU_OP_NOR; break;
 
 			default: ret.trap |= MIPS_TRAP_UNKNOWN_INSTR; break;
 		}
@@ -39,7 +33,6 @@ decode_result_t decode_instruction(const mips_state_t* state, uint32_t instructi
 		ret.exec.mem.wb.reg = instr.i_data.rt;
 
 		switch (instr.opcode) {
-			case MIPS_OPC_ADDI:
 			case MIPS_OPC_ADDIU: ret.exec.op = ALU_OP_ADD; break;
 
 			case MIPS_OPC_ANDI: {
@@ -51,21 +44,10 @@ decode_result_t decode_instruction(const mips_state_t* state, uint32_t instructi
 				ret.exec.arg_b = instr.i_data.immediate;
 			} break;
 
-			case MIPS_OPC_LB:
-			case MIPS_OPC_LBU:
-			case MIPS_OPC_LHU:
 			case MIPS_OPC_LW: {
 				ret.exec.op              = ALU_OP_ADD;
-				ret.exec.mem.access_type = (instr.opcode == MIPS_OPC_LB) ? MEM_ACCESS_READ_SIGNED
-				                                                         : MEM_ACCESS_READ_UNSIGNED;
-				ret.exec.mem.bytes       = (instr.opcode == MIPS_OPC_LW)    ? 4
-				                           : (instr.opcode == MIPS_OPC_LHU) ? 2
-				                                                            : 1;
-			} break;
-
-			case MIPS_OPC_LUI: {
-				ret.exec.op    = ALU_OP_NOP;
-				ret.exec.arg_a = (uint32_t) instr.i_data.immediate << 16;
+				ret.exec.mem.access_type = MEM_ACCESS_READ_SIGNED;
+				ret.exec.mem.bytes       = 4;
 			} break;
 
 			default: ret.trap |= MIPS_TRAP_UNKNOWN_INSTR; break;
@@ -94,14 +76,9 @@ mips_instr_t parse_instruction(uint32_t instr) {
 			decoded.r_data.funct = EXTRACT_BITS(5, 0, instr);
 		} break;
 
-		case MIPS_OPC_ADDI:
 		case MIPS_OPC_ADDIU:
 		case MIPS_OPC_ANDI:
 		case MIPS_OPC_ORI:
-		case MIPS_OPC_LUI:
-		case MIPS_OPC_LB:
-		case MIPS_OPC_LBU:
-		case MIPS_OPC_LHU:
 		case MIPS_OPC_LW: {
 			decoded.format           = MIPS_INSTR_FORMAT_I;
 			decoded.i_data.rs        = EXTRACT_BITS(25, 21, instr);
