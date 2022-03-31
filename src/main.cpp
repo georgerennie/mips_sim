@@ -5,12 +5,9 @@
 
 int main() {
 	const auto assembly =
-	    "addiu $t0, $zero, 12\n"
-	    "addiu $t1, $zero, 13\n"
-	    "addiu $t2, $zero, 14\n"
-	    "addiu $t3, $zero, 15\n"
-	    "addiu $t4, $zero, 16\n"
-	    "addiu $t5, $zero, 17\n";
+	    "addiu $t0, $zero, 2\n"
+	    "addiu $t1, $t0, 3\n"
+	    "addu $t2, $t1, $t0\n";
 
 	std::istringstream assembly_stream(assembly);
 	auto               instr_mem = Assembler::assemble(assembly_stream);

@@ -90,7 +90,7 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		const auto reg_1 = get_reg(items[1]);
 		switch (instr.format) {
 			case MIPS_INSTR_FORMAT_R: instr.r_data.rd = reg_1; break;
-			case MIPS_INSTR_FORMAT_I: instr.r_data.rt = reg_1; break;
+			case MIPS_INSTR_FORMAT_I: instr.i_data.rt = reg_1; break;
 			default: log_assert_fail("Unrecognised instruction format %d\n", instr.format); break;
 		}
 
@@ -99,14 +99,14 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		const auto reg_2 = get_reg(items[2]);
 		switch (instr.format) {
 			case MIPS_INSTR_FORMAT_R: instr.r_data.rs = reg_2; break;
-			case MIPS_INSTR_FORMAT_I: instr.r_data.rs = reg_2; break;
+			case MIPS_INSTR_FORMAT_I: instr.i_data.rs = reg_2; break;
 			default: log_assert_fail("Unrecognised instruction format %d\n", instr.format); break;
 		}
 
 		// Decode item[2], R: rt, I: imm
 		log_assert(items.size() > 3);
 		switch (instr.format) {
-			case MIPS_INSTR_FORMAT_R: instr.r_data.rs = get_reg(items[3]); break;
+			case MIPS_INSTR_FORMAT_R: instr.r_data.rt = get_reg(items[3]); break;
 			// TODO: Error check this stoi
 			case MIPS_INSTR_FORMAT_I:
 				instr.i_data.immediate = static_cast<uint8_t>(std::stoi(items[3]));

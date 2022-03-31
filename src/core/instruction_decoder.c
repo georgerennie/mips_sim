@@ -4,7 +4,18 @@
 
 static inline uint32_t sign_extend(uint16_t val) { return (uint32_t) (int16_t) val; }
 
-decode_result_t decode_instruction(const mips_state_t* state, uint32_t instruction) {
+static inline alu_fwd_src_t get_fwd(const mips_core_t* core, uint32_t reg) {
+	// TODO: Should this obey stalls?
+	if (reg == core->exec_bundle.mem.wb.reg) {
+		return ALU_FWD_SRC_EXEC;
+	} else if (reg == core->mem_bundle.wb.reg) {
+		return ALU_FWD_SRC_MEM;
+	} else {
+		return ALU_FWD_SRC_NONE;
+	}
+}
+
+decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction) {
 	mips_instr_t instr = parse_instruction(instruction);
 
 	// Initialise values to pass down the pipeline
@@ -22,12 +33,15 @@ decode_result_t decode_instruction(const mips_state_t* state, uint32_t instructi
 			default: ret.trap |= MIPS_TRAP_UNKNOWN_INSTR; break;
 		}
 
-		ret.exec.arg_a      = gpr_read(state, instr.r_data.rs);
-		ret.exec.arg_b      = gpr_read(state, instr.r_data.rt);
+		ret.exec.arg_a      = gpr_read(&core->state, instr.r_data.rs);
+		ret.exec.fwd_a      = get_fwd(core, instr.r_data.rs);
+		ret.exec.arg_b      = gpr_read(&core->state, instr.r_data.rt);
+		ret.exec.fwd_b      = get_fwd(core, instr.r_data.rt);
 		ret.exec.mem.wb.reg = instr.r_data.rd;
 
 	} else if (instr.format == MIPS_INSTR_FORMAT_I) {
-		ret.exec.arg_a = gpr_read(state, instr.i_data.rs);
+		ret.exec.arg_a = gpr_read(&core->state, instr.i_data.rs);
+		ret.exec.fwd_a = get_fwd(core, instr.r_data.rs);
 		// Sign extend by default, only override for ANDI and ORI
 		ret.exec.arg_b      = sign_extend(instr.i_data.immediate);
 		ret.exec.mem.wb.reg = instr.i_data.rt;

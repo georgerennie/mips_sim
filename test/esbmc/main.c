@@ -1,9 +1,9 @@
+#include <stdbool.h>
 #include "core/core.h"
 #include "util/esbmc_util.h"
-#include <stdbool.h>
 
-#define NUM_INSTRS 3
-#define MEM_SIZE 4
+#define NUM_INSTRS        3
+#define MEM_SIZE          4
 #define UNWIND_ITERATIONS 10
 
 int main() {
