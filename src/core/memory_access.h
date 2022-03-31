@@ -2,7 +2,7 @@
 #define _MEMORY_ACCESS_H_
 
 #include <inttypes.h>
-#include "util.h"
+#include "util/util.h"
 #include "writeback.h"
 
 typedef enum {
@@ -20,6 +20,6 @@ typedef struct {
 } memory_access_bundle_t;
 
 writeback_bundle_t access_memory(const memory_access_bundle_t* bundle, span_t data_mem);
-void memory_access_bundle_init(memory_access_bundle_t* bundle);
+void               memory_access_bundle_init(memory_access_bundle_t* bundle);
 
 #endif

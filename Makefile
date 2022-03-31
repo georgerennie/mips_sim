@@ -1,13 +1,14 @@
 ############## Settings ########################################################
-TARGET ?= mips_sim
-CC ?= clang
-ESBMC ?= esbmc
-BUILD ?= build
+TARGET := mips_sim
+CC := clang
+CXX := clang++
+ESBMC := esbmc
+BUILD := build
 
 SRC := src
-SRCS := \
-	$(SRC)/main.c \
-	$(SRC)/util.c \
+C_SRCS := \
+	$(SRC)/util/util.c \
+	$(SRC)/util/log.c \
 	\
 	$(SRC)/core/core.c \
 	$(SRC)/core/arch_state.c \
@@ -16,13 +17,20 @@ SRCS := \
 	$(SRC)/core/memory_access.c \
 	$(SRC)/core/writeback.c
 
+CPP_SRCS := \
+	$(SRC)/main.cpp \
+	\
+	$(SRC)/assembler/assembler.cpp
+
 CC_INCLUDES += -I$(SRC)
 
 CC_WARNINGS += -Wall -Wpedantic -Wextra -Wconversion -Wshadow -Wdouble-promotion
 CC_WARNINGS += -Wunused-parameter -Wsign-conversion -Wfloat-conversion
 CC_WARNINGS += -Wundef # -Wpadded
 
-CC_FLAGS += $(CC_WARNINGS) $(CC_INCLUDES) -O3 -flto -std=c11 -MMD
+CC_CXX_FLAGS += $(CC_WARNINGS) $(CC_INCLUDES) -O3 -flto -MMD
+CC_FLAGS += $(CC_CXX_FLAGS) -std=c11
+CXX_FLAGS += $(CC_CXX_FLAGS) -std=c++20
 
 ESBMC_FLAGS += $(CC_INCLUDES) $(CC_WARNINGS) -Wno-newline-eof -Wno-unused-parameter
 ESBMC_FLAGS += -D__ESBMC --memlimit 8g
@@ -32,7 +40,7 @@ ESBMC_CHECK_FLAGS += --interval-analysis
 ESBMC_CHECK_FLAGS += --k-induction-parallel --k-step 10
 
 ############## Auto Config #####################################################
-OBJS := $(SRCS:$(SRC)%.c=$(BUILD)%.o)
+OBJS := $(C_SRCS:$(SRC)%.c=$(BUILD)%.o) $(CPP_SRCS:$(SRC)%.cpp=$(BUILD)%.o)
 DEPS = $(OBJS:%.o=%.d)
 
 MAKEFILE := Makefile
@@ -52,12 +60,16 @@ build: $(TARGET_BIN)
 
 $(TARGET_BIN): $(OBJS)
 	$(call setup_target,$@)
-	@$(CC) $(CC_FLAGS) $^ -o $@
+	@$(CXX) $(CXX_FLAGS) $^ -o $@
 
 -include $(DEPS)
 $(BUILD)/%.o: $(SRC)/%.c $(MAKEFILE)
 	$(call setup_target,$@)
 	@$(CC) $(CC_FLAGS) -c $< -o $@
+
+$(BUILD)/%.o: $(SRC)/%.cpp $(MAKEFILE)
+	$(call setup_target,$@)
+	@$(CXX) $(CXX_FLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:

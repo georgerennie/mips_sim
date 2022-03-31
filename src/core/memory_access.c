@@ -1,10 +1,10 @@
-#include <assert.h>
 #include "memory_access.h"
-#include "esbmc_util.h"
+#include "util/esbmc_util.h"
+#include "util/log.h"
 
 // Load a byte from a larger word
 static inline uint32_t load_byte(span_t data_mem, uint32_t base_addr, uint8_t byte) {
-	assert(byte < 4);
+	log_assert(byte < 4);
 	return (uint32_t) *span_e(data_mem, base_addr + byte) << (8 * byte);
 }
 
@@ -14,7 +14,7 @@ writeback_bundle_t access_memory(const memory_access_bundle_t* bundle, span_t da
 	const uint8_t      bytes = bundle->bytes;
 
 	if (bundle->access_type != MEM_ACCESS_NONE) {
-		assert(bytes == 1 || bytes == 2 || bytes == 4);
+		log_assert(bytes == 1 || bytes == 2 || bytes == 4);
 
 		// TODO: Replace this with a trap
 		__ESBMC_assume((uint64_t) addr + bytes < data_mem.size);
@@ -43,7 +43,7 @@ writeback_bundle_t access_memory(const memory_access_bundle_t* bundle, span_t da
 			wb.value = load_val;
 		} break;
 
-		default: assert(bytes == 0); break;
+		default: log_assert(bytes == 0); break;
 	}
 
 	return wb;
@@ -51,6 +51,6 @@ writeback_bundle_t access_memory(const memory_access_bundle_t* bundle, span_t da
 
 inline void memory_access_bundle_init(memory_access_bundle_t* bundle) {
 	bundle->access_type = MEM_ACCESS_NONE;
-	bundle->bytes = 0;
+	bundle->bytes       = 0;
 	writeback_bundle_init(&bundle->wb);
 }

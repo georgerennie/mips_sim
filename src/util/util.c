@@ -1,10 +1,10 @@
 #include "util.h"
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "log.h"
 
 inline uint8_t* span_e(span_t span, size_t idx) {
-	assert(idx < span.size);
+	log_assert(idx < span.size);
 	return &span.data[idx];
 }
 

@@ -1,5 +1,5 @@
 #include "execution_engine.h"
-#include <assert.h>
+#include "util/log.h"
 
 static inline uint32_t compute_alu_op(alu_op_t op, uint32_t a, uint32_t b) {
 	switch (op) {
@@ -13,7 +13,7 @@ static inline uint32_t compute_alu_op(alu_op_t op, uint32_t a, uint32_t b) {
 		case ALU_OP_XOR: return a ^ b;
 		case ALU_OP_NOR: return ~(a | b);
 
-		default: assert(0); break;
+		default: log_assert_fail("Unrecognised ALU operation %d\n", op); break;
 	}
 }
 
@@ -24,7 +24,7 @@ memory_access_bundle_t execute_instruction(const execute_bundle_t* bundle) {
 }
 
 inline void execute_bundle_init(execute_bundle_t* bundle) {
-	bundle->op = ALU_OP_NOP;
+	bundle->op    = ALU_OP_NOP;
 	bundle->arg_a = 0;
 	bundle->arg_b = 0;
 	memory_access_bundle_init(&bundle->mem);

@@ -1,7 +1,8 @@
 #ifndef _ESBMC_UTIL_H_
 #define _ESBMC_UTIL_H_
-#include <assert.h>
+
 #include <inttypes.h>
+#include "log.h"
 
 #ifdef __ESBMC
 
@@ -14,7 +15,7 @@ int32_t  nondet_i32();
 
 #else
 
-	#define __ESBMC_assume(CLAUSE) assert(CLAUSE)
+	#define __ESBMC_assume(CLAUSE) log_assert(CLAUSE)
 
 #endif
 #endif

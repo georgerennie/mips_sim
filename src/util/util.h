@@ -1,6 +1,10 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 #include <stddef.h>
 
@@ -16,6 +20,14 @@ typedef struct {
 #define ARRAY_TO_SPAN(ARRAY) \
 	(span_t) { .data = ARRAY, .size = sizeof(ARRAY) }
 
+#ifdef __cplusplus
+extern "C++" {
+	#include <span>
+
+constexpr span_t make_c_span(std::span<uint8_t> s) { return {s.data(), s.size_bytes()}; }
+}
+#endif
+
 // Get bounds checked pointer to element in span
 uint8_t* span_e(span_t span, size_t idx);
 
@@ -24,5 +36,9 @@ void* xmalloc(size_t size);
 
 // Infallible realloc, terminates program if allocation fails
 void* xrealloc(void* ptr, size_t new_size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

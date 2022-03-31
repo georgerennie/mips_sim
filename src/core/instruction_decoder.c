@@ -1,6 +1,6 @@
 #include "instruction_decoder.h"
-#include "util.h"
-#include <assert.h>
+#include "util/log.h"
+#include "util/util.h"
 
 static inline uint32_t sign_extend(uint16_t val) { return (uint32_t) (int16_t) val; }
 
@@ -72,7 +72,7 @@ execute_bundle_t decode_instruction(const mips_state_t* state, uint32_t instruct
 	} else if (instr.format == MIPS_INSTR_FORMAT_J) {
 	} else if (instr.format == MIPS_INSTR_FORMAT_UNKNOWN) {
 	} else {
-		assert(0);
+		log_assert_fail("Unrecognised instruction format %d\n", instr.format);
 	}
 
 	return exec;

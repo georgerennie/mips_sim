@@ -18,6 +18,4 @@ void mips_state_init(mips_state_t* state);
 uint32_t gpr_read(const mips_state_t* state, uint8_t reg);
 void     gpr_write(mips_state_t* state, uint8_t reg, uint32_t value);
 
-void print_gprs(const mips_state_t* state);
-
 #endif

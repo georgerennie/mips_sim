@@ -24,6 +24,6 @@ typedef struct {
 } execute_bundle_t;
 
 memory_access_bundle_t execute_instruction(const execute_bundle_t* bundle);
-void execute_bundle_init(execute_bundle_t* bundle);
+void                   execute_bundle_init(execute_bundle_t* bundle);
 
 #endif

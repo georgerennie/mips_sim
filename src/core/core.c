@@ -1,11 +1,11 @@
 #include "core.h"
-#include <assert.h>
+#include "util/log.h"
 
 void mips_core_init(
     mips_core_t* core, uint32_t* instr_mem, size_t instr_mem_size, span_t data_mem) {
 	mips_state_init(&core->state);
 
-	core->instr_mem = instr_mem;
+	core->instr_mem      = instr_mem;
 	core->instr_mem_size = instr_mem_size;
 	core->data_mem       = data_mem;
 
@@ -22,10 +22,10 @@ void mips_core_cycle(mips_core_t* core) {
 	// Instruction Fetch
 	// TODO: Exit gracefully, flushing the pipeline
 	if (core->state.pc / 4 >= core->instr_mem_size) { return; }
-	assert(core->state.pc % 4 == 0);                   // Check that the pc is word aligned
-	assert(core->state.pc / 4 < core->instr_mem_size); // Check read is valid
+	log_assert(core->state.pc % 4 == 0);                   // Check that the pc is word aligned
+	log_assert(core->state.pc / 4 < core->instr_mem_size); // Check read is valid
 	next_state.decoded_instruction = core->instr_mem[core->state.pc / 4];
-	next_state.state.pc = core->state.pc + 4;
+	next_state.state.pc            = core->state.pc + 4;
 
 	// Decode / Register Fetch
 	next_state.exec_bundle = decode_instruction(&core->state, core->decoded_instruction);

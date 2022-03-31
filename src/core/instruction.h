@@ -1,6 +1,10 @@
 #ifndef _INSTRUCTION_H_
 #define _INSTRUCTION_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 
 typedef enum {
@@ -35,6 +39,8 @@ typedef enum {
 } mips_opcode_t;
 
 typedef enum {
+	MIPS_FUNCT_NONE = 0x00,
+
 	MIPS_FUNCT_ADD  = 0x20,
 	MIPS_FUNCT_ADDU = 0x21,
 	MIPS_FUNCT_SUB  = 0x22,
@@ -82,5 +88,14 @@ typedef struct {
 	};
 
 } mips_instr_t;
+
+static const char* mips_reg_lookup[32] = {"zero", "at", "v0", "v1", "a0", "a1", "a2", "a3",
+                                          "t0",   "t1", "t2", "t3", "t4", "t5", "t6", "t7",
+                                          "s0",   "s1", "s2", "s3", "s4", "s4", "s6", "s7",
+                                          "t8",   "t9", "k0", "k1", "gp", "sp", "fp", "ra"};
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
