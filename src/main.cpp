@@ -19,8 +19,7 @@ int main() {
 
 	mips_core_t core;
 	uint8_t     data_mem[100] = {0};
-	mips_core_init(
-	    &core, instr_mem.data(), instr_mem.size(), make_c_span(data_mem));
+	mips_core_init(&core, instr_mem.data(), instr_mem.size(), make_c_span(data_mem));
 
 	log_gprs_labelled(&core.state);
 	for (int i = 0; i < 10; i++) { mips_core_cycle(&core); }

@@ -5,7 +5,7 @@
 #include "memory_access.h"
 
 typedef enum {
-	ALU_OP_NOP,
+	ALU_OP_NOP = 0,
 
 	ALU_OP_ADD,
 	ALU_OP_SUB,

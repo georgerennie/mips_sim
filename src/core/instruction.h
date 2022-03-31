@@ -53,7 +53,7 @@ typedef enum {
 } mips_funct_t;
 
 typedef enum {
-	MIPS_INSTR_FORMAT_UNKNOWN,
+	MIPS_INSTR_FORMAT_UNKNOWN = 0,
 	MIPS_INSTR_FORMAT_R,
 	MIPS_INSTR_FORMAT_I,
 	MIPS_INSTR_FORMAT_J,

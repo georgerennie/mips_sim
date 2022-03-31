@@ -6,21 +6,26 @@ ESBMC := esbmc
 BUILD := build
 
 SRC := src
-C_SRCS := \
-	$(SRC)/util/util.c \
-	$(SRC)/util/log.c \
-	\
+TEST := test
+CORE_SRCS := \
 	$(SRC)/core/core.c \
 	$(SRC)/core/arch_state.c \
 	$(SRC)/core/instruction_decoder.c \
 	$(SRC)/core/execution_engine.c \
 	$(SRC)/core/memory_access.c \
-	$(SRC)/core/writeback.c
+	$(SRC)/core/writeback.c \
+	$(SRC)/util/util.c \
+	$(SRC)/util/log.c
+
+C_SRCS := $(CORE_SRCS)
 
 CPP_SRCS := \
 	$(SRC)/main.cpp \
 	\
 	$(SRC)/assembler/assembler.cpp
+
+ESBMC_SRCS := $(CORE_SRCS) \
+	$(TEST)/esbmc/main.c
 
 CC_INCLUDES += -I$(SRC)
 
@@ -81,5 +86,5 @@ clean:
 
 # General check of useful single threaded properties, as well as embedded
 # properties with esbmc. Runs on the whole program
-check: $(SRCS)
+check: $(ESBMC_SRCS)
 	@$(ESBMC) $^ $(ESBMC_FLAGS) $(ESBMC_CHECK_FLAGS)

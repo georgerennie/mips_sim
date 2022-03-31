@@ -12,8 +12,7 @@
 
 namespace Assembler {
 
-static const std::map<
-    std::string, std::tuple<mips_instr_format_t, mips_opcode_t, mips_funct_t>>
+static const std::map<std::string, std::tuple<mips_instr_format_t, mips_opcode_t, mips_funct_t>>
     opc_lookup = {
         {"add", {MIPS_INSTR_FORMAT_R, MIPS_OPC_ADD, MIPS_FUNCT_ADD}},
         {"addu", {MIPS_INSTR_FORMAT_R, MIPS_OPC_ADDU, MIPS_FUNCT_ADDU}},
@@ -43,9 +42,7 @@ static const std::map<
 // From https://stackoverflow.com/a/2275160
 static std::vector<std::string> split_on_whitespace(const std::string& input) {
 	std::istringstream buffer(input);
-	return {
-	    (std::istream_iterator<std::string>(buffer)),
-	    std::istream_iterator<std::string>()};
+	return {(std::istream_iterator<std::string>(buffer)), std::istream_iterator<std::string>()};
 }
 
 static uint8_t get_reg(std::string reg_str) {
@@ -53,8 +50,7 @@ static uint8_t get_reg(std::string reg_str) {
 	reg_str.erase(reg_str.begin());
 	if (reg_str.back() == ',') { reg_str.erase(reg_str.end() - 1); }
 
-	const auto reg_it =
-	    std::find(std::begin(mips_reg_lookup), std::end(mips_reg_lookup), reg_str);
+	const auto reg_it = std::find(std::begin(mips_reg_lookup), std::end(mips_reg_lookup), reg_str);
 	log_assert(reg_it != std::end(mips_reg_lookup)); // TODO: Make this an error print
 
 	return static_cast<uint8_t>(std::distance(std::begin(mips_reg_lookup), reg_it));
@@ -79,10 +75,7 @@ static uint32_t to_binary(const mips_instr_t& instr) {
 		case MIPS_INSTR_FORMAT_J: {
 			val |= static_cast<uint32_t>(instr.j_data.address);
 		} break;
-		default:
-			log_assert_fail(
-			    "Unrecognised instruction format %d\n", instr.format);
-			break;
+		default: log_assert_fail("Unrecognised instruction format %d\n", instr.format); break;
 	}
 	return val;
 }
@@ -102,9 +95,7 @@ std::vector<uint32_t> assemble(std::istream& assembly) {
 
 		instr.format = std::get<0>(opc->second);
 		instr.opcode = std::get<1>(opc->second);
-		if (instr.format == MIPS_INSTR_FORMAT_R) {
-			instr.r_data.funct = std::get<2>(opc->second);
-		}
+		if (instr.format == MIPS_INSTR_FORMAT_R) { instr.r_data.funct = std::get<2>(opc->second); }
 
 		// Decode item[1], R: rd, I: rt
 		log_assert(items.size() > 1);
@@ -112,10 +103,7 @@ std::vector<uint32_t> assemble(std::istream& assembly) {
 		switch (instr.format) {
 			case MIPS_INSTR_FORMAT_R: instr.r_data.rd = reg_1; break;
 			case MIPS_INSTR_FORMAT_I: instr.r_data.rt = reg_1; break;
-			default:
-				log_assert_fail(
-				    "Unrecognised instruction format %d\n", instr.format);
-				break;
+			default: log_assert_fail("Unrecognised instruction format %d\n", instr.format); break;
 		}
 
 		// Decode item[2], R: rs, I: rs
@@ -124,27 +112,18 @@ std::vector<uint32_t> assemble(std::istream& assembly) {
 		switch (instr.format) {
 			case MIPS_INSTR_FORMAT_R: instr.r_data.rs = reg_2; break;
 			case MIPS_INSTR_FORMAT_I: instr.r_data.rs = reg_2; break;
-			default:
-				log_assert_fail(
-				    "Unrecognised instruction format %d\n", instr.format);
-				break;
+			default: log_assert_fail("Unrecognised instruction format %d\n", instr.format); break;
 		}
 
 		// Decode item[2], R: rt, I: imm
 		log_assert(items.size() > 3);
 		switch (instr.format) {
-			case MIPS_INSTR_FORMAT_R:
-				instr.r_data.rs = get_reg(items[3]);
-				break;
+			case MIPS_INSTR_FORMAT_R: instr.r_data.rs = get_reg(items[3]); break;
 			// TODO: Error check this stoi
 			case MIPS_INSTR_FORMAT_I:
-				instr.i_data.immediate =
-				    static_cast<uint8_t>(std::stoi(items[3]));
+				instr.i_data.immediate = static_cast<uint8_t>(std::stoi(items[3]));
 				break;
-			default:
-				log_assert_fail(
-				    "Unrecognised instruction format %d\n", instr.format);
-				break;
+			default: log_assert_fail("Unrecognised instruction format %d\n", instr.format); break;
 		}
 
 		instructions.emplace_back(instr);
@@ -152,8 +131,8 @@ std::vector<uint32_t> assemble(std::istream& assembly) {
 
 	std::vector<uint32_t> binary_instructions;
 	std::transform(
-	    instructions.begin(), instructions.end(),
-	    std::back_inserter(binary_instructions), to_binary);
+	    instructions.begin(), instructions.end(), std::back_inserter(binary_instructions),
+	    to_binary);
 
 	return binary_instructions;
 }

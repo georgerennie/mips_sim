@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "core/instruction.h"
 
+#ifndef __ESBMC
+
 inline int log_msg(const char *format, ...) {
 	va_list args;
 	va_start(args, format);
@@ -56,3 +58,14 @@ void log_gprs_labelled(mips_state_t *state) {
 		log_msg("\n");
 	}
 }
+
+#else
+
+int log_err(const char *format, ...) { return nondet_int(); }
+int log_msg(const char *format, ...) { return nondet_int(); }
+int log_dbg(const char *format, ...) { return nondet_int(); }
+
+void log_mem_hex(span_t mem) {}
+void log_gprs_labelled(mips_state_t *state) {}
+
+#endif
