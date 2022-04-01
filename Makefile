@@ -7,27 +7,8 @@ BUILD := build
 
 SRC := src
 TEST := test
-CORE_SRCS := \
-	$(SRC)/core/core.c \
-	$(SRC)/core/arch_state.c \
-	$(SRC)/core/instruction_decoder.c \
-	$(SRC)/core/execution_engine.c \
-	$(SRC)/core/memory_access.c \
-	$(SRC)/core/writeback.c \
-	$(SRC)/util/util.c \
-	$(SRC)/util/log.c
 
-C_SRCS := $(CORE_SRCS)
-
-CPP_SRCS := \
-	$(SRC)/main.cpp \
-	\
-	$(SRC)/assembler/assembler.cpp
-
-ESBMC_SRCS := $(CORE_SRCS) \
-	$(TEST)/esbmc/main.c
-
-CC_INCLUDES += -I$(SRC)
+CC_INCLUDES += -I$(SRC) -I$(TEST)
 
 CC_WARNINGS += -Wall -Wpedantic -Wextra -Wconversion -Wshadow -Wdouble-promotion
 CC_WARNINGS += -Wunused-parameter -Wsign-conversion -Wfloat-conversion
@@ -45,8 +26,33 @@ ESBMC_CHECK_FLAGS += --memory-leak-check --overflow-check --struct-fields-check
 ESBMC_CHECK_FLAGS += --interval-analysis
 ESBMC_CHECK_FLAGS += --k-induction-parallel --k-step 5
 
+UTIL_SRCS := \
+	$(SRC)/util/util.c \
+	$(SRC)/util/log.c
+
+CORE_SRCS := $(UTIL_SRCS) \
+	$(SRC)/core/core.c \
+	$(SRC)/core/arch_state.c \
+	$(SRC)/core/instruction_decoder.c \
+	$(SRC)/core/execution_engine.c \
+	$(SRC)/core/memory_access.c \
+	$(SRC)/core/writeback.c
+
+REF_SRCS := \
+	$(TEST)/ref_core/ref_core.c
+
+C_SRCS := $(CORE_SRCS) $(REF_SRCS)
+
+CPP_SRCS := \
+	$(SRC)/main.cpp \
+	\
+	$(SRC)/assembler/assembler.cpp
+
+ESBMC_SRCS := $(CORE_SRCS) \
+	$(TEST)/esbmc/main.c
+
 ############## Auto Config #####################################################
-OBJS := $(C_SRCS:$(SRC)%.c=$(BUILD)%.o) $(CPP_SRCS:$(SRC)%.cpp=$(BUILD)%.o)
+OBJS := $(C_SRCS:%.c=$(BUILD)/%.o) $(CPP_SRCS:%.cpp=$(BUILD)/%.o)
 DEPS = $(OBJS:%.o=%.d)
 
 MAKEFILE := Makefile
@@ -69,11 +75,11 @@ $(TARGET_BIN): $(OBJS)
 	@$(CXX) $(CXX_FLAGS) $^ -o $@
 
 -include $(DEPS)
-$(BUILD)/%.o: $(SRC)/%.c $(MAKEFILE)
+$(BUILD)/%.o: %.c $(MAKEFILE)
 	$(call setup_target,$@)
 	@$(CC) $(CC_FLAGS) -c $< -o $@
 
-$(BUILD)/%.o: $(SRC)/%.cpp $(MAKEFILE)
+$(BUILD)/%.o: %.cpp $(MAKEFILE)
 	$(call setup_target,$@)
 	@$(CXX) $(CXX_FLAGS) -c $< -o $@
 
