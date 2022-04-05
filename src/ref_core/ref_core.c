@@ -63,6 +63,8 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 		default: return MIPS_TRAP_UNKNOWN_INSTR;
 	}
 
+	core->state.gpr[0] = 0;
+
 	core->state.pc = next_pc;
 	return MIPS_TRAP_NONE;
 }

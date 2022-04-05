@@ -2,7 +2,7 @@
 #include "util/log.h"
 
 static inline void log_dbg_exec(uint32_t a, const char* op, uint32_t b) {
-	log_dbgi("Executing %d %s %d\n", a, op, b);
+	log_dbgi("Executing %lu %s %lu\n", a, op, b);
 }
 
 static inline uint32_t compute_alu_op(alu_op_t op, uint32_t a, uint32_t b) {
@@ -51,7 +51,7 @@ memory_access_bundle_t execute_instruction(
 
 	memory_access_bundle_t mem = bundle->mem;
 	mem.wb.value               = compute_alu_op(bundle->op, a, b);
-	log_dbgi("Execution result: %d\n", mem.wb.value);
+	log_dbgi("Execution result: %lu\n", mem.wb.value);
 	return mem;
 }
 

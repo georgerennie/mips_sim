@@ -1,3 +1,6 @@
+# Set this to pass runtime args to unit test module
+UNIT_ARGS ?=
+
 UNIT := $(TEST)/unit
 
 UNIT_SRCS += $(UTIL_SRCS)
@@ -11,7 +14,7 @@ UNIT_FLAGS += -DUNIT_TEST
 
 .PHONY: unit
 unit: $(UNIT_BIN)
-	@./$(UNIT_BIN)
+	@./$(UNIT_BIN) $(UNIT_ARGS)
 
 -include $(UNIT_SRCS:%=$(UNIT_BUILD)/%.d)
 $(UNIT_BIN): $(UNIT_SRCS:%=$(UNIT_BUILD)/%.o)

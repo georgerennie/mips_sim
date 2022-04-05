@@ -63,10 +63,10 @@ static int run_one(char* name) {
 
 			if (!setjmp(test_buf)) {
 				(*test)->entry();
-				printf("\t%sPASS%s\n", col_green, col_rst);
+				printf("%sPASS%s\n", col_green, col_rst);
 				return EXIT_SUCCESS;
 			} else {
-				printf("\t%sFAIL%s\n", col_red, col_rst);
+				printf("%sFAIL%s\n", col_red, col_rst);
 				return EXIT_FAILURE;
 			}
 		}
