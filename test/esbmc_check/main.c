@@ -1,3 +1,6 @@
+// General check of useful single threaded properties, as well as embedded
+// properties with esbmc. Runs on the whole program
+
 #include <stdbool.h>
 #include "core/core.h"
 #include "util/esbmc_util.h"
@@ -17,13 +20,11 @@ int main() {
 	uint8_t data_mem[MEM_SIZE];
 	mips_core_init(&core, ARRAY_TO_SPAN(instr_mem), ARRAY_TO_SPAN(data_mem));
 
-	bool exited = false;
+	mips_trap_t trap = false;
 	for (uint8_t i = 0; i < UNWIND_ITERATIONS; i++) {
-		if (mips_core_cycle(&core) != 0) {
-			exited = true;
-			break;
-		}
+		trap = mips_core_cycle(&core);
+		if (trap != MIPS_TRAP_NONE) { break; }
 	}
 
-	log_assert(exited);
+	log_assert(trap != MIPS_TRAP_NONE);
 }
