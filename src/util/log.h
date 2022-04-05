@@ -50,6 +50,7 @@ extern "C" {
 int log_err(const char *format, ...);
 int log_msg(const char *format, ...);
 int log_dbg(const char *format, ...);
+int log_dbgi(const char *format, ...); // Indented by one tab
 
 void log_mem_hex(span_t mem);
 void log_gprs_labelled(mips_state_t *state);

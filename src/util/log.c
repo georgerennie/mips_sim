@@ -26,6 +26,20 @@ inline int log_dbg(const char *format, ...) {
 	#endif
 }
 
+inline int log_dbgi(const char *format, ...) {
+	#ifndef NDEBUG
+	va_list args;
+	va_start(args, format);
+	int ret = printf("    ");
+	ret |= vprintf(format, args);
+	va_end(args);
+	return ret;
+	#else
+	(void) format;
+	return 0;
+	#endif
+}
+
 inline int log_err(const char *format, ...) {
 	va_list args;
 	va_start(args, format);
@@ -69,6 +83,7 @@ void log_gprs_labelled(mips_state_t *state) {
 int log_err(const char *format, ...) { return nondet_int(); }
 int log_msg(const char *format, ...) { return nondet_int(); }
 int log_dbg(const char *format, ...) { return nondet_int(); }
+int log_dbgi(const char *format, ...) { return nondet_int(); }
 
 void log_mem_hex(span_t mem) {}
 void log_gprs_labelled(mips_state_t *state) {}

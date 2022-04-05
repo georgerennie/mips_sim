@@ -9,6 +9,8 @@
 #include "writeback.h"
 
 typedef enum {
+	MIPS_STAGE_NONE = -1,
+
 	MIPS_STAGE_IF  = 0,
 	MIPS_STAGE_ID  = 1,
 	MIPS_STAGE_EX  = 2,
@@ -18,6 +20,8 @@ typedef enum {
 
 typedef struct {
 	mips_state_t state;
+
+	uint32_t cycle;
 
 	span_t instr_mem;
 	span_t data_mem;

@@ -15,9 +15,7 @@ static inline alu_fwd_src_t get_fwd(const mips_core_t* core, uint32_t reg) {
 	}
 }
 
-static inline void log_dbg_opc(const char* opcode) {
-	log_dbg("Decoded %s\n", opcode);
-}
+static inline void log_dbg_opc(const char* opcode) { log_dbgi("Decoded %s\n", opcode); }
 
 decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction) {
 	mips_instr_t instr = parse_instruction(instruction);
@@ -29,12 +27,24 @@ decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction
 
 	if (instr.format == MIPS_INSTR_FORMAT_R) {
 		switch (instr.r_data.funct) {
-			case MIPS_FUNCT_ADDU: log_dbg_opc("add"); ret.exec.op = ALU_OP_ADD; break;
+			case MIPS_FUNCT_ADDU:
+				log_dbg_opc("add");
+				ret.exec.op = ALU_OP_ADD;
+				break;
 
-			case MIPS_FUNCT_AND: log_dbg_opc("and"); ret.exec.op = ALU_OP_AND; break;
-			case MIPS_FUNCT_OR: log_dbg_opc("or"); ret.exec.op = ALU_OP_OR; break;
+			case MIPS_FUNCT_AND:
+				log_dbg_opc("and");
+				ret.exec.op = ALU_OP_AND;
+				break;
+			case MIPS_FUNCT_OR:
+				log_dbg_opc("or");
+				ret.exec.op = ALU_OP_OR;
+				break;
 
-			default: log_dbg_opc("unknown r type"); ret.trap |= MIPS_TRAP_UNKNOWN_INSTR; break;
+			default:
+				log_dbg_opc("unknown r type");
+				ret.trap |= MIPS_TRAP_UNKNOWN_INSTR;
+				break;
 		}
 
 		ret.exec.arg_a      = gpr_read(&core->state, instr.r_data.rs);
@@ -51,7 +61,10 @@ decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction
 		ret.exec.mem.wb.reg = instr.i_data.rt;
 
 		switch (instr.opcode) {
-			case MIPS_OPC_ADDIU: log_dbg_opc("addiu"); ret.exec.op = ALU_OP_ADD; break;
+			case MIPS_OPC_ADDIU:
+				log_dbg_opc("addiu");
+				ret.exec.op = ALU_OP_ADD;
+				break;
 
 			case MIPS_OPC_ANDI: {
 				log_dbg_opc("andi");
