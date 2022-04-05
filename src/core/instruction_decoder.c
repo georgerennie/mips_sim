@@ -15,6 +15,10 @@ static inline alu_fwd_src_t get_fwd(const mips_core_t* core, uint32_t reg) {
 	}
 }
 
+static inline void log_dbg_opc(const char* opcode) {
+	log_dbg("Decoded %s\n", opcode);
+}
+
 decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction) {
 	mips_instr_t instr = parse_instruction(instruction);
 
@@ -25,12 +29,12 @@ decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction
 
 	if (instr.format == MIPS_INSTR_FORMAT_R) {
 		switch (instr.r_data.funct) {
-			case MIPS_FUNCT_ADDU: ret.exec.op = ALU_OP_ADD; break;
+			case MIPS_FUNCT_ADDU: log_dbg_opc("add"); ret.exec.op = ALU_OP_ADD; break;
 
-			case MIPS_FUNCT_AND: ret.exec.op = ALU_OP_AND; break;
-			case MIPS_FUNCT_OR: ret.exec.op = ALU_OP_OR; break;
+			case MIPS_FUNCT_AND: log_dbg_opc("and"); ret.exec.op = ALU_OP_AND; break;
+			case MIPS_FUNCT_OR: log_dbg_opc("or"); ret.exec.op = ALU_OP_OR; break;
 
-			default: ret.trap |= MIPS_TRAP_UNKNOWN_INSTR; break;
+			default: log_dbg_opc("unknown r type"); ret.trap |= MIPS_TRAP_UNKNOWN_INSTR; break;
 		}
 
 		ret.exec.arg_a      = gpr_read(&core->state, instr.r_data.rs);
@@ -47,18 +51,21 @@ decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction
 		ret.exec.mem.wb.reg = instr.i_data.rt;
 
 		switch (instr.opcode) {
-			case MIPS_OPC_ADDIU: ret.exec.op = ALU_OP_ADD; break;
+			case MIPS_OPC_ADDIU: log_dbg_opc("addiu"); ret.exec.op = ALU_OP_ADD; break;
 
 			case MIPS_OPC_ANDI: {
+				log_dbg_opc("andi");
 				ret.exec.op    = ALU_OP_AND;
 				ret.exec.arg_b = instr.i_data.immediate;
 			} break;
 			case MIPS_OPC_ORI: {
+				log_dbg_opc("ori");
 				ret.exec.op    = ALU_OP_OR;
 				ret.exec.arg_b = instr.i_data.immediate;
 			} break;
 
 			case MIPS_OPC_LW: {
+				log_dbg_opc("lw");
 				ret.exec.op              = ALU_OP_ADD;
 				ret.exec.mem.access_type = MEM_ACCESS_READ_SIGNED;
 				ret.exec.mem.bytes       = 4;
@@ -67,7 +74,9 @@ decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction
 			default: ret.trap |= MIPS_TRAP_UNKNOWN_INSTR; break;
 		}
 	} else if (instr.format == MIPS_INSTR_FORMAT_J) {
+		log_dbg_opc("J format instruction. Ignored");
 	} else if (instr.format == MIPS_INSTR_FORMAT_UNKNOWN) {
+		log_dbg_opc("unknown opcode");
 		ret.trap |= MIPS_TRAP_UNKNOWN_INSTR;
 	} else {
 		log_assert_fail("Unrecognised instruction format %d\n", instr.format);
