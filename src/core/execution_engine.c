@@ -23,18 +23,29 @@ static inline void log_dbg_fwd(char dst, const char* src) {
 
 memory_access_bundle_t execute_instruction(
     const execute_bundle_t* bundle, uint32_t exec_res, uint32_t mem_res) {
-
 	uint32_t a;
 	switch (bundle->fwd_a) {
-		case ALU_FWD_SRC_EXEC: log_dbg_fwd('a', "exec"); a = exec_res; break;
-		case ALU_FWD_SRC_MEM: log_dbg_fwd('a', "exec"); a = mem_res; break;
+		case ALU_FWD_SRC_EXEC:
+			log_dbg_fwd('a', "exec");
+			a = exec_res;
+			break;
+		case ALU_FWD_SRC_MEM:
+			log_dbg_fwd('a', "exec");
+			a = mem_res;
+			break;
 		default: a = bundle->arg_a; break;
 	}
 
 	uint32_t b;
 	switch (bundle->fwd_b) {
-		case ALU_FWD_SRC_EXEC: log_dbg_fwd('b', "exec"); b = exec_res; break;
-		case ALU_FWD_SRC_MEM: log_dbg_fwd('b', "exec"); b = mem_res; break;
+		case ALU_FWD_SRC_EXEC:
+			log_dbg_fwd('b', "exec");
+			b = exec_res;
+			break;
+		case ALU_FWD_SRC_MEM:
+			log_dbg_fwd('b', "exec");
+			b = mem_res;
+			break;
 		default: b = bundle->arg_b; break;
 	}
 
