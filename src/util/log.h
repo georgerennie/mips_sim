@@ -1,5 +1,5 @@
-#ifndef _LOG_H_
-#define _LOG_H_
+#ifndef LOG_H
+#define LOG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,7 +8,7 @@ extern "C" {
 #include "core/arch_state.h"
 #include "util.h"
 
-#ifndef __ESBMC
+#ifndef ESBMC
 	#ifndef NDEBUG
 		#include <stdio.h>
 		#include <stdlib.h>

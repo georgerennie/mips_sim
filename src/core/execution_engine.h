@@ -1,5 +1,5 @@
-#ifndef _EXECUTION_ENGINE_H_
-#define _EXECUTION_ENGINE_H_
+#ifndef EXECUTION_ENGINE_H
+#define EXECUTION_ENGINE_H
 
 #include <inttypes.h>
 #include "memory_access.h"

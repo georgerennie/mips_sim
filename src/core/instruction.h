@@ -1,5 +1,5 @@
-#ifndef _INSTRUCTION_H_
-#define _INSTRUCTION_H_
+#ifndef INSTRUCTION_H
+#define INSTRUCTION_H
 
 #ifdef __cplusplus
 extern "C" {

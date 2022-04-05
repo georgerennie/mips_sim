@@ -1,5 +1,5 @@
-#ifndef _REF_CORE_H_
-#define _REF_CORE_H_
+#ifndef REF_CORE_H
+#define REF_CORE_H
 
 #ifdef __cplusplus
 extern "C" {

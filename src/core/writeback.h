@@ -1,5 +1,5 @@
-#ifndef _WRITEBACK_H_
-#define _WRITEBACK_H_
+#ifndef WRITEBACK_H
+#define WRITEBACK_H
 
 #include <inttypes.h>
 #include "arch_state.h"

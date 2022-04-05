@@ -1,5 +1,5 @@
-#ifndef _ARCH_STATE_H_
-#define _ARCH_STATE_H_
+#ifndef ARCH_STATE_H
+#define ARCH_STATE_H
 
 #include <inttypes.h>
 

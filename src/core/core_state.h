@@ -1,5 +1,5 @@
-#ifndef _CORE_STATE_H_
-#define _CORE_STATE_H_
+#ifndef CORE_STATE_H
+#define CORE_STATE_H
 
 #include <stdbool.h>
 #include "arch_state.h"

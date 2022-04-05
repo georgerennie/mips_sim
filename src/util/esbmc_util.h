@@ -1,10 +1,10 @@
-#ifndef _ESBMC_UTIL_H_
-#define _ESBMC_UTIL_H_
+#ifndef ESBMC_UTIL_H
+#define ESBMC_UTIL_H
 
 #include <inttypes.h>
 #include "log.h"
 
-#ifdef __ESBMC
+#ifdef ESBMC
 
 uint8_t  nondet_u8();
 int8_t   nondet_i8();

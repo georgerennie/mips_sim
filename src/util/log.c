@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "core/instruction.h"
 
-#ifndef __ESBMC
+#ifndef ESBMC
 
 inline int log_msg(const char *format, ...) {
 	va_list args;

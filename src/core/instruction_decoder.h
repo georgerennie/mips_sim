@@ -1,5 +1,5 @@
-#ifndef _INSTRUCTION_DECODER_H_
-#define _INSTRUCTION_DECODER_H_
+#ifndef INSTRUCTION_DECODER_H
+#define INSTRUCTION_DECODER_H
 
 #include <inttypes.h>
 #include "arch_state.h"

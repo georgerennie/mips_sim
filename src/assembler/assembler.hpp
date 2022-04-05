@@ -1,5 +1,5 @@
-#ifndef _ASSEMBLER_HPP_
-#define _ASSEMBLER_HPP_
+#ifndef ASSEMBLER_HPP
+#define ASSEMBLER_HPP
 
 #include <cstdint>
 #include <iostream>

@@ -1,5 +1,5 @@
-#ifndef _MEMORY_ACCESS_H_
-#define _MEMORY_ACCESS_H_
+#ifndef MEMORY_ACCESS_H
+#define MEMORY_ACCESS_H
 
 #include <inttypes.h>
 #include "util/util.h"
