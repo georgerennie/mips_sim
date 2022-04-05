@@ -7,7 +7,12 @@
 #define CYCLES     {{ cycles }}
 #define REF_CYCLES {{ ref_cycles }}
 
+#ifdef UNIT_TEST
+#include "unit/test.h"
+DEFINE_TEST({{ test_name }}) {
+#else
 int main() {
+#endif
 	mips_core_t     core;
 	mips_ref_core_t ref_core;
 

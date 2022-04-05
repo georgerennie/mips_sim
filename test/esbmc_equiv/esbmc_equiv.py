@@ -3,7 +3,7 @@
 import os, argparse, pathlib, re
 from jinja2 import Template
 
-def create_output(path, cycles, ref_cycles, instr_bytes):
+def create_output(path, cycles, ref_cycles, instr_bytes, test_name="trace"):
     template_path = os.path.join(os.path.dirname(__file__), "template.c.jinja2")
     with open(template_path, "r") as f:
         template = Template(f.read())
@@ -12,12 +12,15 @@ def create_output(path, cycles, ref_cycles, instr_bytes):
         f.write(template.render(
             cycles = cycles,
             ref_cycles = ref_cycles,
-            instr_bytes = instr_bytes
+            instr_bytes = instr_bytes,
+            test_name = test_name
         ))
 
-def create_undef_output(path, cycles, ref_cycles, num_instrs):
+    print("Created new test case at", str(path))
+
+def create_undef_output(path, cycles, ref_cycles, num_instrs, test_name="trace"):
     instr_bytes = list("nondet_u8()" for _ in range(4 * num_instrs))
-    create_output(path, cycles, ref_cycles, instr_bytes)
+    create_output(path, cycles, ref_cycles, instr_bytes, test_name)
 
 def read_graphml_vals(graphml_path):
     with open(graphml_path, "r") as f:
@@ -38,6 +41,7 @@ def read_graphml_vals(graphml_path):
 def main():
     parser = argparse.ArgumentParser(description="Create ESBMC/Directed equivalence tests")
     parser.add_argument("output", type=pathlib.Path, help="Output test path")
+    parser.add_argument("--add-id", action="store_true", help="Add id to generated path")
     parser.add_argument("--cycles", "-c", metavar="N", type=int, required=True,
                         help="How many cycles to run the pipelined core for")
     parser.add_argument("--ref-cycles", "-r", metavar="N", type=int, required=True,
@@ -54,7 +58,13 @@ def main():
     if args.num_instrs:
         create_undef_output(args.output, args.cycles, args.ref_cycles, args.num_instrs)
     else:
-        create_output(args.output, args.cycles, args.ref_cycles, read_graphml_vals(args.graphml_path))
+        instr_bytes = read_graphml_vals(args.graphml_path)
+        if args.add_id:
+            id = "".join(map(lambda i: "{0:02x}".format(i), instr_bytes))
+            args.output = args.output.with_suffix("." + id + ".c")
+            create_output(args.output, args.cycles, args.ref_cycles, instr_bytes, "trace" + id)
+        else:
+            create_output(args.output, args.cycles, args.ref_cycles, instr_bytes)
 
 if __name__ == "__main__":
     main()

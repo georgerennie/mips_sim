@@ -8,26 +8,39 @@ extern "C" {
 #include "core/arch_state.h"
 #include "util.h"
 
-#ifndef ESBMC
-	#ifndef NDEBUG
-		#include <stdio.h>
-		#include <stdlib.h>
-
-		#define log_assert_fmt(COND, ...)                                                 \
-			{                                                                             \
-				if (!(COND)) {                                                            \
-					log_err("ASSERTION FAILED (%s:%d): " #COND "\n", __FILE__, __LINE__); \
-					log_err(__VA_ARGS__);                                                 \
-					exit(EXIT_FAILURE);                                                   \
-				}                                                                         \
-			}
-	#else
-		#define log_assert_fmt(COND, ...) \
-			{}
-	#endif
-#else
+#if defined(ESBMC)
 	#include <assert.h>
 	#define log_assert_fmt(COND, ...) assert(COND)
+
+#elif defined(NDEBUG)
+	#define log_assert_fmt(COND, ...) \
+		{}
+
+#elif defined(UNIT_TEST)
+	#include <stdio.h>
+	#include "unit/test.h"
+
+	#define log_assert_fmt(COND, ...)                                                 \
+		{                                                                             \
+			if (!(COND)) {                                                            \
+				log_err("ASSERTION FAILED (%s:%d): " #COND "\n", __FILE__, __LINE__); \
+				log_err(__VA_ARGS__);                                                 \
+				test_fail();                                                          \
+			}                                                                         \
+		}
+
+#else
+	#include <stdio.h>
+	#include <stdlib.h>
+
+	#define log_assert_fmt(COND, ...)                                                 \
+		{                                                                             \
+			if (!(COND)) {                                                            \
+				log_err("ASSERTION FAILED (%s:%d): " #COND "\n", __FILE__, __LINE__); \
+				log_err(__VA_ARGS__);                                                 \
+				exit(EXIT_FAILURE);                                                   \
+			}                                                                         \
+		}
 #endif
 
 #define log_assert(COND)     log_assert_fmt(COND, "")

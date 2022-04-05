@@ -40,14 +40,6 @@ include $(TEST)/Makefile.inc
 .PHONY: build
 build: build_cli
 
-$(BUILD)/%.c.o: %.c
-	$(call setup_target,$@)
-	@$(CC) $(CC_FLAGS) -c $< -o $@
-
-$(BUILD)/%.cpp.o: %.cpp
-	$(call setup_target,$@)
-	@$(CXX) $(CXX_FLAGS) -c $< -o $@
-
 .PHONY: clean
 clean:
 	rm -rf $(BUILD)
