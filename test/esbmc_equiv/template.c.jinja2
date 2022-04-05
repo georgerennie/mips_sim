@@ -1,0 +1,44 @@
+#include <stdbool.h>
+#include "core/core.h"
+#include "ref_core/ref_core.h"
+#include "util/esbmc_util.h"
+
+#define MEM_SIZE   4
+#define CYCLES     {{ cycles }}
+#define REF_CYCLES {{ ref_cycles }}
+
+int main() {
+	mips_core_t     core;
+	mips_ref_core_t ref_core;
+
+	uint8_t instr_mem[{{instr_bytes | length}}];
+{% for i in range(instr_bytes | length) %}
+	instr_mem[{{i}}] = {{ instr_bytes[i] }};
+{%- endfor %}
+
+	uint8_t data_mem[MEM_SIZE];
+	uint8_t ref_data_mem[MEM_SIZE];
+
+	mips_core_init(&core, ARRAY_TO_SPAN(instr_mem), ARRAY_TO_SPAN(data_mem));
+	ref_core_init(&ref_core, ARRAY_TO_SPAN(instr_mem), ARRAY_TO_SPAN(ref_data_mem));
+
+	mips_trap_t trap = false;
+	for (size_t i = 0; i < CYCLES; i++) {
+		trap = mips_core_cycle(&core);
+		if (trap != MIPS_TRAP_NONE) { break; }
+	}
+
+	mips_trap_t ref_trap = false;
+	for (size_t i = 0; i < REF_CYCLES; i++) {
+		ref_trap = ref_core_cycle(&ref_core);
+		if (ref_trap != MIPS_TRAP_NONE) { break; }
+	}
+
+	log_assert(trap != MIPS_TRAP_NONE);
+	log_assert(ref_trap != MIPS_TRAP_NONE);
+	log_assert(trap == ref_trap);
+{% for i in range(32) %}
+	log_assert(core.state.gpr[{{i}}] == ref_core.state.gpr[{{i}}]);
+{%- endfor %}
+}
+

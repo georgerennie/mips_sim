@@ -56,6 +56,10 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 		case MIPS_OPC_ANDI: *rt = *rs & z_imm; break;
 		case MIPS_OPC_ORI: *rt = *rs & z_imm; break;
 
+		// TODO: implement load word and jump
+		case MIPS_OPC_LW: break;
+		case MIPS_OPC_J: break;
+
 		default: return MIPS_TRAP_UNKNOWN_INSTR;
 	}
 

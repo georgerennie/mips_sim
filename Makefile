@@ -32,8 +32,6 @@ define setup_target
 endef
 
 ############## Compile Rules ###################################################
-MAKEFILE := Makefile
-
 # Include source/cli rules
 include $(SRC)/Makefile.inc
 # Include test config rules
@@ -42,11 +40,11 @@ include $(TEST)/Makefile.inc
 .PHONY: build
 build: build_cli
 
-$(BUILD)/%.c.o: %.c $(MAKEFILE)
+$(BUILD)/%.c.o: %.c
 	$(call setup_target,$@)
 	@$(CC) $(CC_FLAGS) -c $< -o $@
 
-$(BUILD)/%.cpp.o: %.cpp $(MAKEFILE)
+$(BUILD)/%.cpp.o: %.cpp
 	$(call setup_target,$@)
 	@$(CXX) $(CXX_FLAGS) -c $< -o $@
 
