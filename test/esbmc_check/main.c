@@ -5,9 +5,9 @@
 #include "core/core.h"
 #include "util/esbmc_util.h"
 
-#define NUM_INSTRS        3
-#define MEM_SIZE          4
-#define UNWIND_ITERATIONS 10
+#define NUM_INSTRS        10
+#define MEM_SIZE          16
+#define UNWIND_ITERATIONS (NUM_INSTRS + 5)
 
 int main() {
 	mips_core_t core;
