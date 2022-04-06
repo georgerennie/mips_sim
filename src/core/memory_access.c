@@ -4,7 +4,7 @@
 
 // Load a byte from a larger word
 static inline uint32_t load_byte(span_t data_mem, uint32_t base_addr, uint8_t byte) {
-	log_assert(byte < 4);
+	log_assert_lti(byte, 4);
 	return (uint32_t) *span_e(data_mem, base_addr + byte) << (8 * byte);
 }
 
@@ -14,7 +14,7 @@ writeback_bundle_t access_memory(const memory_access_bundle_t* bundle, span_t da
 	const uint8_t      bytes = bundle->bytes;
 
 	if (bundle->access_type != MEM_ACCESS_NONE) {
-		log_assert(bytes == 1 || bytes == 2 || bytes == 4);
+		log_assert_fmt(bytes == 1 || bytes == 2 || bytes == 4, "bytes: %d\n", bytes);
 
 		// TODO: Replace this with a trap
 		esbmc_assume((uint64_t) addr + bytes < data_mem.size);
@@ -22,7 +22,9 @@ writeback_bundle_t access_memory(const memory_access_bundle_t* bundle, span_t da
 
 	switch (bundle->access_type) {
 		case MEM_ACCESS_READ_SIGNED: {
-			log_assert_fmt(bytes == 4, "Currently only SW is supported");
+			// Currently only SW is supported
+			log_assert_eqi(bytes, 4);
+
 			// Load 0-4 bytes from memory little endian
 			uint32_t load_val = load_byte(data_mem, addr, 0);
 			load_val |= load_byte(data_mem, addr, 1);
@@ -37,7 +39,7 @@ writeback_bundle_t access_memory(const memory_access_bundle_t* bundle, span_t da
 			wb.value = load_val;
 		} break;
 
-		default: log_assert(bytes == 0); break;
+		default: log_assert_eqi(bytes, 0); break;
 	}
 
 	return wb;

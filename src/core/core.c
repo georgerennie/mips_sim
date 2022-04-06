@@ -31,7 +31,7 @@ mips_trap_t mips_core_run(mips_core_t* core) {
 }
 
 static void propagate_stalls(mips_core_t* core) {
-	log_assert(sizeof(core->stalls) / sizeof(*core->stalls) == 5);
+	log_assert_eqi(sizeof(core->stalls) / sizeof(*core->stalls), 5);
 	core->stalls[4] = core->stalls[3];
 	core->stalls[3] = core->stalls[2];
 	core->stalls[2] = core->stalls[1];
@@ -59,14 +59,14 @@ mips_trap_t mips_core_cycle(mips_core_t* core) {
 	}
 
 	// Instruction Fetch
-	log_assert(core->state.pc % 4 == 0); // Check that the pc is word aligned
+	log_assert_eqi(core->state.pc % 4, 0); // Check that the pc is word aligned
 	if (stage_active(core, MIPS_STAGE_IF)) {
 		if (core->state.pc >= core->instr_mem.size) {
 			log_dbgi("Instruction memory page fault detected\n");
 			next_state.trap |= MIPS_TRAP_INSTR_PAGE_FAULT;
 			next_state.trap_stage = MIPS_STAGE_ID;
 		} else {
-			log_assert(core->state.pc < core->instr_mem.size); // Check read is valid
+			log_assert_lti(core->state.pc, core->instr_mem.size); // Check read is valid
 			// Read little endian word
 			uint32_t instr = *span_e(core->instr_mem, core->state.pc);
 			instr |= (uint32_t) *span_e(core->instr_mem, core->state.pc + 1) << 8;

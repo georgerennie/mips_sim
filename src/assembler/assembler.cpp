@@ -34,12 +34,12 @@ static std::vector<std::string> split_on_whitespace(const std::string& input) {
 }
 
 static uint8_t get_reg(std::string reg_str) {
-	log_assert(reg_str.front() == '$');
+	log_assert_eq(reg_str.front(), '$', "%c");
 	reg_str.erase(reg_str.begin());
 	if (reg_str.back() == ',') { reg_str.erase(reg_str.end() - 1); }
 
 	const auto reg_it = std::find(std::begin(mips_reg_lookup), std::end(mips_reg_lookup), reg_str);
-	log_assert(reg_it != std::end(mips_reg_lookup)); // TODO: Make this an error print
+	log_assert_neq(reg_it, std::end(mips_reg_lookup), "%zu"); // TODO: Make this an error print
 
 	return static_cast<uint8_t>(std::distance(std::begin(mips_reg_lookup), reg_it));
 }
@@ -79,14 +79,14 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		mips_instr_t instr = {};
 		// Decode item[0], instruction name
 		const auto opc = opc_lookup.find(items[0]);
-		log_assert(opc != opc_lookup.end());
+		log_assert_neq(opc, opc_lookup.end(), "%zu");
 
 		instr.format = std::get<0>(opc->second);
 		instr.opcode = std::get<1>(opc->second);
 		if (instr.format == MIPS_INSTR_FORMAT_R) { instr.r_data.funct = std::get<2>(opc->second); }
 
 		// Decode item[1], R: rd, I: rt
-		log_assert(items.size() > 1);
+		log_assert_gtei(items.size(), 1);
 		const auto reg_1 = get_reg(items[1]);
 		switch (instr.format) {
 			case MIPS_INSTR_FORMAT_R: instr.r_data.rd = reg_1; break;
@@ -95,7 +95,7 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		}
 
 		// Decode item[2], R: rs, I: rs
-		log_assert(items.size() > 2);
+		log_assert_gtei(items.size(), 2);
 		const auto reg_2 = get_reg(items[2]);
 		switch (instr.format) {
 			case MIPS_INSTR_FORMAT_R: instr.r_data.rs = reg_2; break;
@@ -104,7 +104,7 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		}
 
 		// Decode item[2], R: rt, I: imm
-		log_assert(items.size() > 3);
+		log_assert_gtei(items.size(), 3);
 		switch (instr.format) {
 			case MIPS_INSTR_FORMAT_R: instr.r_data.rt = get_reg(items[3]); break;
 			// TODO: Error check this stoi

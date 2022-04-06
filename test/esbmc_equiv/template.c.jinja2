@@ -39,11 +39,11 @@ int main() {
 		if (ref_trap != MIPS_TRAP_NONE) { break; }
 	}
 
-	log_assert(trap != MIPS_TRAP_NONE);
-	log_assert(ref_trap != MIPS_TRAP_NONE);
-	log_assert(trap == ref_trap);
+	log_assert_neqi(trap, MIPS_TRAP_NONE);
+	log_assert_neqi(ref_trap, MIPS_TRAP_NONE);
+	log_assert_eqi(trap, ref_trap);
 {% for i in range(32) %}
-	log_assert(core.state.gpr[{{i}}] == ref_core.state.gpr[{{i}}]);
+	log_assert_eqi(core.state.gpr[{{i}}], ref_core.state.gpr[{{i}}]);
 {%- endfor %}
 }
 

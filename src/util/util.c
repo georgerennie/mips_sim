@@ -4,7 +4,7 @@
 #include "log.h"
 
 inline uint8_t* span_e(span_t span, size_t idx) {
-	log_assert(idx < span.size);
+	log_assert_lt(idx, span.size, "%zu");
 	return &span.data[idx];
 }
 

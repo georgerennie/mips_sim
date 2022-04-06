@@ -26,5 +26,5 @@ int main() {
 		if (trap != MIPS_TRAP_NONE) { break; }
 	}
 
-	log_assert(trap != MIPS_TRAP_NONE);
+	log_assert_neqi(trap, MIPS_TRAP_NONE);
 }
