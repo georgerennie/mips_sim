@@ -27,60 +27,58 @@ static jmp_buf test_buf;
 
 void test_fail() { longjmp(test_buf, 1); }
 
-static int run_tests() {
-	int test_num = 1, failed_tests = 0;
-
-	test_def_t** test = &first_test;
-	while (*test != NULL) {
-		printf("%s%d/%d%s Running %s: ", col_mag, test_num, num_tests, col_rst, (*test)->name);
-
-		if (!setjmp(test_buf)) {
-			(*test)->entry();
-			printf("%sPASS%s\n", col_green, col_rst);
-		} else {
-			printf("%sFAIL%s\n", col_red, col_rst);
-			failed_tests++;
-		}
-
-		test = &(*test)->next_test;
-		test_num++;
+// Returns true if all characters of search match characters of name
+static bool name_matches(const char* name, const char* search) {
+	for (size_t i = 0;; i++) {
+		if (search[i] == '\0') { return true; }
+		if (name[i] == '\0') { return false; }
+		if (search[i] != name[i]) { return false; }
 	}
-
-	if (failed_tests) {
-		fprintf(
-		    stderr, "%sFAIL:%s %d/%d tests failed\n", col_red, col_rst, failed_tests, num_tests);
-	} else {
-		printf("%sPASS:%s All %d tests passed\n", col_green, col_rst, num_tests);
-	}
-	return failed_tests ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
-static int run_one(char* name) {
+static int run_tests(const char* search) {
+	int failed_tests = 0, tests_run = 0;
+
 	test_def_t** test = &first_test;
 	while (*test != NULL) {
-		if (strcmp((*test)->name, name) == 0) {
-			printf("Running %s:\n", (*test)->name);
+		if (search == NULL || name_matches((*test)->name, search)) {
+			tests_run++;
+
+			printf("%s%d/", col_mag, tests_run);
+			search == NULL ? printf("%d", num_tests) : putchar('?');
+			printf("%s Running %s: ", col_rst, (*test)->name);
 
 			if (!setjmp(test_buf)) {
 				(*test)->entry();
 				printf("%sPASS%s\n", col_green, col_rst);
-				return EXIT_SUCCESS;
 			} else {
 				printf("%sFAIL%s\n", col_red, col_rst);
-				return EXIT_FAILURE;
+				failed_tests++;
 			}
 		}
-
 		test = &(*test)->next_test;
 	}
 
-	fprintf(stderr, "%sFAIL:%s Could not find test with name %s\n", col_red, col_rst, name);
-	return EXIT_FAILURE;
+	if (tests_run == 0) {
+		fprintf(
+		    stderr, "%sFAIL%s: Could not find any tests matching the pattern \"%s\"\n", col_red,
+		    col_rst, search);
+		return EXIT_FAILURE;
+	}
+
+	if (failed_tests) {
+		fprintf(
+		    stderr, "%sFAIL%s: %d/%d tests failed\n", col_red, col_rst, failed_tests, tests_run);
+		return EXIT_FAILURE;
+	}
+
+	printf("%sPASS%s: All %d tests passed\n", col_green, col_rst, tests_run);
+	return EXIT_SUCCESS;
 }
 
 int main(int argc, char* argv[]) {
-	if (argc == 1) { return run_tests(); }
-	if (argc == 2) { return run_one(argv[1]); }
-	fprintf(stderr, "%sOnly 0 or 1 commandline arguments are allowed%s\n", col_red, col_rst);
+	if (argc == 1) { return run_tests(NULL); }
+	if (argc == 2) { return run_tests(argv[1]); }
+	fprintf(stderr, "%sFAIL%s: Only 0 or 1 commandline arguments are allowed\n", col_red, col_rst);
 	return EXIT_FAILURE;
 }
