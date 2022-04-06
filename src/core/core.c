@@ -39,8 +39,8 @@ static void propagate_stalls(mips_core_t* core) {
 	core->stalls[0] = false;
 }
 
-static inline bool is_trapped(const mips_core_t* core, mips_core_stage_t stage) {
-	return core->trap_stage >= stage;
+static inline bool stage_active(const mips_core_t* core, mips_core_stage_t stage) {
+	return !(core->stalls[stage] || core->trap_stage >= stage);
 }
 
 mips_trap_t mips_core_cycle(mips_core_t* core) {
@@ -49,9 +49,7 @@ mips_trap_t mips_core_cycle(mips_core_t* core) {
 
 	// Register writeback - Do this before anything else as in real hardware
 	// WB would occur in the first half of the cycle, and ID in the second half
-	if (!(core->stalls[MIPS_STAGE_WB] || is_trapped(core, MIPS_STAGE_WB))) {
-		writeback(&core->state, &core->wb_bundle);
-	}
+	if (stage_active(core, MIPS_STAGE_WB)) { writeback(&core->state, &core->wb_bundle); }
 
 	// Start next state as clone of current state
 	mips_core_t next_state = *core;
@@ -62,7 +60,7 @@ mips_trap_t mips_core_cycle(mips_core_t* core) {
 
 	// Instruction Fetch
 	log_assert(core->state.pc % 4 == 0); // Check that the pc is word aligned
-	if (!(core->stalls[MIPS_STAGE_IF] || is_trapped(core, MIPS_STAGE_IF))) {
+	if (stage_active(core, MIPS_STAGE_IF)) {
 		if (core->state.pc >= core->instr_mem.size) {
 			log_dbgi("Instruction memory page fault detected\n");
 			next_state.trap |= MIPS_TRAP_INSTR_PAGE_FAULT;
@@ -81,24 +79,26 @@ mips_trap_t mips_core_cycle(mips_core_t* core) {
 	}
 
 	// Decode / Register Fetch
-	if (!(core->stalls[MIPS_STAGE_ID] || is_trapped(core, MIPS_STAGE_ID))) {
+	if (stage_active(core, MIPS_STAGE_ID)) {
 		decode_result_t dec    = decode_instruction(core, core->decoded_instruction);
 		next_state.exec_bundle = dec.exec;
 		if (dec.trap) {
-			next_state.trap |= dec.trap;
+			// TODO: What happens if the instruction traps at the same time as
+			// an instruction traps in IF
+			next_state.trap       = dec.trap;
 			next_state.trap_stage = MIPS_STAGE_EX;
 			// TODO: undo increment in PC from following instruction being in IF
 		}
 	}
 
 	// Execute
-	if (!(core->stalls[MIPS_STAGE_EX] || is_trapped(core, MIPS_STAGE_EX))) {
+	if (stage_active(core, MIPS_STAGE_EX)) {
 		next_state.mem_bundle = execute_instruction(
 		    &core->exec_bundle, core->mem_bundle.wb.value, core->wb_bundle.value);
 	}
 
 	// Memory Access
-	if (!(core->stalls[MIPS_STAGE_MEM] || is_trapped(core, MIPS_STAGE_MEM))) {
+	if (stage_active(core, MIPS_STAGE_MEM)) {
 		next_state.wb_bundle = access_memory(&core->mem_bundle, core->data_mem);
 	}
 
