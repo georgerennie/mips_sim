@@ -17,7 +17,7 @@ writeback_bundle_t access_memory(const memory_access_bundle_t* bundle, span_t da
 		log_assert(bytes == 1 || bytes == 2 || bytes == 4);
 
 		// TODO: Replace this with a trap
-		__ESBMC_assume((uint64_t) addr + bytes < data_mem.size);
+		esbmc_assume((uint64_t) addr + bytes < data_mem.size);
 	}
 
 	switch (bundle->access_type) {

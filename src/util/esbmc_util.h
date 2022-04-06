@@ -13,9 +13,14 @@ int16_t  nondet_i16();
 uint32_t nondet_u32();
 int32_t  nondet_i32();
 
+	#define esbmc_assume(CLAUSE)   __ESBMC_assume(CLAUSE)
+	#define esbmc_restrict(CLAUSE) __ESBMC_assume(CLAUSE)
+
 #else
 
-	#define __ESBMC_assume(CLAUSE) log_assert(CLAUSE)
+	#define esbmc_assume(CLAUSE) log_assert(CLAUSE)
+	#define esbmc_restrict(CLAUSE) \
+		{}
 
 #endif
 #endif
