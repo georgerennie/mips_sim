@@ -6,16 +6,29 @@ static inline uint32_t sign_extend(uint16_t val) { return (uint32_t) (int16_t) v
 
 static inline alu_fwd_src_t get_fwd(const mips_core_t* core, uint32_t reg) {
 	// TODO: Should this obey stalls?
-	if (reg == core->exec_bundle.mem.wb.reg) {
-		return ALU_FWD_SRC_EXEC;
-	} else if (reg == core->mem_bundle.wb.reg) {
-		return ALU_FWD_SRC_MEM;
-	} else {
-		return ALU_FWD_SRC_NONE;
-	}
+	if (reg == 0) { return ALU_FWD_SRC_NONE; }
+	if (reg == core->exec_bundle.mem.wb.reg) { return ALU_FWD_SRC_EXEC; }
+	if (reg == core->mem_bundle.wb.reg) { return ALU_FWD_SRC_MEM; }
+	return ALU_FWD_SRC_NONE;
 }
 
-static inline void log_dbg_opc(const char* opcode) { log_dbgi("Decoded %s\n", opcode); }
+static inline void log_dbg_opc(const char* opcode, mips_instr_t instr) {
+	log_dbgi("Decoded %s ", opcode);
+	switch (instr.format) {
+		case MIPS_INSTR_FORMAT_R:
+			log_dbg(
+			    "(rs: %d, rt: %d, rd: %d, shamt: %d)\n", instr.r_data.rs, instr.r_data.rt,
+			    instr.r_data.rd, instr.r_data.shamt);
+			break;
+		case MIPS_INSTR_FORMAT_I:
+			log_dbg(
+			    "(rt: %d, rs: %d, imm: %d)\n", instr.i_data.rt, instr.i_data.rs,
+			    instr.i_data.immediate);
+			break;
+		case MIPS_INSTR_FORMAT_J: log_dbg("(addr %d)\n", instr.j_data.address); break;
+		default: log_dbg("\n"); break;
+	}
+}
 
 decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction) {
 	mips_instr_t instr = parse_instruction(instruction);
@@ -28,21 +41,21 @@ decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction
 	if (instr.format == MIPS_INSTR_FORMAT_R) {
 		switch (instr.r_data.funct) {
 			case MIPS_FUNCT_ADDU:
-				log_dbg_opc("add");
+				log_dbg_opc("add", instr);
 				ret.exec.op = ALU_OP_ADD;
 				break;
 
 			case MIPS_FUNCT_AND:
-				log_dbg_opc("and");
+				log_dbg_opc("and", instr);
 				ret.exec.op = ALU_OP_AND;
 				break;
 			case MIPS_FUNCT_OR:
-				log_dbg_opc("or");
+				log_dbg_opc("or", instr);
 				ret.exec.op = ALU_OP_OR;
 				break;
 
 			default:
-				log_dbg_opc("unknown r type");
+				log_dbg_opc("unknown r type", instr);
 				ret.trap |= MIPS_TRAP_UNKNOWN_INSTR;
 				break;
 		}
@@ -62,23 +75,23 @@ decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction
 
 		switch (instr.opcode) {
 			case MIPS_OPC_ADDIU:
-				log_dbg_opc("addiu");
+				log_dbg_opc("addiu", instr);
 				ret.exec.op = ALU_OP_ADD;
 				break;
 
 			case MIPS_OPC_ANDI: {
-				log_dbg_opc("andi");
+				log_dbg_opc("andi", instr);
 				ret.exec.op    = ALU_OP_AND;
 				ret.exec.arg_b = instr.i_data.immediate;
 			} break;
 			case MIPS_OPC_ORI: {
-				log_dbg_opc("ori");
+				log_dbg_opc("ori", instr);
 				ret.exec.op    = ALU_OP_OR;
 				ret.exec.arg_b = instr.i_data.immediate;
 			} break;
 
 			case MIPS_OPC_LW: {
-				log_dbg_opc("lw");
+				log_dbg_opc("lw", instr);
 				ret.exec.op              = ALU_OP_ADD;
 				ret.exec.mem.access_type = MEM_ACCESS_READ_SIGNED;
 				ret.exec.mem.bytes       = 4;
@@ -87,9 +100,9 @@ decode_result_t decode_instruction(const mips_core_t* core, uint32_t instruction
 			default: ret.trap |= MIPS_TRAP_UNKNOWN_INSTR; break;
 		}
 	} else if (instr.format == MIPS_INSTR_FORMAT_J) {
-		log_dbg_opc("J format instruction. Ignored");
+		log_dbg_opc("J format instruction. Ignored", instr);
 	} else if (instr.format == MIPS_INSTR_FORMAT_UNKNOWN) {
-		log_dbg_opc("unknown opcode");
+		log_dbg_opc("unknown opcode", instr);
 		ret.trap |= MIPS_TRAP_UNKNOWN_INSTR;
 	} else {
 		log_assert_fail("Unrecognised instruction format %d\n", instr.format);

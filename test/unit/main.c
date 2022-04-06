@@ -32,7 +32,7 @@ static int run_tests() {
 
 	test_def_t** test = &first_test;
 	while (*test != NULL) {
-		printf("%s%d/%d%s Running %s:\n", col_mag, test_num, num_tests, col_rst, (*test)->name);
+		printf("%s%d/%d%s Running %s: ", col_mag, test_num, num_tests, col_rst, (*test)->name);
 
 		if (!setjmp(test_buf)) {
 			(*test)->entry();

@@ -18,7 +18,7 @@ static inline uint32_t compute_alu_op(alu_op_t op, uint32_t a, uint32_t b) {
 }
 
 static inline void log_dbg_fwd(char dst, const char* src) {
-	log_dbgi("Forwarding %c from %s", dst, src);
+	log_dbgi("Forwarding %c from %s\n", dst, src);
 }
 
 memory_access_bundle_t execute_instruction(
@@ -30,7 +30,7 @@ memory_access_bundle_t execute_instruction(
 			a = exec_res;
 			break;
 		case ALU_FWD_SRC_MEM:
-			log_dbg_fwd('a', "exec");
+			log_dbg_fwd('a', "mem");
 			a = mem_res;
 			break;
 		default: a = bundle->arg_a; break;
@@ -43,7 +43,7 @@ memory_access_bundle_t execute_instruction(
 			b = exec_res;
 			break;
 		case ALU_FWD_SRC_MEM:
-			log_dbg_fwd('b', "exec");
+			log_dbg_fwd('b', "mem");
 			b = mem_res;
 			break;
 		default: b = bundle->arg_b; break;
