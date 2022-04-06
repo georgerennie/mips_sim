@@ -48,7 +48,7 @@ extern "C" {
 #define log_assert_fail(...) log_assert_fmt(0, __VA_ARGS__)
 
 #define log_assert_cond(A, COND, B, FMT) \
-	log_assert_fmt((A) COND(B), #A " = " FMT ", " #B " = " FMT "\n", A, B)
+	log_assert_fmt(A COND B, #A " = " FMT ", " #B " = " FMT "\n", A, B)
 #define log_assert_condi(A, COND, B) log_assert_cond(A, COND, B, "%" PRIu32)
 
 #define log_assert_eq(A, B, FMT)  log_assert_cond(A, ==, B, FMT)

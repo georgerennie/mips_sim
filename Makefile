@@ -15,6 +15,10 @@ CC_WARNINGS += -Wunused-parameter -Wsign-conversion -Wfloat-conversion
 CC_WARNINGS += -Wconstant-conversion -Wint-conversion
 CC_WARNINGS += -Wundef # -Wpadded
 
+ifdef DEBUG_PRINT
+	CC_CXX_FLAGS += -DDEBUG_PRINT=$(DEBUG_PRINT)
+endif
+
 CC_CXX_FLAGS += $(CC_WARNINGS) $(CC_INCLUDES) -O3 -flto -MMD
 CC_FLAGS += $(CC_CXX_FLAGS) -std=c11
 CXX_FLAGS += $(CC_CXX_FLAGS) -std=c++20
