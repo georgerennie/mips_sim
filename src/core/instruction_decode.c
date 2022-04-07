@@ -3,8 +3,9 @@
 #include "util/log.h"
 #include "util/util.h"
 
-id_ex_reg_t instruction_decode(uint32_t instr, const mips_state_t* arch_state) {
-	const mips_opcode_t opc = EXTRACT_BITS(31, 26, instr);
+id_ex_reg_t instruction_decode(if_id_reg_t* if_id, const mips_state_t* arch_state) {
+	const uint32_t      instr = if_id->instruction;
+	const mips_opcode_t opc   = EXTRACT_BITS(31, 26, instr);
 
 	// R/I type
 	const uint8_t rs = EXTRACT_BITS(25, 21, instr);
@@ -19,6 +20,9 @@ id_ex_reg_t instruction_decode(uint32_t instr, const mips_state_t* arch_state) {
 	const uint16_t imm   = EXTRACT_BITS(15, 0, instr);
 	const uint32_t s_imm = (uint32_t) (int16_t) imm;  // Sign-extend
 	const uint32_t z_imm = (uint32_t) (uint16_t) imm; // Zero-extend
+
+	// J type
+	const uint32_t jump_address = EXTRACT_BITS(25, 0, instr);
 
 	// Initialise values to pass down the pipeline
 	id_ex_reg_t id_ex;
@@ -37,8 +41,9 @@ id_ex_reg_t instruction_decode(uint32_t instr, const mips_state_t* arch_state) {
 		id_ex.ex_mem.mem_wb.reg = rd;
 
 		switch (funct) {
-			case MIPS_FUNCT_ADDU: id_ex.alu_op = ALU_OP_ADD; break;
+			case MIPS_FUNCT_NOP: id_ex.ex_mem.mem_wb.reg = 0; break;
 
+			case MIPS_FUNCT_ADDU: id_ex.alu_op = ALU_OP_ADD; break;
 			case MIPS_FUNCT_AND: id_ex.alu_op = ALU_OP_AND; break;
 			case MIPS_FUNCT_OR: id_ex.alu_op = ALU_OP_OR; break;
 
@@ -47,7 +52,8 @@ id_ex_reg_t instruction_decode(uint32_t instr, const mips_state_t* arch_state) {
 	}
 
 	else if (opc == MIPS_OPC_J) {
-		log_dbgi("J format instruction. Ignored\n");
+		id_ex.branch         = true;
+		id_ex.branch_address = ((if_id->address + 4) & 0xF0000000) | (jump_address << 2);
 	}
 
 	else {
@@ -84,4 +90,9 @@ id_ex_reg_t instruction_decode(uint32_t instr, const mips_state_t* arch_state) {
 	}
 
 	return id_ex;
+}
+
+void if_id_reg_init(if_id_reg_t* if_id) {
+	if_id->instruction = 0x00000000;
+	if_id->address     = 0x00000000;
 }

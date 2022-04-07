@@ -8,6 +8,7 @@ extern "C" {
 #include <stdbool.h>
 #include "arch_state.h"
 #include "execute.h"
+#include "instruction_decode.h"
 #include "memory.h"
 #include "util/util.h"
 #include "writeback.h"
@@ -15,11 +16,13 @@ extern "C" {
 typedef enum {
 	MIPS_STAGE_NONE = -1,
 
-	MIPS_STAGE_IF  = 0,
-	MIPS_STAGE_ID  = 1,
-	MIPS_STAGE_EX  = 2,
-	MIPS_STAGE_MEM = 3,
-	MIPS_STAGE_WB  = 4,
+	MIPS_STAGE_IF = 0,
+	MIPS_STAGE_ID,
+	MIPS_STAGE_EX,
+	MIPS_STAGE_MEM,
+	MIPS_STAGE_WB,
+
+	MIPS_STAGE_NUM,
 } mips_core_stage_t;
 
 typedef struct {
@@ -30,10 +33,13 @@ typedef struct {
 	span_t instr_mem;
 	span_t data_mem;
 
-	uint32_t     if_id_instruction;
+	if_id_reg_t  if_id;
 	id_ex_reg_t  id_ex;
 	ex_mem_reg_t ex_mem;
 	mem_wb_reg_t mem_wb;
+
+	// If a stage is stalled, it doesnt write out its value
+	bool stalls[MIPS_STAGE_NUM];
 } mips_core_t;
 
 typedef struct {

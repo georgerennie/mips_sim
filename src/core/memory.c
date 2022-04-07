@@ -40,6 +40,7 @@ mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 			mem_wb.result = load_val;
 		} break;
 
+		case MEM_ACCESS_NONE: break;
 		default: log_assert_eqi(bytes, 0); break;
 	}
 

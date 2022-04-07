@@ -27,7 +27,9 @@ typedef enum {
 } mips_opcode_t;
 
 typedef enum {
-	MIPS_FUNCT_NONE = 0x00,
+	// This is actually variant of sll, but we are treating it like a nop no
+	// matter what arguments are provided
+	MIPS_FUNCT_NOP = 0x00,
 
 	MIPS_FUNCT_ADDU = 0x21,
 	MIPS_FUNCT_AND  = 0x24,

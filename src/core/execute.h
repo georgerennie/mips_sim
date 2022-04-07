@@ -2,6 +2,7 @@
 #define EXECUTE_H
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include "memory.h"
 
 typedef enum {
@@ -30,6 +31,10 @@ typedef struct {
 	uint32_t immediate;
 
 	uint32_t ex_mem_result, mem_wb_result; // Values forwarded from EX/MEM stages
+
+	// Branch data is read by hazard detection, not execute
+	bool     branch;         // Does this instruction branch
+	uint32_t branch_address; // Branch/jump address calculated in ID
 
 	// Control
 	alu_op_t     alu_op;       // ALU Operation

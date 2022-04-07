@@ -42,6 +42,9 @@ void id_ex_reg_init(id_ex_reg_t* id_ex) {
 	id_ex->ex_mem_result = 0;
 	id_ex->mem_wb_result = 0;
 
+	id_ex->branch         = false;
+	id_ex->branch_address = 0;
+
 	id_ex->alu_op    = ALU_OP_NOP;
 	id_ex->alu_b_src = ALU_SRC_DATA_B;
 	id_ex->fwd_a     = EX_FWD_SRC_NONE;

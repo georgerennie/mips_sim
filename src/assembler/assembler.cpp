@@ -15,16 +15,16 @@ namespace Assembler {
 static const std::map<std::string, std::tuple<mips_instr_format_t, mips_opcode_t, mips_funct_t>>
     opc_lookup = {
         {"addu", {MIPS_INSTR_FORMAT_R, MIPS_OPC_ADDU, MIPS_FUNCT_ADDU}},
-        {"addiu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ADDIU, MIPS_FUNCT_NONE}},
+        {"addiu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ADDIU, MIPS_FUNCT_NOP}},
 
         {"and", {MIPS_INSTR_FORMAT_R, MIPS_OPC_AND, MIPS_FUNCT_AND}},
         {"or", {MIPS_INSTR_FORMAT_R, MIPS_OPC_OR, MIPS_FUNCT_OR}},
-        {"andi", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ANDI, MIPS_FUNCT_NONE}},
-        {"ori", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ORI, MIPS_FUNCT_NONE}},
+        {"andi", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ANDI, MIPS_FUNCT_NOP}},
+        {"ori", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ORI, MIPS_FUNCT_NOP}},
 
-        {"lw", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LW, MIPS_FUNCT_NONE}},
+        {"lw", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LW, MIPS_FUNCT_NOP}},
 
-        {"j", {MIPS_INSTR_FORMAT_J, MIPS_OPC_J, MIPS_FUNCT_NONE}},
+        {"j", {MIPS_INSTR_FORMAT_J, MIPS_OPC_J, MIPS_FUNCT_NOP}},
 };
 
 // From https://stackoverflow.com/a/2275160

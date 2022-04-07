@@ -12,7 +12,7 @@ CC_INCLUDES += -I$(SRC) -I$(TEST)
 
 CC_WARNINGS += -Wall -Wpedantic -Wextra -Wconversion -Wshadow -Wdouble-promotion
 CC_WARNINGS += -Wunused-parameter -Wsign-conversion -Wfloat-conversion
-CC_WARNINGS += -Wconstant-conversion -Wint-conversion
+CC_WARNINGS += -Wconstant-conversion -Wint-conversion -Wimplicit-fallthrough
 CC_WARNINGS += -Wundef # -Wpadded
 
 ifdef DEBUG_PRINT

@@ -1,6 +1,6 @@
 #include "core.h"
 #include "forwarding_unit.h"
-#include "instruction_decode.h"
+#include "hazard_detection.h"
 #include "instruction_fetch.h"
 #include "util/log.h"
 
@@ -12,7 +12,7 @@ void mips_core_init(mips_core_t* core, span_t instr_mem, span_t data_mem) {
 	core->instr_mem = instr_mem;
 	core->data_mem  = data_mem;
 
-	core->if_id_instruction = 0;
+	if_id_reg_init(&core->if_id);
 	id_ex_reg_init(&core->id_ex);
 	ex_mem_reg_init(&core->ex_mem);
 	mem_wb_reg_init(&core->mem_wb);
@@ -37,11 +37,11 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 	mips_core_t next_state = *core;
 
 	// Instruction Fetch
-	next_state.if_id_instruction = instruction_fetch(&core->state, core->instr_mem);
-	next_state.state.pc          = core->state.pc + 4;
+	next_state.if_id    = instruction_fetch(&core->state, core->instr_mem);
+	next_state.state.pc = core->state.pc + 4;
 
 	// Decode / Register Fetch
-	next_state.id_ex = instruction_decode(core->if_id_instruction, &core->state);
+	next_state.id_ex = instruction_decode(&core->if_id, &core->state);
 
 	// Execute
 	setup_forwards(core);
@@ -49,6 +49,9 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 
 	// Memory Access
 	next_state.mem_wb = memory(&core->ex_mem, core->data_mem);
+
+	// Detect and deal with hazards/branches
+	handle_hazards(&next_state);
 
 	// Update state
 	*core = next_state;

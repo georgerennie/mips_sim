@@ -3,8 +3,9 @@
 
 #include <inttypes.h>
 #include "arch_state.h"
+#include "instruction_decode.h"
 #include "util/util.h"
 
-uint32_t instruction_fetch(const mips_state_t* arch_state, span_t instr_mem);
+if_id_reg_t instruction_fetch(const mips_state_t* arch_state, span_t instr_mem);
 
 #endif

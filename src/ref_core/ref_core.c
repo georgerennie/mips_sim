@@ -47,6 +47,8 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 	switch (opc) {
 		case MIPS_OPC_R_FMT: {
 			switch (funct) {
+				case MIPS_FUNCT_NOP: break;
+
 				case MIPS_FUNCT_ADDU: *rd = *rs + *rt; break;
 				case MIPS_FUNCT_AND: *rd = *rs & *rt; break;
 				case MIPS_FUNCT_OR: *rd = *rs | *rt; break;
@@ -70,8 +72,8 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 		}
 
 		case MIPS_OPC_J:
-			// TODO: trap on unaligned jump
-			next_pc = jump_address;
+			// Pseudodirect addressing
+			next_pc = ((core->state.pc + 4) & 0xF0000000) | jump_address << 2;
 			break;
 
 		default: return MIPS_TRAP_UNKNOWN_INSTR;
