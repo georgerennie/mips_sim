@@ -41,6 +41,9 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 	const uint32_t s_imm = (uint32_t) (int16_t) imm;  // Sign-extend
 	const uint32_t z_imm = (uint32_t) (uint16_t) imm; // Zero-extend
 
+	// J type
+	const uint32_t jump_address = EXTRACT_BITS(25, 0, instr);
+
 	switch (opc) {
 		case MIPS_OPC_R_FMT: {
 			switch (funct) {
@@ -56,9 +59,20 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 		case MIPS_OPC_ANDI: *rt = *rs & z_imm; break;
 		case MIPS_OPC_ORI: *rt = *rs | z_imm; break;
 
-		// TODO: implement load word and jump
-		case MIPS_OPC_LW: break;
-		case MIPS_OPC_J: break;
+		case MIPS_OPC_LW: {
+			// TODO: Trap on invalid access (page fault or unaligned)
+			const uint32_t load_address = *rs + s_imm;
+			uint32_t       val          = *span_e(core->data_mem, load_address);
+			val |= (uint32_t) *span_e(core->data_mem, load_address + 1) << 8;
+			val |= (uint32_t) *span_e(core->data_mem, load_address + 2) << 16;
+			val |= (uint32_t) *span_e(core->data_mem, load_address + 3) << 24;
+			*rt = val;
+		}
+
+		case MIPS_OPC_J:
+			// TODO: trap on unaligned jump
+			next_pc = jump_address;
+			break;
 
 		default: return MIPS_TRAP_UNKNOWN_INSTR;
 	}
