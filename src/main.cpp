@@ -13,7 +13,7 @@ int main() {
 	auto               instr_mem = Assembler::assemble(assembly_stream);
 
 	// instr_mem[3] = 0;
-	log_mem_hex({(uint8_t*) instr_mem.data(), instr_mem.size() * 4});
+	log_mem_hex(make_c_span(instr_mem));
 
 	mips_core_t core;
 
@@ -24,7 +24,8 @@ int main() {
 	log_msg("Start regs:\n");
 	log_gprs_labelled(&core.state);
 
-	log_msg("Stopped pipelined core on trap 0x%08X\n", mips_core_run(&core));
+	auto result = mips_core_run(&core);
+	log_msg("Stopped pipelined core on trap 0x%08X\n", result);
 
 	// for (size_t i = 0; i < 15; i++) {
 	//     log_msg("Trap 0x%08X\n", mips_core_cycle(&core));

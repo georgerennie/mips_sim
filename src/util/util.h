@@ -11,14 +11,17 @@ extern "C" {
 // Extract a bit range from an integer, like VAL[UPPER:LOWER] in verilog
 #define EXTRACT_BITS(UPPER, LOWER, VAL) ((((1ULL << ((UPPER) + 1)) - 1) & VAL) >> LOWER)
 
+// Get number of elements of fixed size array
+#define NUM_ELEMS(ARR) (sizeof(ARR) / sizeof(*ARR))
+
 // Data accompanied with length field
 typedef struct {
 	uint8_t* data;
 	size_t   size;
 } span_t;
 
-#define ARRAY_TO_SPAN(ARRAY) \
-	(span_t) { .data = ARRAY, .size = sizeof(ARRAY) }
+#define MAKE_SPAN(ARRAY) \
+	(span_t) { .data = (uint8_t *) ARRAY, .size = sizeof(ARRAY) }
 
 #ifdef __cplusplus
 extern "C++" {

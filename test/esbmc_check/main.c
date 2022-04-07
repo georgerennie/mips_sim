@@ -13,16 +13,14 @@ int main() {
 	mips_core_t core;
 
 	uint8_t instr_mem[NUM_INSTRS * sizeof(uint32_t)];
-	for (size_t i = 0; i < sizeof(instr_mem) / sizeof(*instr_mem); i++) {
-		instr_mem[i] = nondet_u8();
-	}
+	for (size_t i = 0; i < NUM_ELEMS(instr_mem); i++) { instr_mem[i] = nondet_u8(); }
 
 	uint8_t data_mem[MEM_SIZE];
-	mips_core_init(&core, ARRAY_TO_SPAN(instr_mem), ARRAY_TO_SPAN(data_mem));
+	mips_core_init(&core, MAKE_SPAN(instr_mem), MAKE_SPAN(data_mem));
 
 	mips_trap_t trap = false;
 	for (uint8_t i = 0; i < UNWIND_ITERATIONS; i++) {
-		trap = mips_core_cycle(&core);
+		trap = mips_core_cycle(&core).trap;
 		if (trap != MIPS_TRAP_NONE) { break; }
 	}
 

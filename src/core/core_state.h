@@ -29,6 +29,10 @@ typedef struct {
 	// True for each stage if they are stalling
 	bool stalls[5];
 
+	// The address of the instruction executing at each point of the pipeline
+	// Invaild if that stage is trapped
+	uint32_t instr_addrs[5];
+
 	// Current trap generated in pipeline. Traps can only be generated in the
 	// fetch and decode stages. The trap is not returned from mips_core_cycle
 	// until it is flushed through the pipeline
