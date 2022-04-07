@@ -1,10 +1,10 @@
 #include "writeback.h"
 
-void writeback(mips_state_t* state, const writeback_bundle_t* bundle) {
-	gpr_write(state, bundle->reg, bundle->value);
+void writeback(const mem_wb_reg_t* mem_wb, mips_state_t* arch_state) {
+	gpr_write(arch_state, mem_wb->reg, mem_wb->value);
 }
 
-inline void writeback_bundle_init(writeback_bundle_t* bundle) {
-	bundle->reg   = 0;
-	bundle->value = 0;
+void mem_wb_reg_init(mem_wb_reg_t* mem_wb) {
+	mem_wb->reg   = 0;
+	mem_wb->value = 0;
 }

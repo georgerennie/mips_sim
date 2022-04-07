@@ -21,7 +21,7 @@ typedef struct {
 } span_t;
 
 #define MAKE_SPAN(ARRAY) \
-	(span_t) { .data = (uint8_t *) ARRAY, .size = sizeof(ARRAY) }
+	(span_t) { .data = (uint8_t*) ARRAY, .size = sizeof(ARRAY) }
 
 #ifdef __cplusplus
 extern "C++" {

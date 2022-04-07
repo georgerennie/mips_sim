@@ -24,12 +24,7 @@ int main() {
 	log_msg("Start regs:\n");
 	log_gprs_labelled(&core.state);
 
-	auto result = mips_core_run(&core);
-	log_msg("Stopped pipelined core on trap 0x%08X\n", result);
-
-	// for (size_t i = 0; i < 15; i++) {
-	//     log_msg("Trap 0x%08X\n", mips_core_cycle(&core));
-	// }
+	for (size_t i = 0; i < 5; i++) { mips_core_cycle(&core); }
 
 	log_msg("End regs:\n");
 	log_gprs_labelled(&core.state);

@@ -5,15 +5,39 @@
 extern "C" {
 #endif
 
-#include "core_state.h"
+#include <stdbool.h>
+#include "arch_state.h"
+#include "execute.h"
+#include "memory.h"
+#include "util/util.h"
+#include "writeback.h"
+
+typedef enum {
+	MIPS_STAGE_NONE = -1,
+
+	MIPS_STAGE_IF  = 0,
+	MIPS_STAGE_ID  = 1,
+	MIPS_STAGE_EX  = 2,
+	MIPS_STAGE_MEM = 3,
+	MIPS_STAGE_WB  = 4,
+} mips_core_stage_t;
 
 typedef struct {
-	mips_trap_t trap;
+	mips_state_t state;
 
-	// If true, an instruction at address instr_addr retired in that clock
-	// cycle
-	bool     instr_retired;
-	uint32_t instr_addr;
+	uint32_t cycle;
+
+	span_t instr_mem;
+	span_t data_mem;
+
+	uint32_t     if_id_instruction;
+	id_ex_reg_t  id_ex;
+	ex_mem_reg_t ex_mem;
+	mem_wb_reg_t mem_wb;
+} mips_core_t;
+
+typedef struct {
+	int _;
 } mips_result_t;
 
 void mips_core_init(mips_core_t* core, span_t instr_mem, span_t data_mem);

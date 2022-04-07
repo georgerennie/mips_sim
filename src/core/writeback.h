@@ -5,11 +5,12 @@
 #include "arch_state.h"
 
 typedef struct {
-	uint8_t  reg;
+	// Data
+	uint8_t  reg; // Register to write to. No write if reg == 0
 	uint32_t value;
-} writeback_bundle_t;
+} mem_wb_reg_t;
 
-void writeback(mips_state_t* state, const writeback_bundle_t* bundle);
-void writeback_bundle_init(writeback_bundle_t* bundle);
+void writeback(const mem_wb_reg_t* mem_wb, mips_state_t* arch_state);
+void mem_wb_reg_init(mem_wb_reg_t* mem_wb);
 
 #endif
