@@ -25,8 +25,10 @@ typedef enum {
 
 typedef struct {
 	// Data
-	uint32_t data_a, data_b; // Arguments to the ALU
+	uint32_t data_rs, data_rt; // Arguments to the ALU
+	uint8_t  reg_rs, reg_rt;   // Registers of data_rs and data_rt for forwarding unit
 	uint32_t immediate;
+
 	uint32_t ex_mem_result, mem_wb_result; // Values forwarded from EX/MEM stages
 
 	// Control

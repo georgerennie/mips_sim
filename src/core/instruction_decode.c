@@ -25,8 +25,10 @@ id_ex_reg_t instruction_decode(uint32_t instr, const mips_state_t* arch_state) {
 	id_ex_reg_init(&id_ex);
 
 	// Register read
-	id_ex.data_a = gpr_read(arch_state, rs);
-	id_ex.data_b = gpr_read(arch_state, rt);
+	id_ex.data_rs = gpr_read(arch_state, rs);
+	id_ex.data_rt = gpr_read(arch_state, rt);
+	id_ex.reg_rs  = rs;
+	id_ex.reg_rt  = rt;
 
 	if (opc == MIPS_OPC_R_FMT) {
 		// Use rt as data b source
@@ -44,7 +46,7 @@ id_ex_reg_t instruction_decode(uint32_t instr, const mips_state_t* arch_state) {
 		}
 	}
 
-	if (opc == MIPS_OPC_J) {
+	else if (opc == MIPS_OPC_J) {
 		log_dbgi("J format instruction. Ignored\n");
 	}
 

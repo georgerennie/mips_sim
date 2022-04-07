@@ -24,7 +24,7 @@ int main() {
 	log_msg("Start regs:\n");
 	log_gprs_labelled(&core.state);
 
-	for (size_t i = 0; i < 5; i++) { mips_core_cycle(&core); }
+	for (size_t i = 0; i < 8; i++) { mips_core_cycle(&core); }
 
 	log_msg("End regs:\n");
 	log_gprs_labelled(&core.state);

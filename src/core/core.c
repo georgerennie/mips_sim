@@ -1,4 +1,5 @@
 #include "core.h"
+#include "forwarding_unit.h"
 #include "instruction_decode.h"
 #include "instruction_fetch.h"
 #include "util/log.h"
@@ -43,6 +44,7 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 	next_state.id_ex = instruction_decode(core->if_id_instruction, &core->state);
 
 	// Execute
+	setup_forwards(core);
 	next_state.ex_mem = execute(&core->id_ex);
 
 	// Memory Access

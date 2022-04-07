@@ -10,7 +10,7 @@ static inline uint32_t load_byte(span_t data_mem, uint32_t base_addr, uint8_t by
 
 mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 	mem_wb_reg_t   mem_wb = ex_mem->mem_wb;
-	const uint32_t addr   = mem_wb.value;
+	const uint32_t addr   = mem_wb.result;
 	const uint8_t  bytes  = ex_mem->bytes;
 
 	if (ex_mem->access_type != MEM_ACCESS_NONE) {
@@ -37,7 +37,7 @@ mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 				case 2: load_val = (uint32_t) (int16_t) load_val; break;
 			}
 
-			mem_wb.value = load_val;
+			mem_wb.result = load_val;
 		} break;
 
 		default: log_assert_eqi(bytes, 0); break;
