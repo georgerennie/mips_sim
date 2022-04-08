@@ -46,11 +46,8 @@ void handle_hazards(mips_core_t* core) {
 		stall_stage(core, MIPS_STAGE_EX);
 	}
 
-	// Control hazard
+	// Control hazard - pc is updated in core.c
 	if (core->id_ex.branch) {
-		core->state.pc = core->id_ex.branch_address;
 		if (!core->delay_slots) { flush_stage(core, MIPS_STAGE_IF); }
-	} else {
-		core->state.pc += 4;
 	}
 }

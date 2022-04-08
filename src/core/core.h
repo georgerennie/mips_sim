@@ -44,7 +44,7 @@ typedef struct {
 	mem_wb_reg_t mem_wb;
 
 	// If a stage is stalled, it doesnt write out its value
-	bool stalls[MIPS_STAGE_NUM];
+	bool stalls[MIPS_STAGE_NUM - 1];
 } mips_core_t;
 
 typedef struct {

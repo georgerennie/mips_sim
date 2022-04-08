@@ -51,7 +51,10 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 	handle_hazards(core);
 
 	// Update registers dependent on stalls
-	if (!core->stalls[MIPS_STAGE_IF]) { core->if_id = if_id; }
+	if (!core->stalls[MIPS_STAGE_IF]) {
+		core->state.pc = core->id_ex.branch ? core->id_ex.branch_address : core->state.pc + 4;
+		core->if_id    = if_id;
+	}
 	if (!core->stalls[MIPS_STAGE_ID]) { core->id_ex = id_ex; }
 	if (!core->stalls[MIPS_STAGE_EX]) { core->ex_mem = ex_mem; }
 	if (!core->stalls[MIPS_STAGE_MEM]) { core->mem_wb = mem_wb; }
