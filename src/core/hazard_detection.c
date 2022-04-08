@@ -1,5 +1,4 @@
 #include "hazard_detection.h"
-#include <string.h>
 #include "util/log.h"
 
 static inline void flush_stage(mips_core_t* core, mips_core_stage_t stage) {
@@ -11,7 +10,7 @@ static inline void flush_stage(mips_core_t* core, mips_core_stage_t stage) {
 	switch (stage) {
 		case MIPS_STAGE_IF: if_id_reg_init(&core->if_id); break;
 
-		case MIPS_STAGE_ID: ex_mem = &core->id_ex.ex_mem; __attribute__((fallthrough));
+		case MIPS_STAGE_ID: ex_mem = &core->id_ex.ex_mem; FALLTHROUGH;
 
 		case MIPS_STAGE_EX: {
 			ex_mem->access_type = MEM_ACCESS_NONE;
@@ -26,17 +25,20 @@ static inline void stall_stage(mips_core_t* core, mips_core_stage_t stage) {
 	flush_stage(core, stage);
 
 	switch (stage) {
-		case MIPS_STAGE_MEM: core->stalls[MIPS_STAGE_MEM] = true; __attribute__((fallthrough));
-		case MIPS_STAGE_EX: core->stalls[MIPS_STAGE_EX] = true; __attribute__((fallthrough));
-		case MIPS_STAGE_ID: core->stalls[MIPS_STAGE_ID] = true; __attribute__((fallthrough));
+		case MIPS_STAGE_MEM: core->stalls[MIPS_STAGE_MEM] = true; FALLTHROUGH;
+		case MIPS_STAGE_EX: core->stalls[MIPS_STAGE_EX] = true; FALLTHROUGH;
+		case MIPS_STAGE_ID: core->stalls[MIPS_STAGE_ID] = true; FALLTHROUGH;
 		case MIPS_STAGE_IF: core->stalls[MIPS_STAGE_IF] = true; break;
 		default: log_assert_fail("Cannot stall stage %d\n", stage);
 	}
 }
 
 void handle_hazards(mips_core_t* core) {
-	// Assume no stalls to start with
-	memset(&core->stalls, 0, sizeof(core->stalls));
+	// Assume no stalls to start with. Unwound for ESBMC
+	core->stalls[MIPS_STAGE_IF] = 0;
+	core->stalls[MIPS_STAGE_ID] = 0;
+	core->stalls[MIPS_STAGE_EX] = 0;
+	core->stalls[MIPS_STAGE_MEM] = 0;
 
 	// Data hazard
 	const bool mem_read = core->ex_mem.access_type == MEM_ACCESS_READ_SIGNED ||

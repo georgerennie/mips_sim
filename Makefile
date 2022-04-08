@@ -24,6 +24,7 @@ CC_FLAGS += $(CC_CXX_FLAGS) -std=c11
 CXX_FLAGS += $(CC_CXX_FLAGS) -std=c++20
 
 ESBMC_FLAGS += $(CC_INCLUDES) $(CC_WARNINGS) -Wno-newline-eof -Wno-unused-parameter
+ESBMC_FLAGS += -Wno-implicit-fallthrough
 ESBMC_FLAGS += -DESBMC --memlimit 10g
 
 ############## Pretty Printing #################################################

@@ -17,6 +17,12 @@ extern "C" {
 // Get number of elements of fixed size array
 #define NUM_ELEMS(ARR) (sizeof(ARR) / sizeof(*ARR))
 
+#ifndef ESBMC
+	#define FALLTHROUGH __attribute__((fallthrough))
+#else
+	#define FALLTHROUGH {}
+#endif
+
 // Data accompanied with length field
 typedef struct {
 	uint8_t* data;

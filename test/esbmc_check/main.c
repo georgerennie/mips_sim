@@ -16,13 +16,15 @@ int main() {
 	for (size_t i = 0; i < NUM_ELEMS(instr_mem); i++) { instr_mem[i] = nondet_u8(); }
 
 	uint8_t data_mem[MEM_SIZE];
-	mips_core_init(&core, MAKE_SPAN(instr_mem), MAKE_SPAN(data_mem));
+	const bool delay_slots = nondet_bool();
+	mips_core_init(&core, MAKE_SPAN(instr_mem), MAKE_SPAN(data_mem), delay_slots);
 
-	mips_trap_t trap = false;
+	// mips_trap_t trap = false;
 	for (uint8_t i = 0; i < UNWIND_ITERATIONS; i++) {
-		trap = mips_core_cycle(&core).trap;
-		if (trap != MIPS_TRAP_NONE) { break; }
+		// trap = mips_core_cycle(&core).trap;
+		// if (trap != MIPS_TRAP_NONE) { break; }
+		mips_core_cycle(&core);
 	}
 
-	log_assert_neqi(trap, MIPS_TRAP_NONE);
+	// log_assert_neqi(trap, MIPS_TRAP_NONE);
 }
