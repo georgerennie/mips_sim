@@ -3,6 +3,6 @@
 
 #include "core.h"
 
-void setup_forwards(mips_core_t* core);
+void setup_forwards(mips_pipeline_regs_t* regs);
 
 #endif

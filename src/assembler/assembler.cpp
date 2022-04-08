@@ -25,6 +25,9 @@ static const std::map<std::string, std::tuple<mips_instr_format_t, mips_opcode_t
         {"andi", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ANDI, MIPS_FUNCT_NOP}},
         {"ori", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ORI, MIPS_FUNCT_NOP}},
 
+        {"beq", {MIPS_INSTR_FORMAT_I, MIPS_OPC_BEQ, MIPS_FUNCT_NOP}},
+        {"bne", {MIPS_INSTR_FORMAT_I, MIPS_OPC_BNE, MIPS_FUNCT_NOP}},
+
         {"sh", {MIPS_INSTR_FORMAT_I, MIPS_OPC_SH, MIPS_FUNCT_NOP}},
         {"lhu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LHU, MIPS_FUNCT_NOP}},
 
@@ -192,8 +195,13 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 			log_err_instr_args(3, items, line_str);
 			instr.i_data.rs = get_reg(items[2], line_str);
 			instr.i_data.rt = get_reg(items[1], line_str);
-			// TODO: Check this is in a valid range
-			instr.i_data.immediate = static_cast<uint16_t>(get_int(items[3], line_str));
+
+			if (items[0] == "beq" || items[0] == "bne") {
+				label = items[3];
+			} else {
+				// TODO: Check this is in a valid range
+				instr.i_data.immediate = static_cast<uint16_t>(get_int(items[3], line_str));
+			}
 		}
 
 		else if (instr.format == MIPS_INSTR_FORMAT_J) {
@@ -207,15 +215,24 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 
 	std::vector<uint8_t> binary;
 	binary.reserve(4 * instructions.size());
-	for (auto& instruction : instructions) {
-		if (instruction.first.format == MIPS_INSTR_FORMAT_J) {
-			if (address_map.count(instruction.second) == 0) {
-				log_err_exit("Label \"%s\" not defined\n", instruction.second.c_str());
-			}
-			instruction.first.j_data.address = address_map[instruction.second] >> 2;
+
+	for (size_t i = 0; i < instructions.size(); i++) {
+		auto&      instruction = instructions[i].first;
+		const auto label       = instructions[i].second;
+
+		if (!label.empty() && address_map.count(label) == 0) {
+			log_err_exit("Label \"%s\" not defined\n", label.c_str());
 		}
 
-		const auto binary_instruction = to_binary(instruction.first);
+		if (instruction.format == MIPS_INSTR_FORMAT_J) {
+			instruction.j_data.address = address_map[label] >> 2;
+		} else if (instruction.format == MIPS_INSTR_FORMAT_I && !label.empty()) {
+			// Branch instructions
+			uint32_t offset              = address_map[label] - static_cast<uint32_t>(i * 4) - 4;
+			instruction.i_data.immediate = static_cast<uint16_t>(offset >> 2);
+		}
+
+		const auto binary_instruction = to_binary(instruction);
 		// Little endian
 		binary.insert(
 		    binary.end(), {

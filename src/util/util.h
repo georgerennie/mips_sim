@@ -20,7 +20,8 @@ extern "C" {
 #ifndef ESBMC
 	#define FALLTHROUGH __attribute__((fallthrough))
 #else
-	#define FALLTHROUGH {}
+	#define FALLTHROUGH \
+		{}
 #endif
 
 // Data accompanied with length field

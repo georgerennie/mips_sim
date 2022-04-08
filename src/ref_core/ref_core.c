@@ -8,6 +8,9 @@ void ref_core_init(mips_ref_core_t* core, span_t instr_mem, span_t data_mem, boo
 
 	core->delay_slots = delay_slots;
 
+	core->branch_after = false;
+	core->branch_dest  = 0x00000000;
+
 	core->instr_mem = instr_mem;
 	core->data_mem  = data_mem;
 }
@@ -71,6 +74,14 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 			*rt = (uint32_t) INSERT_BITS(7, 0, *span_e(core->data_mem, load_address)) |
 			      (uint32_t) INSERT_BITS(15, 8, *span_e(core->data_mem, load_address + 1));
 		} break;
+
+		// TODO: Update delay slots for branches
+		case MIPS_OPC_BEQ:
+			if (*rs == *rt) { next_pc += (s_imm << 2); }
+			break;
+		case MIPS_OPC_BNE:
+			if (*rs != *rt) { next_pc += (s_imm << 2); }
+			break;
 
 		case MIPS_OPC_SH: {
 			// TODO: Trap on invalid access (page fault or unaligned)

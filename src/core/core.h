@@ -26,6 +26,16 @@ typedef enum {
 } mips_core_stage_t;
 
 typedef struct {
+	if_id_reg_t  if_id;
+	id_ex_reg_t  id_ex;
+	ex_mem_reg_t ex_mem;
+	mem_wb_reg_t mem_wb;
+
+	// If a stage is stalled, it doesnt write out its value
+	bool stalls[MIPS_STAGE_NUM - 1];
+} mips_pipeline_regs_t;
+
+typedef struct {
 	// Architectural state
 	mips_state_t state;
 
@@ -38,13 +48,7 @@ typedef struct {
 	span_t data_mem;
 
 	// Pipeline registers
-	if_id_reg_t  if_id;
-	id_ex_reg_t  id_ex;
-	ex_mem_reg_t ex_mem;
-	mem_wb_reg_t mem_wb;
-
-	// If a stage is stalled, it doesnt write out its value
-	bool stalls[MIPS_STAGE_NUM - 1];
+	mips_pipeline_regs_t regs;
 } mips_core_t;
 
 typedef struct {
