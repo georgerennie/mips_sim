@@ -34,28 +34,27 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 	// WB would occur in the first half of the cycle, and ID in the second half
 	writeback(&core->mem_wb, &core->state);
 
-	// Start next state as clone of current state
-	mips_core_t next_state = *core;
-
 	// Instruction Fetch
-	next_state.if_id    = instruction_fetch(&core->state, core->instr_mem);
-	next_state.state.pc = core->state.pc + 4;
+	if_id_reg_t if_id = instruction_fetch(&core->state, core->instr_mem);
 
 	// Decode / Register Fetch
-	next_state.id_ex = instruction_decode(&core->if_id, &core->state);
+	id_ex_reg_t id_ex = instruction_decode(&core->if_id, &core->state);
 
 	// Execute
 	setup_forwards(core);
-	next_state.ex_mem = execute(&core->id_ex);
+	ex_mem_reg_t ex_mem = execute(&core->id_ex);
 
 	// Memory Access
-	next_state.mem_wb = memory(&core->ex_mem, core->data_mem);
+	mem_wb_reg_t mem_wb = memory(&core->ex_mem, core->data_mem);
 
 	// Detect and deal with hazards/branches
-	handle_hazards(&next_state);
+	handle_hazards(core);
 
-	// Update state
-	*core = next_state;
+	// Update registers dependent on stalls
+	if (!core->stalls[MIPS_STAGE_IF]) { core->if_id = if_id; }
+	if (!core->stalls[MIPS_STAGE_ID]) { core->id_ex = id_ex; }
+	if (!core->stalls[MIPS_STAGE_EX]) { core->ex_mem = ex_mem; }
+	if (!core->stalls[MIPS_STAGE_MEM]) { core->mem_wb = mem_wb; }
 
 	mips_result_t result = {0};
 	return result;
