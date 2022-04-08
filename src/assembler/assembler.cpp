@@ -15,6 +15,8 @@ namespace Assembler {
 
 static const std::map<std::string, std::tuple<mips_instr_format_t, mips_opcode_t, mips_funct_t>>
     opc_lookup = {
+        {"nop", {MIPS_INSTR_FORMAT_R, MIPS_OPC_R_FMT, MIPS_FUNCT_NOP}},
+
         {"addu", {MIPS_INSTR_FORMAT_R, MIPS_OPC_ADDU, MIPS_FUNCT_ADDU}},
         {"addiu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ADDIU, MIPS_FUNCT_NOP}},
 
@@ -85,6 +87,15 @@ static uint32_t to_binary(const mips_instr_t& instr) {
 	return val;
 }
 
+static void log_err_instr_args(
+    unsigned expected_args, const std::vector<std::string>& items, const char* line_str) {
+	if (items.size() - 1 != expected_args) {
+		log_err_exit(
+		    "%s Expected %d arguments for instruction \"%s\", got %d\n", line_str, expected_args,
+		    items[0].c_str(), items.size() - 1);
+	}
+}
+
 std::vector<uint8_t> assemble(std::istream& assembly) {
 	// The string is the label that instruction jumps to in the case of a j instr
 	std::vector<std::pair<mips_instr_t, std::string>> instructions;
@@ -141,28 +152,24 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		std::string  label = "";
 		instr.format       = std::get<0>(opc->second);
 		instr.opcode       = std::get<1>(opc->second);
+		instr.r_data.funct = std::get<2>(opc->second);
 
-		if (instr.format == MIPS_INSTR_FORMAT_R) {
-			if (items.size() != 4) {
-				log_err_exit(
-				    "%s Expected 3 arguments for instruction \"%s\", got %d\n", line_str,
-				    items[0].c_str(), items.size() - 1);
-			}
+		if (items[0] == "nop") {
+			log_err_instr_args(0, items, line_str);
+			instr.r_data.rs    = 0;
+			instr.r_data.rt    = 0;
+			instr.r_data.shamt = 0;
+		} else if (instr.format == MIPS_INSTR_FORMAT_R) {
+			log_err_instr_args(3, items, line_str);
 
 			instr.r_data.rs    = get_reg(items[2], line_str);
 			instr.r_data.rt    = get_reg(items[3], line_str);
 			instr.r_data.rd    = get_reg(items[1], line_str);
 			instr.r_data.shamt = 0;
-			instr.r_data.funct = std::get<2>(opc->second);
 		}
 
 		else if (instr.format == MIPS_INSTR_FORMAT_I) {
-			if (items.size() != 4) {
-				log_err_exit(
-				    "%s Expected 3 arguments for instruction \"%s\", got %d\n", line_str,
-				    items[0].c_str(), items.size() - 1);
-			}
-
+			log_err_instr_args(3, items, line_str);
 			instr.i_data.rs = get_reg(items[2], line_str);
 			instr.i_data.rt = get_reg(items[1], line_str);
 			// TODO: Check this is in a valid range
@@ -170,12 +177,7 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		}
 
 		else if (instr.format == MIPS_INSTR_FORMAT_J) {
-			if (items.size() != 2) {
-				log_err_exit(
-				    "%s Expected 1 argument for instruction \"%s\", got %d\n", line_str,
-				    items[0].c_str(), items.size() - 1);
-			}
-
+			log_err_instr_args(1, items, line_str);
 			label = items[1];
 		}
 
