@@ -64,14 +64,19 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 		case MIPS_OPC_ANDI: *rt = *rs & z_imm; break;
 		case MIPS_OPC_ORI: *rt = *rs | z_imm; break;
 
-		case MIPS_OPC_LW: {
+		case MIPS_OPC_LHU: {
 			// TODO: Trap on invalid access (page fault or unaligned)
 			const uint32_t load_address = *rs + s_imm;
-			uint32_t       val          = *span_e(core->data_mem, load_address);
-			val |= (uint32_t) *span_e(core->data_mem, load_address + 1) << 8;
-			val |= (uint32_t) *span_e(core->data_mem, load_address + 2) << 16;
-			val |= (uint32_t) *span_e(core->data_mem, load_address + 3) << 24;
-			*rt = val;
+
+			*rt = (uint32_t) INSERT_BITS(7, 0, *span_e(core->data_mem, load_address)) |
+			      (uint32_t) INSERT_BITS(15, 8, *span_e(core->data_mem, load_address + 1));
+		} break;
+
+		case MIPS_OPC_SH: {
+			// TODO: Trap on invalid access (page fault or unaligned)
+			const uint32_t store_address               = *rs + s_imm;
+			*span_e(core->data_mem, store_address)     = EXTRACT_BITS(7, 0, *rt);
+			*span_e(core->data_mem, store_address + 1) = EXTRACT_BITS(15, 8, *rt);
 		} break;
 
 		case MIPS_OPC_J: {

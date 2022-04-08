@@ -9,7 +9,7 @@
 
 std::vector<uint8_t> assemble_file(const std::string& fn) {
 	std::ifstream file(fn);
-	if (!file.is_open()) { log_err_exit("Unable to open file %s\n", fn.c_str()); }
+	if (!file.is_open()) { log_err_exit("Unable to open file \"%s\"\n", fn.c_str()); }
 
 	return Assembler::assemble(file);
 }
@@ -24,18 +24,16 @@ void run_sim(const std::string& fn, bool delay_slots, bool use_ref_core) {
 		mips_core_t core;
 		mips_core_init(&core, make_c_span(instr_mem), make_c_span(data_mem), delay_slots);
 
-		for (size_t i = 0; i < 20; i++) {
-			mips_core_cycle(&core);
-			log_msg("$t0: 0x%08X\n", core.state.gpr[8]);
-		}
+		for (size_t i = 0; i < 70; i++) { mips_core_cycle(&core); }
+		log_gprs_labelled(&core.state);
+		log_mem_hex(make_c_span(data_mem));
 	} else {
 		mips_ref_core_t ref_core;
 		ref_core_init(&ref_core, make_c_span(instr_mem), make_c_span(data_mem), delay_slots);
 
-		for (size_t i = 0; i < 20; i++) {
-			ref_core_cycle(&ref_core);
-			log_msg("$t0: 0x%08X\n", ref_core.state.gpr[8]);
-		}
+		for (size_t i = 0; i < 70; i++) { ref_core_cycle(&ref_core); }
+		log_gprs_labelled(&ref_core.state);
+		log_mem_hex(make_c_span(data_mem));
 	}
 }
 

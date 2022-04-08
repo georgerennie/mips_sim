@@ -7,8 +7,8 @@
 
 typedef enum {
 	MEM_ACCESS_NONE = 0,
-	// MEM_ACCESS_READ_UNSIGNED, // Currently unused
-	MEM_ACCESS_READ_SIGNED,
+	MEM_ACCESS_READ_UNSIGNED,
+	MEM_ACCESS_READ_SIGNED, // Currently unused
 	MEM_ACCESS_WRITE,
 } memory_access_t;
 
@@ -16,6 +16,9 @@ typedef struct {
 	// Control
 	memory_access_t access_type;
 	uint8_t         bytes; // Number of bytes to R/W. No R/W if 0
+
+	// Data
+	uint32_t data_rt; // RT value for writeback
 
 	// Data / Pipeline passthrough
 	// Destination reg is set to 0 if memory store occurs

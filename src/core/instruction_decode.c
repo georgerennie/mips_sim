@@ -6,7 +6,6 @@
 id_ex_reg_t instruction_decode(if_id_reg_t* if_id, const mips_state_t* arch_state) {
 	const uint32_t      instr = if_id->instruction;
 	const mips_opcode_t opc   = EXTRACT_BITS(31, 26, instr);
-
 	// R/I type
 	const uint8_t rs = EXTRACT_BITS(25, 21, instr);
 	const uint8_t rt = EXTRACT_BITS(20, 16, instr);
@@ -79,10 +78,16 @@ id_ex_reg_t instruction_decode(if_id_reg_t* if_id, const mips_state_t* arch_stat
 				id_ex.immediate = z_imm;
 			} break;
 
-			case MIPS_OPC_LW: {
+			case MIPS_OPC_LHU: {
 				id_ex.alu_op             = ALU_OP_ADD;
-				id_ex.ex_mem.access_type = MEM_ACCESS_READ_SIGNED;
-				id_ex.ex_mem.bytes       = 4;
+				id_ex.ex_mem.access_type = MEM_ACCESS_READ_UNSIGNED;
+				id_ex.ex_mem.bytes       = 2;
+			} break;
+
+			case MIPS_OPC_SH: {
+				id_ex.alu_op             = ALU_OP_ADD;
+				id_ex.ex_mem.access_type = MEM_ACCESS_WRITE;
+				id_ex.ex_mem.bytes       = 2;
 			} break;
 
 			default: log_dbgi("Unknown opcode\n"); break;

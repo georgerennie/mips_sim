@@ -18,17 +18,21 @@ static inline uint32_t compute_alu_op(alu_op_t op, uint32_t a, uint32_t b) {
 }
 
 ex_mem_reg_t execute(const id_ex_reg_t* id_ex) {
-	const uint32_t a = (id_ex->fwd_a == EX_FWD_SRC_EXEC)  ? id_ex->ex_mem_result
-	                   : (id_ex->fwd_a == EX_FWD_SRC_MEM) ? id_ex->mem_wb_result
-	                                                      : id_ex->data_rs;
-	const uint32_t b = (id_ex->alu_b_src == ALU_SRC_IMM)   ? id_ex->immediate
-	                   : (id_ex->fwd_b == EX_FWD_SRC_EXEC) ? id_ex->ex_mem_result
-	                   : (id_ex->fwd_b == EX_FWD_SRC_MEM)  ? id_ex->mem_wb_result
+	const uint32_t rs = (id_ex->fwd_a == EX_FWD_SRC_EXEC)  ? id_ex->ex_mem_result
+	                    : (id_ex->fwd_a == EX_FWD_SRC_MEM) ? id_ex->mem_wb_result
+	                                                       : id_ex->data_rs;
+	const uint32_t rt = (id_ex->fwd_b == EX_FWD_SRC_EXEC)  ? id_ex->ex_mem_result
+	                    : (id_ex->fwd_b == EX_FWD_SRC_MEM) ? id_ex->mem_wb_result
 	                                                       : id_ex->data_rt;
+	const uint32_t b  = (id_ex->alu_b_src == ALU_SRC_IMM) ? id_ex->immediate : rt;
 
 	ex_mem_reg_t ex_mem  = id_ex->ex_mem;
-	ex_mem.mem_wb.result = compute_alu_op(id_ex->alu_op, a, b);
+	ex_mem.mem_wb.result = compute_alu_op(id_ex->alu_op, rs, b);
 	log_dbgi("Execution result: %lu\n", ex_mem.mem_wb.result);
+
+	// Propagate forwarded rt through to memory stage for store instructions
+	ex_mem.data_rt = rt;
+
 	return ex_mem;
 }
 

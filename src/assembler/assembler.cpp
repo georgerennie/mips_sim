@@ -25,7 +25,8 @@ static const std::map<std::string, std::tuple<mips_instr_format_t, mips_opcode_t
         {"andi", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ANDI, MIPS_FUNCT_NOP}},
         {"ori", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ORI, MIPS_FUNCT_NOP}},
 
-        {"lw", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LW, MIPS_FUNCT_NOP}},
+        {"sh", {MIPS_INSTR_FORMAT_I, MIPS_OPC_SH, MIPS_FUNCT_NOP}},
+        {"lhu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_LHU, MIPS_FUNCT_NOP}},
 
         {"j", {MIPS_INSTR_FORMAT_J, MIPS_OPC_J, MIPS_FUNCT_NOP}},
 };
@@ -37,8 +38,8 @@ static std::vector<std::string> split_on_whitespace(const std::string& input) {
 }
 
 static int32_t get_int(std::string int_str, const char* line) {
-	std::regex int_reg("^-?[0-9]{1,10}$");
-	if (!std::regex_match(int_str, int_reg)) {
+	std::regex int_regex("^-?[0-9]+$");
+	if (!std::regex_match(int_str, int_regex)) {
 		log_err_exit("%s Unable to decode \"%s\" as an integer\n", line, int_str.c_str());
 	}
 
@@ -159,13 +160,32 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 			instr.r_data.rs    = 0;
 			instr.r_data.rt    = 0;
 			instr.r_data.shamt = 0;
-		} else if (instr.format == MIPS_INSTR_FORMAT_R) {
+		}
+
+		else if (instr.format == MIPS_INSTR_FORMAT_R) {
 			log_err_instr_args(3, items, line_str);
 
 			instr.r_data.rs    = get_reg(items[2], line_str);
 			instr.r_data.rt    = get_reg(items[3], line_str);
 			instr.r_data.rd    = get_reg(items[1], line_str);
 			instr.r_data.shamt = 0;
+		}
+
+		else if (instr.format == MIPS_INSTR_FORMAT_I && (items[0] == "sh" || items[0] == "lhu")) {
+			log_err_instr_args(2, items, line_str);
+			instr.i_data.rt = get_reg(items[1], line_str);
+
+			std::regex  address_regex("^(-?[0-9]+)?(?:\\(([^)]+)\\))?$");
+			std::smatch match;
+			if (!std::regex_match(items[2], match, address_regex)) {
+				log_err_exit(
+				    "%s Cannot parse address specifier \"%s\"\n", line_str, items[2].c_str());
+			}
+
+			instr.i_data.rs        = match[2].str().empty() ? 0 : get_reg(match[2].str(), line_str);
+			instr.i_data.immediate = match[1].str().empty()
+			                             ? 0
+			                             : static_cast<uint16_t>(get_int(match[1].str(), line_str));
 		}
 
 		else if (instr.format == MIPS_INSTR_FORMAT_I) {

@@ -18,10 +18,8 @@ typedef enum {
 	MIPS_OPC_ANDI = 0x0C,
 	MIPS_OPC_ORI  = 0x0D,
 
-	// MIPS_OPC_SB  = 0x28,
-	// MIPS_OPC_SH  = 0x29,
-	// MIPS_OPC_SW  = 0x2B,
-	MIPS_OPC_LW = 0x23,
+	MIPS_OPC_SH  = 0x29,
+	MIPS_OPC_LHU = 0x25,
 
 	MIPS_OPC_J = 0x02,
 } mips_opcode_t;
