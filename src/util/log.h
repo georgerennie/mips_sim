@@ -68,6 +68,7 @@ extern "C" {
 
 // Log printf style format
 int log_err(const char *format, ...);
+int log_err_exit(const char *format, ...);
 int log_msg(const char *format, ...);
 int log_dbg(const char *format, ...);
 int log_dbgi(const char *format, ...); // Indented by one tab

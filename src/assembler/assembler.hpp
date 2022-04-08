@@ -1,8 +1,8 @@
 #ifndef ASSEMBLER_HPP
 #define ASSEMBLER_HPP
 
-#include <cstdint>
-#include <iostream>
+#include <cinttypes>
+#include <string>
 #include <vector>
 
 namespace Assembler {

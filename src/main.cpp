@@ -5,9 +5,10 @@
 
 int main() {
 	const auto assembly =
-	    "addiu $t0, $zero, 2\n"
-	    "addiu $t1, $t0, 3\n"
-	    "addu $t2, $t1, $t0\n";
+	    "addiu $t0, $zero, 0\n"
+	    "main:\n"
+	    "addiu $t0, $t0, -1\n"
+	    "j main\n";
 
 	std::istringstream assembly_stream(assembly);
 	auto               instr_mem = Assembler::assemble(assembly_stream);
@@ -21,11 +22,10 @@ int main() {
 
 	mips_core_init(&core, make_c_span(instr_mem), make_c_span(data_mem));
 
-	log_msg("Start regs:\n");
 	log_gprs_labelled(&core.state);
 
-	for (size_t i = 0; i < 8; i++) { mips_core_cycle(&core); }
-
-	log_msg("End regs:\n");
-	log_gprs_labelled(&core.state);
+	for (size_t i = 0; i < 20; i++) {
+		mips_core_cycle(&core);
+		log_msg("$t0: 0x%08X\n", core.state.gpr[8]);
+	}
 }

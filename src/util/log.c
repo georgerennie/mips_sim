@@ -1,6 +1,7 @@
 #include "log.h"
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "core/instruction.h"
 
 #ifdef ESBMC
@@ -29,6 +30,14 @@ inline int log_err(const char *format, ...) {
 	int ret = vfprintf(stderr, format, args);
 	va_end(args);
 	return ret;
+}
+
+inline int log_err_exit(const char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	vfprintf(stderr, format, args);
+	va_end(args);
+	exit(EXIT_FAILURE);
 }
 
 void log_mem_hex(span_t mem) {

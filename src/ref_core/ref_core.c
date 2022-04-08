@@ -69,7 +69,7 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 			val |= (uint32_t) *span_e(core->data_mem, load_address + 2) << 16;
 			val |= (uint32_t) *span_e(core->data_mem, load_address + 3) << 24;
 			*rt = val;
-		}
+		} break;
 
 		case MIPS_OPC_J:
 			// Pseudodirect addressing

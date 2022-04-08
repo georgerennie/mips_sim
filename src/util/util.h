@@ -11,6 +11,9 @@ extern "C" {
 // Extract a bit range from an integer, like VAL[UPPER:LOWER] in verilog
 #define EXTRACT_BITS(UPPER, LOWER, VAL) ((((1ULL << ((UPPER) + 1)) - 1) & VAL) >> LOWER)
 
+// Do the opposite of extract bits, mask a value and shift it to a bit position
+#define INSERT_BITS(UPPER, LOWER, VAL) ((((1ULL << (((UPPER) - (LOWER)) + 1)) - 1) & VAL) << LOWER)
+
 // Get number of elements of fixed size array
 #define NUM_ELEMS(ARR) (sizeof(ARR) / sizeof(*ARR))
 
