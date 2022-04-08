@@ -4,6 +4,7 @@
 #include "assembler/assembler.hpp"
 #include "core/core.h"
 #include "include/argparse.hpp"
+#include "ref_core/ref_core.h"
 #include "util/log.h"
 
 std::vector<uint8_t> assemble_file(const std::string& fn) {
@@ -13,20 +14,28 @@ std::vector<uint8_t> assemble_file(const std::string& fn) {
 	return Assembler::assemble(file);
 }
 
-void run_sim(const std::string& fn) {
-	auto instr_mem = assemble_file(fn);
+void run_sim(const std::string& fn, bool delay_slots, bool use_ref_core) {
+	auto    instr_mem     = assemble_file(fn);
+	uint8_t data_mem[100] = {0};
 
 	log_mem_hex(make_c_span(instr_mem));
 
-	mips_core_t core;
-	uint8_t     data_mem[100] = {0};
-	mips_core_init(&core, make_c_span(instr_mem), make_c_span(data_mem));
+	if (!use_ref_core) {
+		mips_core_t core;
+		mips_core_init(&core, make_c_span(instr_mem), make_c_span(data_mem), delay_slots);
 
-	log_gprs_labelled(&core.state);
+		for (size_t i = 0; i < 20; i++) {
+			mips_core_cycle(&core);
+			log_msg("$t0: 0x%08X\n", core.state.gpr[8]);
+		}
+	} else {
+		mips_ref_core_t ref_core;
+		ref_core_init(&ref_core, make_c_span(instr_mem), make_c_span(data_mem), delay_slots);
 
-	for (size_t i = 0; i < 20; i++) {
-		mips_core_cycle(&core);
-		log_msg("$t0: 0x%08X\n", core.state.gpr[8]);
+		for (size_t i = 0; i < 20; i++) {
+			ref_core_cycle(&ref_core);
+			log_msg("$t0: 0x%08X\n", ref_core.state.gpr[8]);
+		}
 	}
 }
 
@@ -34,6 +43,14 @@ int main(int argc, char* argv[]) {
 	argparse::ArgumentParser program("mips_sim");
 
 	program.add_argument("input_file").help("path to an assembly file to execute");
+	program.add_argument("-d", "--delay-slots")
+	    .help("enable delay slot emulation")
+	    .default_value(false)
+	    .implicit_value(true);
+	program.add_argument("-r", "--ref-core")
+	    .help("run simulation using single cycle reference model")
+	    .default_value(false)
+	    .implicit_value(true);
 
 	try {
 		program.parse_args(argc, argv);
@@ -43,6 +60,8 @@ int main(int argc, char* argv[]) {
 		std::exit(EXIT_FAILURE);
 	}
 
-	auto input_file = program.get("input_file");
-	run_sim(input_file);
+	const auto input_file  = program.get("input_file");
+	const auto delay_slots = program.get<bool>("--delay-slots");
+	const auto ref_core    = program.get<bool>("--ref-core");
+	run_sim(input_file, delay_slots, ref_core);
 }

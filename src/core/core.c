@@ -4,10 +4,11 @@
 #include "instruction_fetch.h"
 #include "util/log.h"
 
-void mips_core_init(mips_core_t* core, span_t instr_mem, span_t data_mem) {
+void mips_core_init(mips_core_t* core, span_t instr_mem, span_t data_mem, bool delay_slots) {
 	mips_state_init(&core->state);
 
-	core->cycle = 0;
+	core->delay_slots = delay_slots;
+	core->cycle       = 0;
 
 	core->instr_mem = instr_mem;
 	core->data_mem  = data_mem;

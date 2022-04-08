@@ -1,7 +1,7 @@
 #include "hazard_detection.h"
 #include "util/log.h"
 
-static void flush_stage(mips_core_t* core, mips_core_stage_t stage) {
+static inline void flush_stage(mips_core_t* core, mips_core_stage_t stage) {
 	// To turn an instruction into a nop, if it hasnt yet been decoded, we just
 	// replace it with a nop (0x00000000) and if it has, we just need to set
 	// its writeback reg to 0 and its memory write to none
@@ -24,6 +24,6 @@ static void flush_stage(mips_core_t* core, mips_core_stage_t stage) {
 void handle_hazards(mips_core_t* core) {
 	if (core->id_ex.branch) {
 		core->state.pc = core->id_ex.branch_address;
-		flush_stage(core, MIPS_STAGE_IF);
+		if (!core->delay_slots) { flush_stage(core, MIPS_STAGE_IF); }
 	}
 }

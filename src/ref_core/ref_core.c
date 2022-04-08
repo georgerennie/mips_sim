@@ -3,8 +3,10 @@
 #include "core/instruction.h"
 #include "util/log.h"
 
-void ref_core_init(mips_ref_core_t* core, span_t instr_mem, span_t data_mem) {
+void ref_core_init(mips_ref_core_t* core, span_t instr_mem, span_t data_mem, bool delay_slots) {
 	mips_state_init(&core->state);
+
+	core->delay_slots = delay_slots;
 
 	core->instr_mem = instr_mem;
 	core->data_mem  = data_mem;
@@ -23,7 +25,8 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 	instr |= (uint32_t) *span_e(core->instr_mem, core->state.pc + 1) << 8;
 	instr |= (uint32_t) *span_e(core->instr_mem, core->state.pc + 2) << 16;
 	instr |= (uint32_t) *span_e(core->instr_mem, core->state.pc + 3) << 24;
-	uint32_t next_pc = core->state.pc + 4;
+	uint32_t next_pc   = core->branch_after ? core->branch_dest : core->state.pc + 4;
+	core->branch_after = false;
 
 	const mips_opcode_t opc = EXTRACT_BITS(31, 26, instr);
 
@@ -71,10 +74,18 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 			*rt = val;
 		} break;
 
-		case MIPS_OPC_J:
+		case MIPS_OPC_J: {
 			// Pseudodirect addressing
-			next_pc = ((core->state.pc + 4) & 0xF0000000) | jump_address << 2;
-			break;
+			const uint32_t target = ((core->state.pc + 4) & 0xF0000000) | jump_address << 2;
+			if (core->delay_slots) {
+				// TODO: Raise illegal instruction exception if trying to branch
+				// whilst already branching
+				core->branch_after = true;
+				core->branch_dest  = target;
+			} else {
+				next_pc = target;
+			}
+		} break;
 
 		default: return MIPS_TRAP_UNKNOWN_INSTR;
 	}

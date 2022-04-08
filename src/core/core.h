@@ -26,13 +26,18 @@ typedef enum {
 } mips_core_stage_t;
 
 typedef struct {
+	// Architectural state
 	mips_state_t state;
 
+	// Config/metrics
+	bool     delay_slots;
 	uint32_t cycle;
 
+	// Memory
 	span_t instr_mem;
 	span_t data_mem;
 
+	// Pipeline registers
 	if_id_reg_t  if_id;
 	id_ex_reg_t  id_ex;
 	ex_mem_reg_t ex_mem;
@@ -46,7 +51,7 @@ typedef struct {
 	int _;
 } mips_result_t;
 
-void mips_core_init(mips_core_t* core, span_t instr_mem, span_t data_mem);
+void mips_core_init(mips_core_t* core, span_t instr_mem, span_t data_mem, bool delay_slots);
 
 // Execute instructions until one generates a trap
 mips_result_t mips_core_run(mips_core_t* core);
