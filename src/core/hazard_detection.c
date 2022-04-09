@@ -36,10 +36,17 @@ hazard_flags_t detect_hazards(mips_core_t* core, id_ex_reg_t* id_result) {
 		if (mem_load) { stall_stage(&hazards, MIPS_STAGE_EX); }
 	}
 
-	// Branch hazard - Branch argument is being calculated in EX so stall
+	// Branch hazard - Branch operand is being calculated in EX so stall
 	const uint8_t ex_wb_reg = core->regs.id_ex.ex_mem.mem_wb.reg;
-	if (id_result->reg_rs == ex_wb_reg || id_result->reg_rt == ex_wb_reg) {
+	const uint8_t id_rs     = id_result->reg_rs;
+	const uint8_t id_rt     = id_result->reg_rt;
+	if (id_rs == ex_wb_reg || id_rt == ex_wb_reg) {
 		if (id_result->eval_branch) { stall_stage(&hazards, MIPS_STAGE_ID); }
+	}
+
+	// Branch hazard - Branch operand is being loaded from memory
+	if (id_rs == mem_wb_reg || id_rs == mem_wb_reg) {
+		if (id_result->eval_branch && mem_load) { stall_stage(&hazards, MIPS_STAGE_ID); }
 	}
 
 	// Jump/Branch control hazard - pc is updated in core.c
