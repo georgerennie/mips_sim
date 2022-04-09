@@ -17,11 +17,11 @@ extern "C" {
 // Get number of elements of fixed size array
 #define NUM_ELEMS(ARR) (sizeof(ARR) / sizeof(*ARR))
 
+#define ATTR_PACKED __attribute__((__packed__))
 #ifndef ESBMC
-	#define FALLTHROUGH __attribute__((fallthrough))
+	#define ATTR_FALLTHROUGH __attribute__((fallthrough))
 #else
-	#define FALLTHROUGH \
-		{}
+	#define ATTR_FALLTHROUGH
 #endif
 
 // Data accompanied with length field

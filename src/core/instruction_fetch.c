@@ -1,4 +1,4 @@
-#include "instruction_fetch.h"
+#include "core.h"
 #include "util/log.h"
 
 if_id_reg_t instruction_fetch(const mips_state_t* arch_state, span_t instr_mem) {

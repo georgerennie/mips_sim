@@ -1,7 +1,5 @@
 #include "core.h"
-#include "forwarding_unit.h"
 #include "hazard_detection.h"
-#include "instruction_fetch.h"
 #include "util/log.h"
 
 void mips_core_init(mips_core_t* core, span_t instr_mem, span_t data_mem, bool delay_slots) {
@@ -30,41 +28,55 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 	log_dbg("Starting cycle %d\n", core->cycle);
 	core->cycle++;
 
+	// Detect hazards/branches
+	hazard_flags_t hazards = detect_hazards(core);
+
+	// ---------------- Pipeline stages ----------------------------------------
+
 	// Register writeback - Do this before anything else as in real hardware
 	// WB would occur in the first half of the cycle, and ID in the second half
 	writeback(&core->regs.mem_wb, &core->state);
 
-	// Propagate forwarded values
-	setup_forwards(&core->regs);
-
-	// Values to writeback
-	mips_pipeline_regs_t next_regs;
-
 	// Instruction Fetch
-	next_regs.if_id = instruction_fetch(&core->state, core->instr_mem);
+	if_id_reg_t if_id = instruction_fetch(&core->state, core->instr_mem);
 
 	// Decode / Register Fetch
-	next_regs.id_ex = instruction_decode(&core->regs.if_id, &core->state);
+	id_ex_reg_t id_ex = instruction_decode(&core->regs, &core->state);
 
 	// Execute
-	next_regs.ex_mem = execute(&core->regs.id_ex);
+	ex_mem_reg_t ex_mem = execute(&core->regs);
 
 	// Memory Access
-	next_regs.mem_wb = memory(&core->regs.ex_mem, core->data_mem);
+	mem_wb_reg_t mem_wb = memory(&core->regs.ex_mem, core->data_mem);
 
-	// Detect and deal with hazards/branches
-	handle_hazards(core, &next_regs);
+	// ---------------- Pipeline register writeback ----------------------------
 
-	// Update registers dependent on stalls
-	if (!next_regs.stalls[MIPS_STAGE_IF]) {
-		core->state.pc   = (!next_regs.stalls[MIPS_STAGE_ID] && next_regs.id_ex.branch)
-		                       ? next_regs.id_ex.branch_address
-		                       : core->state.pc + 4;
-		core->regs.if_id = next_regs.if_id;
+	if (hazards.flushes[MIPS_STAGE_IF]) {
+		if_id_reg_init(&core->regs.if_id);
+	} else if (!hazards.stalls[MIPS_STAGE_IF]) {
+		core->regs.if_id = if_id;
 	}
-	if (!next_regs.stalls[MIPS_STAGE_ID]) { core->regs.id_ex = next_regs.id_ex; }
-	if (!next_regs.stalls[MIPS_STAGE_EX]) { core->regs.ex_mem = next_regs.ex_mem; }
-	if (!next_regs.stalls[MIPS_STAGE_MEM]) { core->regs.mem_wb = next_regs.mem_wb; }
+
+	if (hazards.flushes[MIPS_STAGE_ID]) {
+		id_ex_reg_init(&core->regs.id_ex);
+	} else if (!hazards.stalls[MIPS_STAGE_ID]) {
+		core->regs.id_ex = id_ex;
+	}
+
+	if (hazards.flushes[MIPS_STAGE_EX]) {
+		ex_mem_reg_init(&core->regs.ex_mem);
+	} else if (!hazards.stalls[MIPS_STAGE_EX]) {
+		core->regs.ex_mem = ex_mem;
+	}
+
+	if (!hazards.stalls[MIPS_STAGE_MEM]) { core->regs.mem_wb = mem_wb; }
+
+	// Update PC
+	if (core->regs.id_ex.branch) {
+		core->state.pc = core->regs.id_ex.branch_address;
+	} else if (!hazards.stalls[MIPS_STAGE_IF]) {
+		core->state.pc += 4;
+	}
 
 	mips_result_t result = {0};
 	return result;

@@ -3,6 +3,14 @@
 
 #include "core.h"
 
-void handle_hazards(mips_core_t* core, mips_pipeline_regs_t* next_regs);
+typedef struct {
+	// If a stage is flushed, it is converted to a nop
+	bool flushes[MIPS_STAGE_NUM - 2];
+
+	// If a stage is stalled, it doesnt write out its value
+	bool stalls[MIPS_STAGE_NUM - 1];
+} hazard_flags_t;
+
+hazard_flags_t detect_hazards(mips_core_t* core);
 
 #endif

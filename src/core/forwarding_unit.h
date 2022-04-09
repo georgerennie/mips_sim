@@ -3,6 +3,6 @@
 
 #include "core.h"
 
-void setup_forwards(mips_pipeline_regs_t* regs);
+uint32_t get_fwd_value(const mips_pipeline_regs_t* regs, uint8_t reg, uint32_t fallback);
 
 #endif

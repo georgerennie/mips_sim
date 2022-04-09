@@ -1,4 +1,4 @@
-#include "memory.h"
+#include "core.h"
 #include "util/esbmc_util.h"
 #include "util/log.h"
 
@@ -27,7 +27,6 @@ mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 
 		case MEM_ACCESS_WRITE: {
 			// Currently only SH is supported
-			log_msg("here %d\n", ex_mem->data_rt);
 			log_assert_eqi(bytes, 2);
 
 			*span_e(data_mem, addr)     = EXTRACT_BITS(7, 0, ex_mem->data_rt);

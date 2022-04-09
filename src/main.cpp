@@ -14,9 +14,12 @@ std::vector<uint8_t> assemble_file(const std::string& fn) {
 	return Assembler::assemble(file);
 }
 
+void wait_for_input() { std::cin.get(); }
+void clear_screen() { log_msg("\033[2J\033[H"); }
+
 void run_sim(const std::string& fn, bool delay_slots, bool use_ref_core) {
 	auto    instr_mem     = assemble_file(fn);
-	uint8_t data_mem[100] = {0};
+	uint8_t data_mem[512] = {0};
 
 	log_mem_hex(make_c_span(instr_mem));
 
@@ -24,9 +27,18 @@ void run_sim(const std::string& fn, bool delay_slots, bool use_ref_core) {
 		mips_core_t core;
 		mips_core_init(&core, make_c_span(instr_mem), make_c_span(data_mem), delay_slots);
 
-		for (size_t i = 0; i < 20; i++) { mips_core_cycle(&core); }
-		log_gprs_labelled(&core.state);
-		log_mem_hex(make_c_span(data_mem));
+		for (size_t i = 0; i < 20; i++) {
+			clear_screen();
+
+			mips_core_cycle(&core);
+
+			log_pipeline_regs(&core.regs);
+			log_msg("\n");
+			log_gprs_labelled(&core.state);
+			log_msg("\n");
+			log_mem_hex(core.data_mem);
+			wait_for_input();
+		}
 	} else {
 		mips_ref_core_t ref_core;
 		ref_core_init(&ref_core, make_c_span(instr_mem), make_c_span(data_mem), delay_slots);

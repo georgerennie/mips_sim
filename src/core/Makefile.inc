@@ -7,3 +7,4 @@ CORE_SRCS += $(SRC)/core/memory.c
 CORE_SRCS += $(SRC)/core/writeback.c
 CORE_SRCS += $(SRC)/core/forwarding_unit.c
 CORE_SRCS += $(SRC)/core/hazard_detection.c
+CORE_SRCS += $(SRC)/core/pipeline_regs.c

@@ -42,7 +42,11 @@ inline int log_err_exit(const char *format, ...) {
 }
 
 void log_mem_hex(span_t mem) {
-	const size_t row_bytes = 16, col_bytes = 2;
+	const size_t row_bytes = 32, col_bytes = 2;
+
+	log_msg("%10c", ' ');
+	for (size_t col = 0; col < row_bytes; col += col_bytes) { log_msg("%*x ", col_bytes * 2, col); }
+	log_msg("\n");
 
 	for (size_t row = 0; row < mem.size; row += row_bytes) {
 		log_msg("%08x: ", row);
@@ -58,7 +62,7 @@ void log_mem_hex(span_t mem) {
 }
 
 void log_gprs_labelled(mips_state_t *state) {
-	const uint8_t gprs = 32, row_len = 5;
+	const uint8_t gprs = 32, row_len = 6;
 
 	for (uint8_t row = 0; row < gprs; row += row_len) {
 		for (uint8_t col = 0; col < row_len; col++) {

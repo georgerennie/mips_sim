@@ -1,10 +1,11 @@
-#include "instruction_decode.h"
+#include "core.h"
+#include "forwarding_unit.h"
 #include "instruction.h"
 #include "util/log.h"
 #include "util/util.h"
 
-id_ex_reg_t instruction_decode(const if_id_reg_t* if_id, const mips_state_t* arch_state) {
-	const uint32_t      instr = if_id->instruction;
+id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_state_t* arch_state) {
+	const uint32_t      instr = regs->if_id.instruction;
 	const mips_opcode_t opc   = EXTRACT_BITS(31, 26, instr);
 	// R/I type
 	const uint8_t rs = EXTRACT_BITS(25, 21, instr);
@@ -52,7 +53,7 @@ id_ex_reg_t instruction_decode(const if_id_reg_t* if_id, const mips_state_t* arc
 
 	else if (opc == MIPS_OPC_J) {
 		id_ex.branch         = true;
-		id_ex.branch_address = ((if_id->address + 4) & 0xF0000000) | (jump_address << 2);
+		id_ex.branch_address = ((regs->if_id.address + 4) & 0xF0000000) | (jump_address << 2);
 	}
 
 	else {
@@ -92,11 +93,13 @@ id_ex_reg_t instruction_decode(const if_id_reg_t* if_id, const mips_state_t* arc
 
 			case MIPS_OPC_BEQ:
 			case MIPS_OPC_BNE: {
-				id_ex.ex_mem.mem_wb.reg = 0;
-				// TODO: These values need to be forwarded
-				const bool regs_equal = id_ex.data_rs == id_ex.data_rt;
-				id_ex.branch          = (opc == MIPS_OPC_BEQ) ? regs_equal : !regs_equal;
-				id_ex.branch_address  = if_id->address + 4 + (s_imm << 2);
+				id_ex.ex_mem.mem_wb.reg   = 0;
+				id_ex.eval_branch         = true;
+				const uint32_t rs_fwd     = get_fwd_value(regs, rs, id_ex.data_rs);
+				const uint32_t rt_fwd     = get_fwd_value(regs, rt, id_ex.data_rt);
+				const bool     regs_equal = rs_fwd == rt_fwd;
+				id_ex.branch              = (opc == MIPS_OPC_BEQ) ? regs_equal : !regs_equal;
+				id_ex.branch_address      = regs->if_id.address + 4 + (s_imm << 2);
 			} break;
 
 			default: log_dbgi("Unknown opcode\n"); break;

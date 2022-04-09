@@ -7,33 +7,8 @@ extern "C" {
 
 #include <stdbool.h>
 #include "arch_state.h"
-#include "execute.h"
-#include "instruction_decode.h"
-#include "memory.h"
+#include "pipeline_regs.h"
 #include "util/util.h"
-#include "writeback.h"
-
-typedef enum {
-	MIPS_STAGE_NONE = -1,
-
-	MIPS_STAGE_IF = 0,
-	MIPS_STAGE_ID,
-	MIPS_STAGE_EX,
-	MIPS_STAGE_MEM,
-	MIPS_STAGE_WB,
-
-	MIPS_STAGE_NUM,
-} mips_core_stage_t;
-
-typedef struct {
-	if_id_reg_t  if_id;
-	id_ex_reg_t  id_ex;
-	ex_mem_reg_t ex_mem;
-	mem_wb_reg_t mem_wb;
-
-	// If a stage is stalled, it doesnt write out its value
-	bool stalls[MIPS_STAGE_NUM - 1];
-} mips_pipeline_regs_t;
 
 typedef struct {
 	// Architectural state
@@ -62,6 +37,18 @@ mips_result_t mips_core_run(mips_core_t* core);
 
 // Execute one clock cycle
 mips_result_t mips_core_cycle(mips_core_t* core);
+
+// Pipeline stages, defined in separate header files
+if_id_reg_t  instruction_fetch(const mips_state_t* arch_state, span_t instr_mem);
+id_ex_reg_t  instruction_decode(const mips_pipeline_regs_t* regs, const mips_state_t* arch_state);
+ex_mem_reg_t execute(const mips_pipeline_regs_t* regs);
+mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem);
+void         writeback(const mem_wb_reg_t* mem_wb, mips_state_t* arch_state);
+
+void if_id_reg_init(if_id_reg_t* if_id);
+void id_ex_reg_init(id_ex_reg_t* id_ex);
+void ex_mem_reg_init(ex_mem_reg_t* ex_mem);
+void mem_wb_reg_init(mem_wb_reg_t* mem_wb);
 
 #ifdef __cplusplus
 }

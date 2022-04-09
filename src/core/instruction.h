@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <inttypes.h>
+#include "util/util.h"
 
 typedef enum {
 	MIPS_OPC_R_FMT = 0x00,
@@ -25,7 +26,7 @@ typedef enum {
 	MIPS_OPC_LHU = 0x25,
 
 	MIPS_OPC_J = 0x02,
-} mips_opcode_t;
+} ATTR_PACKED mips_opcode_t;
 
 typedef enum {
 	// This is actually variant of sll, but we are treating it like a nop no
@@ -35,14 +36,14 @@ typedef enum {
 	MIPS_FUNCT_ADDU = 0x21,
 	MIPS_FUNCT_AND  = 0x24,
 	MIPS_FUNCT_OR   = 0x25,
-} mips_funct_t;
+} ATTR_PACKED mips_funct_t;
 
 typedef enum {
 	MIPS_INSTR_FORMAT_UNKNOWN = 0,
 	MIPS_INSTR_FORMAT_R,
 	MIPS_INSTR_FORMAT_I,
 	MIPS_INSTR_FORMAT_J,
-} mips_instr_format_t;
+} ATTR_PACKED mips_instr_format_t;
 
 typedef struct {
 	uint8_t rs;
@@ -50,17 +51,17 @@ typedef struct {
 	uint8_t rd;
 	uint8_t shamt;
 	uint8_t funct;
-} mips_r_instr_data_t;
+} ATTR_PACKED mips_r_instr_data_t;
 
 typedef struct {
 	uint8_t  rs;
 	uint8_t  rt;
 	uint16_t immediate;
-} mips_i_instr_data_t;
+} ATTR_PACKED mips_i_instr_data_t;
 
 typedef struct {
 	uint32_t address;
-} mips_j_instr_data_t;
+} ATTR_PACKED mips_j_instr_data_t;
 
 typedef struct {
 	mips_opcode_t       opcode;
@@ -72,7 +73,7 @@ typedef struct {
 		mips_j_instr_data_t j_data;
 	};
 
-} mips_instr_t;
+} ATTR_PACKED mips_instr_t;
 
 static const char* mips_reg_lookup[32] = {"zero", "at", "v0", "v1", "a0", "a1", "a2", "a3",
                                           "t0",   "t1", "t2", "t3", "t4", "t5", "t6", "t7",

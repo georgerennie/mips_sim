@@ -1,6 +1,6 @@
-#include "writeback.h"
+#include "core.h"
 
-void writeback(const mem_wb_reg_t* mem_wb, mips_state_t* arch_state) {
+inline void writeback(const mem_wb_reg_t* mem_wb, mips_state_t* arch_state) {
 	gpr_write(arch_state, mem_wb->reg, mem_wb->result);
 }
 

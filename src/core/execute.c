@@ -1,4 +1,5 @@
-#include "execute.h"
+#include "core.h"
+#include "forwarding_unit.h"
 #include "util/log.h"
 
 static inline void log_dbg_exec(uint32_t a, const char* op, uint32_t b) {
@@ -17,14 +18,11 @@ static inline uint32_t compute_alu_op(alu_op_t op, uint32_t a, uint32_t b) {
 	}
 }
 
-ex_mem_reg_t execute(const id_ex_reg_t* id_ex) {
-	const uint32_t rs = (id_ex->fwd_a == EX_FWD_SRC_EXEC)  ? id_ex->ex_mem_result
-	                    : (id_ex->fwd_a == EX_FWD_SRC_MEM) ? id_ex->mem_wb_result
-	                                                       : id_ex->data_rs;
-	const uint32_t rt = (id_ex->fwd_b == EX_FWD_SRC_EXEC)  ? id_ex->ex_mem_result
-	                    : (id_ex->fwd_b == EX_FWD_SRC_MEM) ? id_ex->mem_wb_result
-	                                                       : id_ex->data_rt;
-	const uint32_t b  = (id_ex->alu_b_src == ALU_SRC_IMM) ? id_ex->immediate : rt;
+ex_mem_reg_t execute(const mips_pipeline_regs_t* regs) {
+	const id_ex_reg_t* id_ex = &regs->id_ex;
+	const uint32_t     rs    = get_fwd_value(regs, id_ex->reg_rs, id_ex->data_rs);
+	const uint32_t     rt    = get_fwd_value(regs, id_ex->reg_rt, id_ex->data_rt);
+	const uint32_t     b     = (id_ex->alu_b_src == ALU_SRC_IMM) ? id_ex->immediate : rt;
 
 	ex_mem_reg_t ex_mem  = id_ex->ex_mem;
 	ex_mem.mem_wb.result = compute_alu_op(id_ex->alu_op, rs, b);
@@ -43,15 +41,11 @@ void id_ex_reg_init(id_ex_reg_t* id_ex) {
 	id_ex->reg_rt    = 0;
 	id_ex->immediate = 0;
 
-	id_ex->ex_mem_result = 0;
-	id_ex->mem_wb_result = 0;
-
+	id_ex->eval_branch    = false;
 	id_ex->branch         = false;
 	id_ex->branch_address = 0;
 
 	id_ex->alu_op    = ALU_OP_NOP;
 	id_ex->alu_b_src = ALU_SRC_DATA_B;
-	id_ex->fwd_a     = EX_FWD_SRC_NONE;
-	id_ex->fwd_b     = EX_FWD_SRC_NONE;
 	ex_mem_reg_init(&id_ex->ex_mem);
 }
