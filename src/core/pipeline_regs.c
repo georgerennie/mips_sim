@@ -1,5 +1,6 @@
 #include "pipeline_regs.h"
 #include <stdarg.h>
+#include "instruction.h"
 #include "util/log.h"
 
 static inline void log_reg_name(const char* name, size_t gap) {
@@ -39,8 +40,21 @@ static inline void log_reg_str(const char* name, size_t gap, size_t n, ...) {
 
 void log_pipeline_regs(const mips_pipeline_regs_t* regs) {
 	log_reg_str("stage", 0, 4, "IF/ID  ", "ID/EX  ", "EX/MEM ", "MEM/WB ");
-	log_reg_hex("instruction", 0, 1, regs->if_id.instruction);
-	log_reg_hex("address", 0, 1, regs->if_id.address);
+
+	const mips_retire_metadata_t* id_ex_meta  = &regs->id_ex.ex_mem.mem_wb.metadata;
+	const mips_retire_metadata_t* ex_mem_meta = &regs->ex_mem.mem_wb.metadata;
+	const mips_retire_metadata_t* mem_wb_meta = &regs->mem_wb.metadata;
+
+	log_reg_str(
+	    "instr name", 0, 4, mips_instr_name(regs->if_id.instruction),
+	    mips_instr_name(id_ex_meta->instruction), mips_instr_name(ex_mem_meta->instruction),
+	    mips_instr_name(mem_wb_meta->instruction));
+	log_reg_hex(
+	    "instruction", 0, 1, regs->if_id.instruction, id_ex_meta->instruction,
+	    ex_mem_meta->instruction, mem_wb_meta->instruction);
+	log_reg_hex(
+	    "address", 0, 1, regs->if_id.address, id_ex_meta->address, ex_mem_meta->address,
+	    mem_wb_meta->address);
 
 	log_reg_dec("rs", 1, 1, regs->id_ex.reg_rs);
 	log_reg_hex("*rs", 1, 1, regs->id_ex.data_rs);

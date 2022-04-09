@@ -28,6 +28,10 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 	id_ex_reg_t id_ex;
 	id_ex_reg_init(&id_ex);
 
+	// Setup instruction metadata
+	id_ex.ex_mem.mem_wb.metadata.instruction = regs->if_id.instruction;
+	id_ex.ex_mem.mem_wb.metadata.address     = regs->if_id.address;
+
 	// Register read
 	id_ex.data_rs = gpr_read(arch_state, rs);
 	id_ex.data_rt = gpr_read(arch_state, rt);

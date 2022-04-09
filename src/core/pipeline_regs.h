@@ -5,12 +5,23 @@
 #include <stdbool.h>
 #include "util/util.h"
 
+// -------- Retire Metadata ----------------------------------------------------
+
+// This is included for observability, not operation of the pipeline
+typedef struct {
+	uint32_t instruction;
+	uint32_t address;
+} mips_retire_metadata_t;
+
 // -------- MEM/WB -------------------------------------------------------------
 
 typedef struct {
 	// Data
 	uint8_t  reg; // Register to write to. No write if reg == 0
 	uint32_t result;
+
+	// Metadata
+	mips_retire_metadata_t metadata;
 } mem_wb_reg_t;
 
 // -------- EX/MEM -------------------------------------------------------------
@@ -83,7 +94,7 @@ typedef struct {
 	uint32_t address;
 } if_id_reg_t;
 
-// -------- Whole Pipeline  ----------------------------------------------------
+// -------- Whole Pipeline -----------------------------------------------------
 
 typedef enum {
 	MIPS_STAGE_NONE = -1,
