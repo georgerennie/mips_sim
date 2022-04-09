@@ -28,9 +28,6 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 	log_dbg("Starting cycle %d\n", core->cycle);
 	core->cycle++;
 
-	// Detect hazards/branches
-	hazard_flags_t hazards = detect_hazards(core);
-
 	// ---------------- Pipeline stages ----------------------------------------
 
 	// Register writeback - Do this before anything else as in real hardware
@@ -50,6 +47,9 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 	mem_wb_reg_t mem_wb = memory(&core->regs.ex_mem, core->data_mem);
 
 	// ---------------- Pipeline register writeback ----------------------------
+	//
+	// Detect hazards/branches
+	hazard_flags_t hazards = detect_hazards(core, &id_ex);
 
 	if (hazards.flushes[MIPS_STAGE_IF]) {
 		if_id_reg_init(&core->regs.if_id);
@@ -72,7 +72,7 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 	if (!hazards.stalls[MIPS_STAGE_MEM]) { core->regs.mem_wb = mem_wb; }
 
 	// Update PC
-	if (core->regs.id_ex.branch) {
+	if (!hazards.flushes[MIPS_STAGE_ID] && core->regs.id_ex.branch) {
 		core->state.pc = core->regs.id_ex.branch_address;
 	} else if (!hazards.stalls[MIPS_STAGE_IF]) {
 		core->state.pc += 4;

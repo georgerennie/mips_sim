@@ -11,6 +11,6 @@ typedef struct {
 	bool stalls[MIPS_STAGE_NUM - 1];
 } hazard_flags_t;
 
-hazard_flags_t detect_hazards(mips_core_t* core);
+hazard_flags_t detect_hazards(mips_core_t* core, id_ex_reg_t* id_result);
 
 #endif
