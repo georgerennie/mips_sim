@@ -75,13 +75,19 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 			      (uint32_t) INSERT_BITS(15, 8, *span_e(core->data_mem, load_address + 1));
 		} break;
 
-		// TODO: Update delay slots for branches
 		case MIPS_OPC_BEQ:
-			if (*rs == *rt) { next_pc += (s_imm << 2); }
-			break;
-		case MIPS_OPC_BNE:
-			if (*rs != *rt) { next_pc += (s_imm << 2); }
-			break;
+		case MIPS_OPC_BNE: {
+			const bool     branch = (opc == MIPS_OPC_BEQ) == (*rs == *rt);
+			const uint32_t target = next_pc + (s_imm << 2);
+			if (branch) {
+				if (core->delay_slots) {
+					core->branch_after = true;
+					core->branch_dest  = target;
+				} else {
+					next_pc = target;
+				}
+			}
+		} break;
 
 		case MIPS_OPC_SH: {
 			// TODO: Trap on invalid access (page fault or unaligned)
@@ -94,8 +100,6 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 			// Pseudodirect addressing
 			const uint32_t target = ((core->state.pc + 4) & 0xF0000000) | jump_address << 2;
 			if (core->delay_slots) {
-				// TODO: Raise illegal instruction exception if trying to branch
-				// whilst already branching
 				core->branch_after = true;
 				core->branch_dest  = target;
 			} else {

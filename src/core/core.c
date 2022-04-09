@@ -47,7 +47,6 @@ mips_result_t mips_core_cycle(mips_core_t* core) {
 	mem_wb_reg_t mem_wb = memory(&core->regs.ex_mem, core->data_mem);
 
 	// ---------------- Pipeline register writeback ----------------------------
-	//
 	// Detect hazards/branches
 	hazard_flags_t hazards = detect_hazards(core, &id_ex);
 
