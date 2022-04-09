@@ -93,6 +93,7 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 				id_ex.alu_op             = ALU_OP_ADD;
 				id_ex.ex_mem.access_type = MEM_ACCESS_WRITE;
 				id_ex.ex_mem.bytes       = 2;
+				id_ex.ex_mem.mem_wb.reg  = 0;
 			} break;
 
 			case MIPS_OPC_BEQ:

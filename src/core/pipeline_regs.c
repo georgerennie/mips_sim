@@ -50,10 +50,10 @@ void log_pipeline_regs(const mips_pipeline_regs_t* regs) {
 	    mips_instr_name(id_ex_meta->instruction), mips_instr_name(ex_mem_meta->instruction),
 	    mips_instr_name(mem_wb_meta->instruction));
 	log_reg_hex(
-	    "instruction", 0, 1, regs->if_id.instruction, id_ex_meta->instruction,
+	    "instruction", 0, 4, regs->if_id.instruction, id_ex_meta->instruction,
 	    ex_mem_meta->instruction, mem_wb_meta->instruction);
 	log_reg_hex(
-	    "address", 0, 1, regs->if_id.address, id_ex_meta->address, ex_mem_meta->address,
+	    "address", 0, 4, regs->if_id.address, id_ex_meta->address, ex_mem_meta->address,
 	    mem_wb_meta->address);
 
 	log_reg_dec("rs", 1, 1, regs->id_ex.reg_rs);
