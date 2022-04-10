@@ -11,7 +11,7 @@ mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 		log_assert_fmt(bytes == 1 || bytes == 2 || bytes == 4, "bytes: %d\n", bytes);
 
 		// TODO: Replace this with a trap
-		esbmc_assume((uint64_t) addr + bytes < data_mem.size);
+		esbmc_assume((uint64_t) addr + bytes - 1 < data_mem.size);
 	}
 
 	switch (ex_mem->access_type) {

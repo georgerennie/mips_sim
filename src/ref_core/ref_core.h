@@ -28,9 +28,6 @@ void ref_core_init(mips_ref_core_t* core, mips_config_t config);
 // Execute instructions until one generates a trap
 // mips_retire_metadata_t ref_core_run(mips_ref_core_t* core);
 
-// Execute 1 instruction
-mips_retire_metadata_t ref_core_run_one(mips_ref_core_t* core);
-
 // Execute one instruction
 mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* state);
 

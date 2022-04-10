@@ -26,7 +26,21 @@ void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) {
 	mips_core_init(&core, make_mips_config(instr_mem, data_mem));
 
 	// TODO: Add single steppping to this and run_reference, complete run_compare
-	for (size_t i = 0; i < 10000; i++) { mips_core_run_one(&core); }
+	for (size_t i = 0; i < 10000; i++) {
+		if (!config.step) {
+			mips_core_run_one(&core);
+			continue;
+		}
+
+		clear_screen();
+		mips_core_cycle(&core);
+		log_pipeline_regs(&core.regs);
+		log_msg("\n");
+		log_gprs_labelled(&core.state);
+		log_msg("\n");
+		log_mem_hex(core.config.data_mem);
+		wait_for_input();
+	}
 
 	log_gprs_labelled(&core.state);
 	log_mem_hex(core.config.data_mem);
@@ -37,7 +51,17 @@ void SimRunner::run_reference(std::span<uint8_t> instr_mem) {
 	std::vector<uint8_t> data_mem(config.mem_size, 0);
 	ref_core_init(&ref_core, make_mips_config(instr_mem, data_mem));
 
-	for (size_t i = 0; i < 10000; i++) { ref_core_run_one(&ref_core); }
+	for (size_t i = 0; i < 10000; i++) {
+		// TODO: Print current instruction/addr etc in single step mode
+		if (config.step) { clear_screen(); }
+		ref_core_cycle(&ref_core);
+		if (!config.step) { continue; }
+
+		log_gprs_labelled(&ref_core.state);
+		log_msg("\n");
+		log_mem_hex(ref_core.config.data_mem);
+		wait_for_input();
+	}
 
 	log_gprs_labelled(&ref_core.state);
 	log_mem_hex(ref_core.config.data_mem);
@@ -52,6 +76,12 @@ void SimRunner::run_compare(std::span<uint8_t> instr_mem) {
 
 	mips_core_init(&core, make_mips_config(instr_mem, pipeline_data_mem));
 	ref_core_init(&ref_core, make_mips_config(instr_mem, ref_data_mem));
+
+	// TODO: Define how compare works, for both stepped and normal mode
+	// for (size_t i = 0; i < 10000; i++) {
+	//     const auto core_retire = mips_core_run_one(&core);
+	//     const auto ref_retire  = ref_core_cycle(&ref_core);
+	// }
 }
 
 inline void SimRunner::wait_for_input() { std::cin.get(); }

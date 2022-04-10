@@ -25,13 +25,6 @@ void ref_core_init(mips_ref_core_t* core, mips_config_t config) {
 //     return trap;
 // }
 
-mips_retire_metadata_t ref_core_run_one(mips_ref_core_t* core) {
-	while (true) {
-		mips_retire_metadata_t retire = ref_core_cycle(core);
-		if (retire.active) { return retire; }
-	}
-}
-
 mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 	mips_retire_metadata_t metadata = {
 	    .address            = core->state.pc,

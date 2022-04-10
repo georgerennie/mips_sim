@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	SimRunner::Config config;
-	config.delay_slots = program.get<bool>("--step");
+	config.step        = program.get<bool>("--step");
 	config.ref_core    = program.get<bool>("--ref-core");
 	config.compare     = program.get<bool>("--compare");
 	config.delay_slots = program.get<bool>("--delay-slots");
