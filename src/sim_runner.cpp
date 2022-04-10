@@ -3,6 +3,7 @@
 #include <vector>
 #include "core/core.h"
 #include "ref_core/ref_core.h"
+#include "util/instruction.h"
 #include "util/log.h"
 
 void SimRunner::run(std::span<uint8_t> instr_mem) {
@@ -20,12 +21,35 @@ mips_config_t SimRunner::make_mips_config(
 	return mips_config;
 }
 
+void SimRunner::log_instructions(
+    std::deque<mips_retire_metadata_t>& instr_queue, size_t max_instrs,
+    mips_retire_metadata_t new_instr) {
+	if (new_instr.active) { instr_queue.push_back(new_instr); }
+	if (instr_queue.size() > max_instrs) { instr_queue.pop_front(); }
+
+	const auto blank_instrs = max_instrs - instr_queue.size();
+	for (size_t i = 0; i < max_instrs; i++) {
+		log_msg("%c ", i == max_instrs - 1 ? '>' : ' ');
+
+		if (i < blank_instrs) {
+			log_msg("...\n");
+			continue;
+		}
+
+		const auto& instr = instr_queue[i - blank_instrs];
+		log_msg(
+		    "0x%08x (%d): %s\n", instr.address, instr.instruction_number,
+		    mips_instr_name(instr.instruction));
+	}
+}
+
 void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) {
 	mips_core_t          core;
 	std::vector<uint8_t> data_mem(config.mem_size, 0);
 	mips_core_init(&core, make_mips_config(instr_mem, data_mem));
 
-	// TODO: Add single steppping to this and run_reference, complete run_compare
+	std::deque<mips_retire_metadata_t> last_instructions;
+
 	for (size_t i = 0; i < 10000; i++) {
 		if (!config.step) {
 			mips_core_run_one(&core);
@@ -33,11 +57,11 @@ void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) {
 		}
 
 		clear_screen();
-		mips_core_cycle(&core);
+		const auto retire = mips_core_cycle(&core);
+
+		log_instructions(last_instructions, 5, retire);
 		log_pipeline_regs(&core.regs);
-		log_msg("\n");
 		log_gprs_labelled(&core.state);
-		log_msg("\n");
 		log_mem_hex(core.config.data_mem);
 		wait_for_input();
 	}
@@ -51,14 +75,16 @@ void SimRunner::run_reference(std::span<uint8_t> instr_mem) {
 	std::vector<uint8_t> data_mem(config.mem_size, 0);
 	ref_core_init(&ref_core, make_mips_config(instr_mem, data_mem));
 
+	std::deque<mips_retire_metadata_t> last_instructions;
+
 	for (size_t i = 0; i < 10000; i++) {
 		// TODO: Print current instruction/addr etc in single step mode
 		if (config.step) { clear_screen(); }
-		ref_core_cycle(&ref_core);
+		const auto retire = ref_core_cycle(&ref_core);
 		if (!config.step) { continue; }
 
+		log_instructions(last_instructions, 5, retire);
 		log_gprs_labelled(&ref_core.state);
-		log_msg("\n");
 		log_mem_hex(ref_core.config.data_mem);
 		wait_for_input();
 	}

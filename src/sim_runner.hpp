@@ -2,6 +2,7 @@
 #define SIM_RUNNER_HPP
 
 #include <cstdint>
+#include <deque>
 #include <span>
 #include "util/arch_structs.h"
 
@@ -24,6 +25,10 @@ private:
 	Config config;
 
 	mips_config_t make_mips_config(std::span<uint8_t> instr_mem, std::span<uint8_t> data_mem);
+
+	void log_instructions(
+	    std::deque<mips_retire_metadata_t>& instr_queue, size_t max_instrs,
+	    mips_retire_metadata_t new_instr);
 
 	void run_pipeline(std::span<uint8_t> instr_mem);
 	void run_reference(std::span<uint8_t> instr_mem);
