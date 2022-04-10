@@ -15,9 +15,13 @@ int main() {
 	uint8_t instr_mem[NUM_INSTRS * sizeof(uint32_t)];
 	for (size_t i = 0; i < NUM_ELEMS(instr_mem); i++) { instr_mem[i] = nondet_u8(); }
 
-	uint8_t data_mem[MEM_SIZE];
-	const bool delay_slots = nondet_bool();
-	mips_core_init(&core, MAKE_SPAN(instr_mem), MAKE_SPAN(data_mem), delay_slots);
+	uint8_t       data_mem[MEM_SIZE];
+	mips_config_t config = {
+	    .delay_slots = nondet_bool(),
+	    .instr_mem   = MAKE_SPAN(instr_mem),
+	    .data_mem    = MAKE_SPAN(data_mem),
+	};
+	mips_core_init(&core, config);
 
 	// mips_trap_t trap = false;
 	for (uint8_t i = 0; i < UNWIND_ITERATIONS; i++) {

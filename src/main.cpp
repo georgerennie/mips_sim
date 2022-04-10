@@ -1,66 +1,45 @@
 #include <fstream>
 #include <iostream>
-#include <vector>
-#include "assembler/assembler.hpp"
-#include "core/core.h"
+#include "assembler.hpp"
 #include "include/argparse.hpp"
-#include "ref_core/ref_core.h"
+#include "sim_runner.hpp"
 #include "util/log.h"
 
 std::vector<uint8_t> assemble_file(const std::string& fn) {
 	std::ifstream file(fn);
 	if (!file.is_open()) { log_err_exit("Unable to open file \"%s\"\n", fn.c_str()); }
-
 	return Assembler::assemble(file);
-}
-
-void wait_for_input() { std::cin.get(); }
-void clear_screen() { log_msg("\033[2J\033[H"); }
-
-void run_sim(const std::string& fn, bool delay_slots, bool use_ref_core) {
-	auto    instr_mem     = assemble_file(fn);
-	uint8_t data_mem[512] = {0};
-
-	log_mem_hex(make_c_span(instr_mem));
-
-	if (!use_ref_core) {
-		mips_core_t core;
-		mips_core_init(&core, make_c_span(instr_mem), make_c_span(data_mem), delay_slots);
-
-		for (size_t i = 0; i < 20; i++) {
-			clear_screen();
-
-			mips_core_cycle(&core);
-
-			log_pipeline_regs(&core.regs);
-			log_msg("\n");
-			log_gprs_labelled(&core.state);
-			log_msg("\n");
-			log_mem_hex(core.data_mem);
-			wait_for_input();
-		}
-	} else {
-		mips_ref_core_t ref_core;
-		ref_core_init(&ref_core, make_c_span(instr_mem), make_c_span(data_mem), delay_slots);
-
-		for (size_t i = 0; i < 20; i++) { ref_core_cycle(&ref_core); }
-		log_gprs_labelled(&ref_core.state);
-		log_mem_hex(make_c_span(data_mem));
-	}
 }
 
 int main(int argc, char* argv[]) {
 	argparse::ArgumentParser program("mips_sim");
 
 	program.add_argument("input_file").help("path to an assembly file to execute");
-	program.add_argument("-d", "--delay-slots")
-	    .help("enable delay slot emulation")
+
+	program.add_argument("-s", "--step")
+	    .help("single step through the simulation")
 	    .default_value(false)
 	    .implicit_value(true);
+
 	program.add_argument("-r", "--ref-core")
 	    .help("run simulation using single cycle reference model")
 	    .default_value(false)
 	    .implicit_value(true);
+
+	program.add_argument("-c", "--compare")
+	    .help("run both models and compare the output")
+	    .default_value(false)
+	    .implicit_value(true);
+
+	program.add_argument("-d", "--delay-slots")
+	    .help("enable delay slot emulation")
+	    .default_value(false)
+	    .implicit_value(true);
+
+	program.add_argument("-m", "--mem-size")
+	    .help("data memory size in bytes")
+	    .default_value(512U)
+	    .scan<'u', uint32_t>();
 
 	try {
 		program.parse_args(argc, argv);
@@ -70,8 +49,14 @@ int main(int argc, char* argv[]) {
 		std::exit(EXIT_FAILURE);
 	}
 
-	const auto input_file  = program.get("input_file");
-	const auto delay_slots = program.get<bool>("--delay-slots");
-	const auto ref_core    = program.get<bool>("--ref-core");
-	run_sim(input_file, delay_slots, ref_core);
+	SimRunner::Config config;
+	config.delay_slots = program.get<bool>("--step");
+	config.ref_core    = program.get<bool>("--ref-core");
+	config.compare     = program.get<bool>("--compare");
+	config.delay_slots = program.get<bool>("--delay-slots");
+	config.mem_size    = program.get<uint32_t>("--mem-size");
+
+	SimRunner sim(std::move(config));
+	auto      instr_mem = assemble_file(program.get("input_file"));
+	sim.run(instr_mem);
 }

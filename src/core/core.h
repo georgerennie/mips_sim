@@ -6,21 +6,20 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include "arch_state.h"
 #include "pipeline_regs.h"
+#include "util/arch_structs.h"
 #include "util/util.h"
 
 typedef struct {
 	// Architectural state
 	mips_state_t state;
 
-	// Config/metrics
-	bool     delay_slots;
-	uint32_t cycle;
+	// Config
+	mips_config_t config;
 
-	// Memory
-	span_t instr_mem;
-	span_t data_mem;
+	// Metrics/Metadata
+	uint32_t cycle;
+	uint32_t instruction_number;
 
 	// Pipeline registers
 	mips_pipeline_regs_t regs;
@@ -30,13 +29,16 @@ typedef struct {
 	int _;
 } mips_result_t;
 
-void mips_core_init(mips_core_t* core, span_t instr_mem, span_t data_mem, bool delay_slots);
+void mips_core_init(mips_core_t* core, mips_config_t config);
 
 // Execute instructions until one generates a trap
-mips_result_t mips_core_run(mips_core_t* core);
+// mips_retire_metadata_t mips_core_run(mips_core_t* core);
+
+// Execute until one new instruction retires
+mips_retire_metadata_t mips_core_run_one(mips_core_t* core);
 
 // Execute one clock cycle
-mips_result_t mips_core_cycle(mips_core_t* core);
+mips_retire_metadata_t mips_core_cycle(mips_core_t* core);
 
 // Pipeline stages, defined in separate header files
 if_id_reg_t  instruction_fetch(const mips_state_t* arch_state, span_t instr_mem);
@@ -44,11 +46,6 @@ id_ex_reg_t  instruction_decode(const mips_pipeline_regs_t* regs, const mips_sta
 ex_mem_reg_t execute(const mips_pipeline_regs_t* regs);
 mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem);
 void         writeback(const mem_wb_reg_t* mem_wb, mips_state_t* arch_state);
-
-void if_id_reg_init(if_id_reg_t* if_id);
-void id_ex_reg_init(id_ex_reg_t* id_ex);
-void ex_mem_reg_init(ex_mem_reg_t* ex_mem);
-void mem_wb_reg_init(mem_wb_reg_t* mem_wb);
 
 #ifdef __cplusplus
 }

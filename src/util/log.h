@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <inttypes.h>
-#include "core/arch_state.h"
+#include "arch_structs.h"
 #include "util.h"
 
 #if defined(ESBMC)

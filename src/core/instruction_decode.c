@@ -1,8 +1,13 @@
 #include "core.h"
 #include "forwarding_unit.h"
-#include "instruction.h"
+#include "util/instruction.h"
 #include "util/log.h"
 #include "util/util.h"
+
+static inline uint32_t gpr_read(const mips_state_t* state, uint8_t reg) {
+	log_assert_lti(reg, 32);
+	return reg == 0 ? 0 : state->gpr[reg];
+}
 
 id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_state_t* arch_state) {
 	const uint32_t      instr = regs->if_id.instruction;
@@ -31,6 +36,7 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 	// Setup instruction metadata
 	id_ex.ex_mem.mem_wb.metadata.instruction = regs->if_id.instruction;
 	id_ex.ex_mem.mem_wb.metadata.address     = regs->if_id.address;
+	id_ex.ex_mem.mem_wb.metadata.active      = true;
 
 	// Register read
 	id_ex.data_rs = gpr_read(arch_state, rs);
@@ -112,9 +118,4 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 	}
 
 	return id_ex;
-}
-
-void if_id_reg_init(if_id_reg_t* if_id) {
-	if_id->instruction = 0x00000000;
-	if_id->address     = 0x00000000;
 }

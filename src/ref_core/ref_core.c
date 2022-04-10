@@ -1,35 +1,58 @@
 #include "ref_core.h"
 #include <inttypes.h>
-#include "core/instruction.h"
+#include "util/instruction.h"
 #include "util/log.h"
 
-void ref_core_init(mips_ref_core_t* core, span_t instr_mem, span_t data_mem, bool delay_slots) {
-	mips_state_init(&core->state);
+void ref_core_init(mips_ref_core_t* core, mips_config_t config) {
+	*core = (mips_ref_core_t){
+	    .state =
+	        {
+	            .pc  = 0,
+	            .gpr = {0},
+	        },
 
-	core->delay_slots = delay_slots;
+	    .cycle = 0,
 
-	core->branch_after = false;
-	core->branch_dest  = 0x00000000;
+	    .config = config,
 
-	core->instr_mem = instr_mem;
-	core->data_mem  = data_mem;
+	    .branch_after = false,
+	    .branch_dest  = 0x00000000,
+	};
 }
 
-mips_trap_t ref_core_run(mips_ref_core_t* core) {
-	mips_trap_t trap;
-	while (!(trap = ref_core_cycle(core))) {}
-	return trap;
+// mips_retire_metadata_t ref_core_run(mips_ref_core_t* core) {
+//     while (!(trap = ref_core_cycle(core))) {}
+//     return trap;
+// }
+
+mips_retire_metadata_t ref_core_run_one(mips_ref_core_t* core) {
+	while (true) {
+		mips_retire_metadata_t retire = ref_core_cycle(core);
+		if (retire.active) { return retire; }
+	}
 }
 
-mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
-	if (core->state.pc >= core->instr_mem.size) { return MIPS_TRAP_INSTR_PAGE_FAULT; }
+mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
+	mips_retire_metadata_t metadata = {
+	    .address            = core->state.pc,
+	    .active             = true,
+	    .instruction_number = core->cycle,
+	    .cycle              = core->cycle,
+	};
+	core->cycle++;
 
-	uint32_t instr = *span_e(core->instr_mem, core->state.pc);
-	instr |= (uint32_t) *span_e(core->instr_mem, core->state.pc + 1) << 8;
-	instr |= (uint32_t) *span_e(core->instr_mem, core->state.pc + 2) << 16;
-	instr |= (uint32_t) *span_e(core->instr_mem, core->state.pc + 3) << 24;
-	uint32_t next_pc   = core->branch_after ? core->branch_dest : core->state.pc + 4;
-	core->branch_after = false;
+	if (core->state.pc >= core->config.instr_mem.size) {
+		return metadata;
+		// return MIPS_TRAP_INSTR_PAGE_FAULT;
+	}
+
+	uint32_t instr = *span_e(core->config.instr_mem, core->state.pc);
+	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 1) << 8;
+	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 2) << 16;
+	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 3) << 24;
+	metadata.instruction = instr;
+	uint32_t next_pc     = core->branch_after ? core->branch_dest : core->state.pc + 4;
+	core->branch_after   = false;
 
 	const mips_opcode_t opc = EXTRACT_BITS(31, 26, instr);
 
@@ -59,7 +82,9 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 				case MIPS_FUNCT_AND: *rd = *rs & *rt; break;
 				case MIPS_FUNCT_OR: *rd = *rs | *rt; break;
 
-				default: return MIPS_TRAP_UNKNOWN_INSTR;
+				default:
+					// return MIPS_TRAP_UNKNOWN_INSTR;
+					return metadata;
 			}
 		} break;
 		case MIPS_OPC_ADDIU: *rt = *rs + s_imm; break;
@@ -71,8 +96,8 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 			// TODO: Trap on invalid access (page fault or unaligned)
 			const uint32_t load_address = *rs + s_imm;
 
-			*rt = (uint32_t) INSERT_BITS(7, 0, *span_e(core->data_mem, load_address)) |
-			      (uint32_t) INSERT_BITS(15, 8, *span_e(core->data_mem, load_address + 1));
+			*rt = (uint32_t) INSERT_BITS(7, 0, *span_e(core->config.data_mem, load_address)) |
+			      (uint32_t) INSERT_BITS(15, 8, *span_e(core->config.data_mem, load_address + 1));
 		} break;
 
 		case MIPS_OPC_BEQ:
@@ -80,7 +105,7 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 			const bool     branch = (opc == MIPS_OPC_BEQ) == (*rs == *rt);
 			const uint32_t target = next_pc + (s_imm << 2);
 			if (branch) {
-				if (core->delay_slots) {
+				if (core->config.delay_slots) {
 					core->branch_after = true;
 					core->branch_dest  = target;
 				} else {
@@ -91,15 +116,15 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 
 		case MIPS_OPC_SH: {
 			// TODO: Trap on invalid access (page fault or unaligned)
-			const uint32_t store_address               = *rs + s_imm;
-			*span_e(core->data_mem, store_address)     = EXTRACT_BITS(7, 0, *rt);
-			*span_e(core->data_mem, store_address + 1) = EXTRACT_BITS(15, 8, *rt);
+			const uint32_t store_address                      = *rs + s_imm;
+			*span_e(core->config.data_mem, store_address)     = EXTRACT_BITS(7, 0, *rt);
+			*span_e(core->config.data_mem, store_address + 1) = EXTRACT_BITS(15, 8, *rt);
 		} break;
 
 		case MIPS_OPC_J: {
 			// Pseudodirect addressing
 			const uint32_t target = ((core->state.pc + 4) & 0xF0000000) | jump_address << 2;
-			if (core->delay_slots) {
+			if (core->config.delay_slots) {
 				core->branch_after = true;
 				core->branch_dest  = target;
 			} else {
@@ -107,11 +132,13 @@ mips_trap_t ref_core_cycle(mips_ref_core_t* core) {
 			}
 		} break;
 
-		default: return MIPS_TRAP_UNKNOWN_INSTR;
+		default:
+			// return MIPS_TRAP_UNKNOWN_INSTR;
+			return metadata;
 	}
 
 	core->state.gpr[0] = 0;
 
 	core->state.pc = next_pc;
-	return MIPS_TRAP_NONE;
+	return metadata;
 }

@@ -33,19 +33,3 @@ ex_mem_reg_t execute(const mips_pipeline_regs_t* regs) {
 
 	return ex_mem;
 }
-
-void id_ex_reg_init(id_ex_reg_t* id_ex) {
-	id_ex->data_rs   = 0;
-	id_ex->data_rt   = 0;
-	id_ex->reg_rs    = 0;
-	id_ex->reg_rt    = 0;
-	id_ex->immediate = 0;
-
-	id_ex->eval_branch    = false;
-	id_ex->branch         = false;
-	id_ex->branch_address = 0;
-
-	id_ex->alu_op    = ALU_OP_NOP;
-	id_ex->alu_b_src = ALU_SRC_DATA_B;
-	ex_mem_reg_init(&id_ex->ex_mem);
-}

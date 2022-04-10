@@ -75,8 +75,9 @@ typedef struct {
 
 } ATTR_PACKED mips_instr_t;
 
+const char* mips_instr_name(uint32_t instruction);
+
 extern const char* mips_reg_lookup[32];
-const char*        mips_instr_name(uint32_t instruction);
 
 #ifdef __cplusplus
 }

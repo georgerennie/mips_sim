@@ -5,7 +5,8 @@ include $(SRC)/ref_core/Makefile.inc
 CLI_SRCS += $(UTIL_SRCS)
 CLI_SRCS += $(CORE_SRCS)
 CLI_SRCS += $(REF_CORE_SRCS)
-CLI_SRCS += $(SRC)/assembler/assembler.cpp
+CLI_SRCS += $(SRC)/assembler.cpp
+CLI_SRCS += $(SRC)/sim_runner.cpp
 CLI_SRCS += $(SRC)/main.cpp
 
 CLI_BIN := $(BUILD)/$(TARGET)

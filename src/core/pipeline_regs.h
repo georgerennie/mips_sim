@@ -3,15 +3,8 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
+#include "util/arch_structs.h"
 #include "util/util.h"
-
-// -------- Retire Metadata ----------------------------------------------------
-
-// This is included for observability, not operation of the pipeline
-typedef struct {
-	uint32_t instruction;
-	uint32_t address;
-} mips_retire_metadata_t;
 
 // -------- MEM/WB -------------------------------------------------------------
 
@@ -32,8 +25,6 @@ typedef enum {
 	MEM_ACCESS_READ_SIGNED, // Currently unused
 	MEM_ACCESS_WRITE,
 } ATTR_PACKED memory_access_t;
-
-const char* mem_access_to_str(memory_access_t access);
 
 typedef struct {
 	// Control
@@ -58,14 +49,10 @@ typedef enum {
 	ALU_OP_OR,
 } ATTR_PACKED alu_op_t;
 
-const char* alu_op_to_str(alu_op_t op);
-
 typedef enum {
 	ALU_SRC_DATA_B = 0, // Use value read from 2nd register in ID
 	ALU_SRC_IMM,        // Use immediate generated in ID
 } ATTR_PACKED alu_src_t;
-
-const char* alu_src_to_str(alu_src_t src);
 
 typedef struct {
 	// Data
@@ -115,6 +102,18 @@ typedef struct {
 	mem_wb_reg_t mem_wb;
 } mips_pipeline_regs_t;
 
+// -------- Function -----------------------------------------------------------
+
 void log_pipeline_regs(const mips_pipeline_regs_t* regs);
+
+const char* mem_access_to_str(memory_access_t access);
+const char* alu_op_to_str(alu_op_t op);
+const char* alu_src_to_str(alu_src_t src);
+
+void if_id_reg_init(if_id_reg_t* if_id);
+void id_ex_reg_init(id_ex_reg_t* id_ex);
+void ex_mem_reg_init(ex_mem_reg_t* ex_mem);
+void mem_wb_reg_init(mem_wb_reg_t* mem_wb);
+void pipeline_regs_init(mips_pipeline_regs_t* regs);
 
 #endif

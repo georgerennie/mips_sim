@@ -8,7 +8,7 @@
 #include <regex>
 #include <string>
 #include <tuple>
-#include "core/instruction.h"
+#include "util/instruction.h"
 #include "util/log.h"
 
 namespace Assembler {

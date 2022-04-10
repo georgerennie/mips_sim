@@ -1,6 +1,6 @@
 #include "pipeline_regs.h"
 #include <stdarg.h>
-#include "instruction.h"
+#include "util/instruction.h"
 #include "util/log.h"
 
 static inline void log_reg_name(const char* name, size_t gap) {
@@ -104,4 +104,53 @@ const char* alu_src_to_str(alu_src_t src) {
 		case ALU_SRC_DATA_B: return "data b";
 		case ALU_SRC_IMM: return "imm";
 	}
+}
+
+void if_id_reg_init(if_id_reg_t* if_id) {
+	if_id->instruction = 0x00000000;
+	if_id->address     = 0x00000000;
+}
+
+void id_ex_reg_init(id_ex_reg_t* id_ex) {
+	id_ex->data_rs   = 0;
+	id_ex->data_rt   = 0;
+	id_ex->reg_rs    = 0;
+	id_ex->reg_rt    = 0;
+	id_ex->immediate = 0;
+
+	id_ex->eval_branch    = false;
+	id_ex->branch         = false;
+	id_ex->branch_address = 0;
+
+	id_ex->alu_op    = ALU_OP_NOP;
+	id_ex->alu_b_src = ALU_SRC_DATA_B;
+	ex_mem_reg_init(&id_ex->ex_mem);
+}
+
+void ex_mem_reg_init(ex_mem_reg_t* ex_mem) {
+	ex_mem->access_type = MEM_ACCESS_NONE;
+	ex_mem->bytes       = 0;
+	ex_mem->data_rt     = 0;
+	mem_wb_reg_init(&ex_mem->mem_wb);
+}
+
+void mem_wb_reg_init(mem_wb_reg_t* mem_wb) {
+	mem_wb->reg    = 0;
+	mem_wb->result = 0;
+
+	mem_wb->metadata = (mips_retire_metadata_t){
+	    .address     = 0x00000000,
+	    .instruction = 0x00000000,
+
+	    .active             = false,
+	    .instruction_number = 0,
+	    .cycle              = 0,
+	};
+}
+
+void pipeline_regs_init(mips_pipeline_regs_t* regs) {
+	if_id_reg_init(&regs->if_id);
+	id_ex_reg_init(&regs->id_ex);
+	ex_mem_reg_init(&regs->ex_mem);
+	mem_wb_reg_init(&regs->mem_wb);
 }

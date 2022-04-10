@@ -40,10 +40,3 @@ mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 
 	return mem_wb;
 }
-
-void ex_mem_reg_init(ex_mem_reg_t* ex_mem) {
-	ex_mem->access_type = MEM_ACCESS_NONE;
-	ex_mem->bytes       = 0;
-	ex_mem->data_rt     = 0;
-	mem_wb_reg_init(&ex_mem->mem_wb);
-}

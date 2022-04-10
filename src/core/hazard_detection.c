@@ -22,22 +22,23 @@ static inline void stall_stage(hazard_flags_t* hazards, mips_core_stage_t stage)
 	}
 }
 
-hazard_flags_t detect_hazards(mips_core_t* core, id_ex_reg_t* id_result) {
+hazard_flags_t detect_hazards(
+    const mips_pipeline_regs_t* regs, const mips_config_t* config, id_ex_reg_t* id_result) {
 	hazard_flags_t hazards = {
 	    .flushes = {false},
 	    .stalls  = {false},
 	};
 
 	// Load/Store data hazard
-	const bool mem_load = core->regs.ex_mem.access_type == MEM_ACCESS_READ_SIGNED ||
-	                      core->regs.ex_mem.access_type == MEM_ACCESS_READ_UNSIGNED;
-	const uint8_t mem_wb_reg = core->regs.ex_mem.mem_wb.reg;
-	if (core->regs.id_ex.reg_rs == mem_wb_reg || core->regs.id_ex.reg_rt == mem_wb_reg) {
+	const bool mem_load = regs->ex_mem.access_type == MEM_ACCESS_READ_SIGNED ||
+	                      regs->ex_mem.access_type == MEM_ACCESS_READ_UNSIGNED;
+	const uint8_t mem_wb_reg = regs->ex_mem.mem_wb.reg;
+	if (regs->id_ex.reg_rs == mem_wb_reg || regs->id_ex.reg_rt == mem_wb_reg) {
 		if (mem_load) { stall_stage(&hazards, MIPS_STAGE_EX); }
 	}
 
 	// Branch hazard - Branch operand is being calculated in EX so stall
-	const uint8_t ex_wb_reg = core->regs.id_ex.ex_mem.mem_wb.reg;
+	const uint8_t ex_wb_reg = regs->id_ex.ex_mem.mem_wb.reg;
 	const uint8_t id_rs     = id_result->reg_rs;
 	const uint8_t id_rt     = id_result->reg_rt;
 	if (id_rs == ex_wb_reg || id_rt == ex_wb_reg) {
@@ -50,8 +51,8 @@ hazard_flags_t detect_hazards(mips_core_t* core, id_ex_reg_t* id_result) {
 	}
 
 	// Jump/Branch control hazard - pc is updated in core.c
-	if (core->regs.id_ex.branch) {
-		if (!core->delay_slots) { flush_stage(&hazards, MIPS_STAGE_ID); }
+	if (regs->id_ex.branch) {
+		if (!config->delay_slots) { flush_stage(&hazards, MIPS_STAGE_ID); }
 	}
 
 	return hazards;

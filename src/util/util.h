@@ -18,6 +18,7 @@ extern "C" {
 #define NUM_ELEMS(ARR) (sizeof(ARR) / sizeof(*ARR))
 
 #define ATTR_PACKED __attribute__((__packed__))
+#define ATTR_UNUSED __attribute__((unused))
 #ifndef ESBMC
 	#define ATTR_FALLTHROUGH __attribute__((fallthrough))
 #else
