@@ -79,6 +79,9 @@ typedef struct {
 	// Data
 	uint32_t instruction;
 	uint32_t address;
+
+	// Metadata
+	mips_retire_metadata_t metadata;
 } if_id_reg_t;
 
 // -------- Whole Pipeline -----------------------------------------------------

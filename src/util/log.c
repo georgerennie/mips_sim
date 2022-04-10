@@ -95,7 +95,7 @@ void log_mem_hex(span_t mem) {
 }
 
 void log_gprs_labelled(mips_state_t *state) {
-	const uint8_t gprs = 32, row_len = 8;
+	const uint8_t gprs = 32, row_len = 6;
 
 	for (uint8_t row = 0; row < gprs; row += row_len) {
 		for (uint8_t col = 0; col < row_len; col++) {
