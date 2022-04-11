@@ -9,6 +9,15 @@ static inline uint32_t gpr_read(const mips_state_t* state, uint8_t reg) {
 	return reg == 0 ? 0 : state->gpr[reg];
 }
 
+static id_ex_reg_t* raise_exception(id_ex_reg_t* id_ex, mips_exception_cause_t cause) {
+	id_ex->alu_op                                  = ALU_OP_NOP;
+	id_ex->ex_mem.access_type                      = MEM_ACCESS_NONE;
+	id_ex->ex_mem.mem_wb.reg                       = 0;
+	id_ex->ex_mem.mem_wb.metadata.exception.raised = true;
+	id_ex->ex_mem.mem_wb.metadata.exception.cause  = cause;
+	return id_ex;
+}
+
 id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_state_t* arch_state) {
 	const uint32_t      instr = regs->if_id.metadata.instruction;
 	const mips_opcode_t opc   = EXTRACT_BITS(31, 26, instr);
@@ -55,19 +64,8 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 			case MIPS_FUNCT_AND: id_ex.alu_op = ALU_OP_AND; break;
 			case MIPS_FUNCT_OR: id_ex.alu_op = ALU_OP_OR; break;
 
-			case MIPS_FUNCT_BREAK:
-				id_ex.alu_op                                  = ALU_OP_NOP;
-				id_ex.ex_mem.mem_wb.reg                       = 0;
-				id_ex.ex_mem.mem_wb.metadata.exception.raised = true;
-				id_ex.ex_mem.mem_wb.metadata.exception.cause  = MIPS_EXCP_BREAK;
-				break;
-
-			default:
-				id_ex.alu_op                                  = ALU_OP_NOP;
-				id_ex.ex_mem.mem_wb.reg                       = 0;
-				id_ex.ex_mem.mem_wb.metadata.exception.raised = true;
-				id_ex.ex_mem.mem_wb.metadata.exception.cause  = MIPS_EXCP_RI;
-				break;
+			case MIPS_FUNCT_BREAK: return *raise_exception(&id_ex, MIPS_EXCP_BREAK);
+			default: return *raise_exception(&id_ex, MIPS_EXCP_RI);
 		}
 	}
 
@@ -124,12 +122,7 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 				id_ex.branch_address      = regs->if_id.metadata.address + 4 + (s_imm << 2);
 			} break;
 
-			default:
-				id_ex.alu_op                                  = ALU_OP_NOP;
-				id_ex.ex_mem.mem_wb.reg                       = 0;
-				id_ex.ex_mem.mem_wb.metadata.exception.raised = true;
-				id_ex.ex_mem.mem_wb.metadata.exception.cause  = MIPS_EXCP_RI;
-				break;
+			default: return *raise_exception(&id_ex, MIPS_EXCP_RI);
 		}
 	}
 
