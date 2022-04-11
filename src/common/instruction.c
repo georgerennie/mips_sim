@@ -11,6 +11,7 @@ const char* mips_instr_name(uint32_t instruction) {
 				case MIPS_FUNCT_ADDU: return "addu";
 				case MIPS_FUNCT_AND: return "and";
 				case MIPS_FUNCT_OR: return "or";
+				case MIPS_FUNCT_BREAK: return "break";
 				default: return "unknown";
 			}
 
@@ -29,8 +30,3 @@ const char* mips_instr_name(uint32_t instruction) {
 		default: return "unknown";
 	}
 }
-
-const char* mips_reg_lookup[32] = {"zero", "at", "v0", "v1", "a0", "a1", "a2", "a3",
-                                   "t0",   "t1", "t2", "t3", "t4", "t5", "t6", "t7",
-                                   "s0",   "s1", "s2", "s3", "s4", "s4", "s6", "s7",
-                                   "t8",   "t9", "k0", "k1", "gp", "sp", "fp", "ra"};

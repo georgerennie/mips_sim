@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include "common/arch_structs.h"
+#include "common/arch.h"
 #include "common/util.h"
 
 typedef struct {

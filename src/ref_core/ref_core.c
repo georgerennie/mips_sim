@@ -31,12 +31,15 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 	    .active             = true,
 	    .instruction_number = core->cycle,
 	    .cycle              = core->cycle,
+	    .exception          = {.raised = false},
 	};
 	core->cycle++;
 
 	if (core->state.pc >= core->config.instr_mem.size) {
+		metadata.exception.raised     = true;
+		metadata.exception.cause      = MIPS_EXCP_ADDRL;
+		metadata.exception.bad_v_addr = core->state.pc;
 		return metadata;
-		// return MIPS_TRAP_INSTR_PAGE_FAULT;
 	}
 
 	uint32_t instr = *span_e(core->config.instr_mem, core->state.pc);
@@ -75,8 +78,14 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 				case MIPS_FUNCT_AND: *rd = *rs & *rt; break;
 				case MIPS_FUNCT_OR: *rd = *rs | *rt; break;
 
+				case MIPS_FUNCT_BREAK:
+					metadata.exception.raised = true;
+					metadata.exception.cause  = MIPS_EXCP_BREAK;
+					return metadata;
+
 				default:
-					// return MIPS_TRAP_UNKNOWN_INSTR;
+					metadata.exception.raised = true;
+					metadata.exception.cause  = MIPS_EXCP_RI;
 					return metadata;
 			}
 		} break;
@@ -88,6 +97,13 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 		case MIPS_OPC_LHU: {
 			// TODO: Trap on invalid access (page fault or unaligned)
 			const uint32_t load_address = *rs + s_imm;
+			// Trap on invalid access (unaligned or page fault)
+			if (load_address % 2 != 0 || load_address + 1 >= core->config.data_mem.size) {
+				metadata.exception.raised     = true;
+				metadata.exception.cause      = MIPS_EXCP_ADDRL;
+				metadata.exception.bad_v_addr = load_address;
+				return metadata;
+			}
 
 			*rt = (uint32_t) INSERT_BITS(7, 0, *span_e(core->config.data_mem, load_address)) |
 			      (uint32_t) INSERT_BITS(15, 8, *span_e(core->config.data_mem, load_address + 1));
@@ -108,8 +124,14 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 		} break;
 
 		case MIPS_OPC_SH: {
-			// TODO: Trap on invalid access (page fault or unaligned)
-			const uint32_t store_address                      = *rs + s_imm;
+			const uint32_t store_address = *rs + s_imm;
+			// Trap on invalid access (unaligned or page fault)
+			if (store_address % 2 != 0 || store_address + 1 >= core->config.data_mem.size) {
+				metadata.exception.raised     = true;
+				metadata.exception.cause      = MIPS_EXCP_ADDRS;
+				metadata.exception.bad_v_addr = store_address;
+				return metadata;
+			}
 			*span_e(core->config.data_mem, store_address)     = EXTRACT_BITS(7, 0, *rt);
 			*span_e(core->config.data_mem, store_address + 1) = EXTRACT_BITS(15, 8, *rt);
 		} break;
@@ -126,7 +148,8 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 		} break;
 
 		default:
-			// return MIPS_TRAP_UNKNOWN_INSTR;
+			metadata.exception.raised = true;
+			metadata.exception.cause  = MIPS_EXCP_RI;
 			return metadata;
 	}
 

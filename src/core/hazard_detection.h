@@ -12,6 +12,7 @@ typedef struct {
 } hazard_flags_t;
 
 hazard_flags_t detect_hazards(
-    const mips_pipeline_regs_t* regs, const mips_config_t* config, id_ex_reg_t* id_result);
+    const mips_pipeline_regs_t* regs, const mips_pipeline_regs_t* next_regs,
+    const mips_config_t* config);
 
 #endif

@@ -10,7 +10,7 @@ static inline uint32_t gpr_read(const mips_state_t* state, uint8_t reg) {
 }
 
 id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_state_t* arch_state) {
-	const uint32_t      instr = regs->if_id.instruction;
+	const uint32_t      instr = regs->if_id.metadata.instruction;
 	const mips_opcode_t opc   = EXTRACT_BITS(31, 26, instr);
 	// R/I type
 	const uint8_t rs = EXTRACT_BITS(25, 21, instr);
@@ -55,13 +55,26 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 			case MIPS_FUNCT_AND: id_ex.alu_op = ALU_OP_AND; break;
 			case MIPS_FUNCT_OR: id_ex.alu_op = ALU_OP_OR; break;
 
-			default: log_dbgi("Unrecognised funct 0x%02X for r type instruction\n", funct); break;
+			case MIPS_FUNCT_BREAK:
+				id_ex.alu_op                                  = ALU_OP_NOP;
+				id_ex.ex_mem.mem_wb.reg                       = 0;
+				id_ex.ex_mem.mem_wb.metadata.exception.raised = true;
+				id_ex.ex_mem.mem_wb.metadata.exception.cause  = MIPS_EXCP_BREAK;
+				break;
+
+			default:
+				id_ex.alu_op                                  = ALU_OP_NOP;
+				id_ex.ex_mem.mem_wb.reg                       = 0;
+				id_ex.ex_mem.mem_wb.metadata.exception.raised = true;
+				id_ex.ex_mem.mem_wb.metadata.exception.cause  = MIPS_EXCP_RI;
+				break;
 		}
 	}
 
 	else if (opc == MIPS_OPC_J) {
-		id_ex.branch         = true;
-		id_ex.branch_address = ((regs->if_id.address + 4) & 0xF0000000) | (jump_address << 2);
+		id_ex.branch = true;
+		id_ex.branch_address =
+		    ((regs->if_id.metadata.address + 4) & 0xF0000000) | (jump_address << 2);
 	}
 
 	else {
@@ -108,10 +121,15 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 				const uint32_t rt_fwd     = get_fwd_value(regs, rt, id_ex.data_rt);
 				const bool     regs_equal = rs_fwd == rt_fwd;
 				id_ex.branch              = (opc == MIPS_OPC_BEQ) ? regs_equal : !regs_equal;
-				id_ex.branch_address      = regs->if_id.address + 4 + (s_imm << 2);
+				id_ex.branch_address      = regs->if_id.metadata.address + 4 + (s_imm << 2);
 			} break;
 
-			default: log_dbgi("Unknown opcode\n"); break;
+			default:
+				id_ex.alu_op                                  = ALU_OP_NOP;
+				id_ex.ex_mem.mem_wb.reg                       = 0;
+				id_ex.ex_mem.mem_wb.metadata.exception.raised = true;
+				id_ex.ex_mem.mem_wb.metadata.exception.cause  = MIPS_EXCP_RI;
+				break;
 		}
 	}
 

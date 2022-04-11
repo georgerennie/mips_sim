@@ -41,19 +41,23 @@ static inline void log_reg_str(const char* name, size_t gap, size_t n, ...) {
 void log_pipeline_regs(const mips_pipeline_regs_t* regs) {
 	log_reg_str("stage", 0, 4, "IF/ID  ", "ID/EX  ", "EX/MEM ", "MEM/WB ");
 
-	const mips_retire_metadata_t* id_ex_meta  = &regs->id_ex.ex_mem.mem_wb.metadata;
-	const mips_retire_metadata_t* ex_mem_meta = &regs->ex_mem.mem_wb.metadata;
-	const mips_retire_metadata_t* mem_wb_meta = &regs->mem_wb.metadata;
+	const mips_pipeline_metadata_t* if_id_meta  = &regs->if_id.metadata;
+	const mips_pipeline_metadata_t* id_ex_meta  = &regs->id_ex.ex_mem.mem_wb.metadata;
+	const mips_pipeline_metadata_t* ex_mem_meta = &regs->ex_mem.mem_wb.metadata;
+	const mips_pipeline_metadata_t* mem_wb_meta = &regs->mem_wb.metadata;
 
 	log_reg_str(
-	    "instr name", 0, 4, mips_instr_name(regs->if_id.instruction),
+	    "instr name", 0, 4, mips_instr_name(if_id_meta->instruction),
 	    mips_instr_name(id_ex_meta->instruction), mips_instr_name(ex_mem_meta->instruction),
 	    mips_instr_name(mem_wb_meta->instruction));
+	log_reg_dec(
+	    "stalled", 0, 4, !if_id_meta->active, !id_ex_meta->active, !ex_mem_meta->active,
+	    !mem_wb_meta->active);
 	log_reg_hex(
-	    "instruction", 0, 4, regs->if_id.instruction, id_ex_meta->instruction,
+	    "instruction", 0, 4, if_id_meta->instruction, id_ex_meta->instruction,
 	    ex_mem_meta->instruction, mem_wb_meta->instruction);
 	log_reg_hex(
-	    "address", 0, 4, regs->if_id.address, id_ex_meta->address, ex_mem_meta->address,
+	    "address", 0, 4, if_id_meta->address, id_ex_meta->address, ex_mem_meta->address,
 	    mem_wb_meta->address);
 
 	log_reg_dec("rs", 1, 1, regs->id_ex.reg_rs);
@@ -106,10 +110,15 @@ const char* alu_src_to_str(alu_src_t src) {
 	}
 }
 
-void if_id_reg_init(if_id_reg_t* if_id) {
-	if_id->instruction = 0x00000000;
-	if_id->address     = 0x00000000;
+void pipeline_metadata_init(mips_pipeline_metadata_t* metadata) {
+	metadata->instruction = 0x00000000;
+	metadata->address     = 0x00000000;
+	metadata->active      = false;
+
+	metadata->exception.raised = false;
 }
+
+void if_id_reg_init(if_id_reg_t* if_id) { pipeline_metadata_init(&if_id->metadata); }
 
 void id_ex_reg_init(id_ex_reg_t* id_ex) {
 	id_ex->data_rs   = 0;
@@ -138,14 +147,7 @@ void mem_wb_reg_init(mem_wb_reg_t* mem_wb) {
 	mem_wb->reg    = 0;
 	mem_wb->result = 0;
 
-	mem_wb->metadata = (mips_retire_metadata_t){
-	    .address     = 0x00000000,
-	    .instruction = 0x00000000,
-
-	    .active             = false,
-	    .instruction_number = 0,
-	    .cycle              = 0,
-	};
+	pipeline_metadata_init(&mem_wb->metadata);
 }
 
 void pipeline_regs_init(mips_pipeline_regs_t* regs) {

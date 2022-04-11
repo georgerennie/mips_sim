@@ -6,7 +6,6 @@ extern "C" {
 #endif
 
 #include <inttypes.h>
-#include "arch_structs.h"
 #include "util.h"
 
 #if defined(ESBMC)
@@ -74,7 +73,6 @@ int log_dbg(const char *format, ...);
 int log_dbgi(const char *format, ...); // Indented by one tab
 
 void log_mem_hex(span_t mem);
-void log_gprs_labelled(const mips_state_t *state);
 
 #ifdef __cplusplus
 }

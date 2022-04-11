@@ -12,7 +12,6 @@ inline int log_dbg(const char *format, ...) { return nondet_int(); }
 inline int log_dbgi(const char *format, ...) { return nondet_int(); }
 
 void log_mem_hex(span_t mem) {}
-void log_gprs_labelled(const mips_state_t *state) {}
 
 #else
 
@@ -89,18 +88,6 @@ void log_mem_hex(span_t mem) {
 				if (addr < mem.size) { log_msg("%02x", *span_e(mem, row + col + byte)); }
 			}
 			log_msg(" ");
-		}
-		log_msg("\n");
-	}
-}
-
-void log_gprs_labelled(const mips_state_t *state) {
-	const uint8_t gprs = 32, row_len = 6;
-
-	for (uint8_t row = 0; row < gprs; row += row_len) {
-		for (uint8_t col = 0; col < row_len; col++) {
-			uint8_t addr = row + col;
-			if (addr < gprs) { log_msg("%4s: %08x ", mips_reg_lookup[addr], state->gpr[addr]); }
 		}
 		log_msg("\n");
 	}

@@ -43,16 +43,25 @@ void SimRunner::log_instructions(
 	}
 }
 
+void SimRunner::log_exception(mips_retire_metadata_t& metadata) {
+	log_assert(metadata.exception.raised);
+	log_msg("Halted due to exception:\n");
+	log_msg("    Cause: %s\n", mips_exception_name(metadata.exception.cause));
+	log_msg("    EPC: 0x%08x\n", metadata.address);
+	log_msg("    Bad VAddr: 0x%08x\n", metadata.exception.bad_v_addr);
+}
+
 void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) {
 	mips_core_t          core;
 	std::vector<uint8_t> data_mem(config.mem_size, 0);
 	mips_core_init(&core, make_mips_config(instr_mem, data_mem));
+	mips_retire_metadata_t retire = {};
 
 	if (!config.step) {
-		// TODO: This needs to stop on a trap
-		for (size_t i = 0; i < 1000; i++) { mips_core_run_one(&core); }
+		while (!retire.exception.raised) { retire = mips_core_run_one(&core); }
 		log_gprs_labelled(&core.state);
 		log_mem_hex(core.config.data_mem);
+		log_exception(retire);
 		return;
 	}
 
@@ -60,37 +69,40 @@ void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) {
 	clear_screen();
 	log_pipeline_regs(&core.regs);
 	log_core_state(core, last_instructions, std::nullopt);
-	for (size_t i = 0; i < 10000; i++) {
+	while (!retire.exception.raised) {
 		wait_for_input();
 		clear_screen();
-		const auto retire = mips_core_cycle(&core);
+		retire = mips_core_cycle(&core);
 		log_pipeline_regs(&core.regs);
 		log_core_state(core, last_instructions, retire);
 	}
+	log_exception(retire);
 }
 
 void SimRunner::run_reference(std::span<uint8_t> instr_mem) {
 	mips_ref_core_t      ref_core;
 	std::vector<uint8_t> data_mem(config.mem_size, 0);
 	ref_core_init(&ref_core, make_mips_config(instr_mem, data_mem));
+	mips_retire_metadata_t retire = {};
 
 	if (!config.step) {
-		// TODO: This needs to stop on a trap
-		for (size_t i = 0; i < 1000; i++) { ref_core_cycle(&ref_core); }
+		while (!retire.exception.raised) { retire = ref_core_cycle(&ref_core); }
 		log_gprs_labelled(&ref_core.state);
 		log_mem_hex(ref_core.config.data_mem);
+		log_exception(retire);
 		return;
 	}
 
 	std::deque<mips_retire_metadata_t> last_instructions;
 	clear_screen();
 	log_core_state(ref_core, last_instructions, std::nullopt);
-	for (size_t i = 0; i < 10000; i++) {
+	while (!retire.exception.raised) {
 		wait_for_input();
 		clear_screen();
-		const auto retire = ref_core_cycle(&ref_core);
+		retire = ref_core_cycle(&ref_core);
 		log_core_state(ref_core, last_instructions, retire);
 	}
+	log_exception(retire);
 }
 
 void SimRunner::run_compare(std::span<uint8_t> instr_mem) {

@@ -23,7 +23,8 @@ static inline void stall_stage(hazard_flags_t* hazards, mips_core_stage_t stage)
 }
 
 hazard_flags_t detect_hazards(
-    const mips_pipeline_regs_t* regs, const mips_config_t* config, id_ex_reg_t* id_result) {
+    const mips_pipeline_regs_t* regs, const mips_pipeline_regs_t* next_regs,
+    const mips_config_t* config) {
 	hazard_flags_t hazards = {
 	    .flushes = {false},
 	    .stalls  = {false},
@@ -39,20 +40,34 @@ hazard_flags_t detect_hazards(
 
 	// Branch hazard - Branch operand is being calculated in EX so stall
 	const uint8_t ex_wb_reg = regs->id_ex.ex_mem.mem_wb.reg;
-	const uint8_t id_rs     = id_result->reg_rs;
-	const uint8_t id_rt     = id_result->reg_rt;
+	const uint8_t id_rs     = next_regs->id_ex.reg_rs;
+	const uint8_t id_rt     = next_regs->id_ex.reg_rt;
 	if (id_rs == ex_wb_reg || id_rt == ex_wb_reg) {
-		if (id_result->eval_branch) { stall_stage(&hazards, MIPS_STAGE_ID); }
+		if (next_regs->id_ex.eval_branch) { stall_stage(&hazards, MIPS_STAGE_ID); }
 	}
 
 	// Branch hazard - Branch operand is being loaded from memory
 	if (id_rs == mem_wb_reg || id_rs == mem_wb_reg) {
-		if (id_result->eval_branch && mem_load) { stall_stage(&hazards, MIPS_STAGE_ID); }
+		if (next_regs->id_ex.eval_branch && mem_load) { stall_stage(&hazards, MIPS_STAGE_ID); }
 	}
 
 	// Jump/Branch control hazard - pc is updated in core.c
 	if (regs->id_ex.branch) {
 		if (!config->delay_slots) { flush_stage(&hazards, MIPS_STAGE_ID); }
+	}
+
+	// Flush on exceptions
+	if (next_regs->id_ex.ex_mem.mem_wb.metadata.exception.raised) {
+		flush_stage(&hazards, MIPS_STAGE_IF);
+		stall_stage(&hazards, MIPS_STAGE_IF);
+	}
+	if (next_regs->ex_mem.mem_wb.metadata.exception.raised) {
+		flush_stage(&hazards, MIPS_STAGE_ID);
+		stall_stage(&hazards, MIPS_STAGE_IF);
+	}
+	if (next_regs->mem_wb.metadata.exception.raised) {
+		flush_stage(&hazards, MIPS_STAGE_EX);
+		stall_stage(&hazards, MIPS_STAGE_IF);
 	}
 
 	return hazards;

@@ -7,6 +7,7 @@
 #include <regex>
 #include <string>
 #include <tuple>
+#include "common/arch.h"
 #include "common/instruction.h"
 #include "common/log.h"
 
@@ -15,6 +16,7 @@ namespace Assembler {
 static const std::map<std::string, std::tuple<mips_instr_format_t, mips_opcode_t, mips_funct_t>>
     opc_lookup = {
         {"nop", {MIPS_INSTR_FORMAT_R, MIPS_OPC_R_FMT, MIPS_FUNCT_NOP}},
+        {"break", {MIPS_INSTR_FORMAT_R, MIPS_OPC_R_FMT, MIPS_FUNCT_BREAK}},
 
         {"addu", {MIPS_INSTR_FORMAT_R, MIPS_OPC_ADDU, MIPS_FUNCT_ADDU}},
         {"addiu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ADDIU, MIPS_FUNCT_NOP}},
@@ -157,7 +159,7 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		instr.opcode       = std::get<1>(opc->second);
 		instr.r_data.funct = std::get<2>(opc->second);
 
-		if (items[0] == "nop") {
+		if (items[0] == "nop" || items[0] == "break") {
 			log_err_instr_args(0, items, line_str);
 			instr.r_data.rs    = 0;
 			instr.r_data.rt    = 0;
@@ -211,6 +213,12 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		instructions.emplace_back(std::make_pair(instr, label));
 		address += 4;
 	}
+
+	// Add breakpoint at end to catch end of execution
+	mips_instr_t brk = {};
+	brk.format       = MIPS_INSTR_FORMAT_R;
+	brk.r_data.funct = MIPS_FUNCT_BREAK;
+	instructions.emplace_back(std::make_pair(brk, ""));
 
 	std::vector<uint8_t> binary;
 	binary.reserve(4 * instructions.size());

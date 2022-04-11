@@ -3,8 +3,19 @@
 
 #include <inttypes.h>
 #include <stdbool.h>
-#include "common/arch_structs.h"
+#include "common/arch.h"
 #include "common/util.h"
+
+// -------- Pipeline metadata --------------------------------------------------
+// The fields of mips_retire_metadata_t that need to be passed down the pipeline
+
+typedef struct {
+	uint32_t instruction;
+	uint32_t address;
+	bool     active;
+
+	mips_exception_t exception;
+} mips_pipeline_metadata_t;
 
 // -------- MEM/WB -------------------------------------------------------------
 
@@ -14,7 +25,7 @@ typedef struct {
 	uint32_t result;
 
 	// Metadata
-	mips_retire_metadata_t metadata;
+	mips_pipeline_metadata_t metadata;
 } mem_wb_reg_t;
 
 // -------- EX/MEM -------------------------------------------------------------
@@ -76,12 +87,8 @@ typedef struct {
 // -------- IF/ID --------------------------------------------------------------
 
 typedef struct {
-	// Data
-	uint32_t instruction;
-	uint32_t address;
-
-	// Metadata
-	mips_retire_metadata_t metadata;
+	// Data/Metadata
+	mips_pipeline_metadata_t metadata;
 } if_id_reg_t;
 
 // -------- Whole Pipeline -----------------------------------------------------
@@ -113,6 +120,7 @@ const char* mem_access_to_str(memory_access_t access);
 const char* alu_op_to_str(alu_op_t op);
 const char* alu_src_to_str(alu_src_t src);
 
+void pipeline_metadata_init(mips_pipeline_metadata_t* metadata);
 void if_id_reg_init(if_id_reg_t* if_id);
 void id_ex_reg_init(id_ex_reg_t* id_ex);
 void ex_mem_reg_init(ex_mem_reg_t* ex_mem);

@@ -33,6 +33,8 @@ typedef enum {
 	// matter what arguments are provided
 	MIPS_FUNCT_NOP = 0x00,
 
+	MIPS_FUNCT_BREAK = 0x0D,
+
 	MIPS_FUNCT_ADDU = 0x21,
 	MIPS_FUNCT_AND  = 0x24,
 	MIPS_FUNCT_OR   = 0x25,
@@ -73,11 +75,9 @@ typedef struct {
 		mips_j_instr_data_t j_data;
 	};
 
-} ATTR_PACKED mips_instr_t;
+} mips_instr_t;
 
 const char* mips_instr_name(uint32_t instruction);
-
-extern const char* mips_reg_lookup[32];
 
 #ifdef __cplusplus
 }

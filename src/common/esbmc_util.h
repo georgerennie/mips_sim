@@ -1,6 +1,10 @@
 #ifndef ESBMC_UTIL_H
 #define ESBMC_UTIL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 #include "log.h"
 
@@ -23,4 +27,9 @@ int32_t  nondet_i32();
 		{}
 
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
