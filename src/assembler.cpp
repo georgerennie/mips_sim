@@ -1,4 +1,3 @@
-// vim: ts=4 sw=4 noet
 #include "assembler.hpp"
 #include <algorithm>
 #include <array>

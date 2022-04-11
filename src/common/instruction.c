@@ -1,4 +1,3 @@
-// vim: ts=4 sw=4 noet
 #include "instruction.h"
 
 const char* mips_instr_name(uint32_t instruction) {
