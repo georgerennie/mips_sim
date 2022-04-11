@@ -10,7 +10,7 @@ mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 	if (ex_mem->access_type != MEM_ACCESS_NONE) {
 		log_assert_fmt(bytes == 1 || bytes == 2 || bytes == 4, "bytes: %d\n", bytes);
 
-		if (addr % bytes != 0 || addr + bytes > data_mem.size) {
+		if (addr % bytes != 0 || (size_t) addr + bytes > data_mem.size) {
 			// TODO: cancel effects of the instruction
 			mem_wb.metadata.exception.raised = true;
 			mem_wb.metadata.exception.cause =

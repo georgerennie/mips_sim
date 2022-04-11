@@ -5,7 +5,7 @@
 #include "common/esbmc_util.h"
 #include "core/core.h"
 
-#define NUM_INSTRS        10
+#define NUM_INSTRS        7
 #define MEM_SIZE          16
 #define UNWIND_ITERATIONS (NUM_INSTRS + 5)
 
@@ -23,12 +23,9 @@ int main() {
 	};
 	mips_core_init(&core, config);
 
-	// mips_trap_t trap = false;
+	mips_retire_metadata_t retire = {0};
 	for (uint8_t i = 0; i < UNWIND_ITERATIONS; i++) {
-		// trap = mips_core_cycle(&core).trap;
-		// if (trap != MIPS_TRAP_NONE) { break; }
-		mips_core_cycle(&core);
+		retire = mips_core_cycle(&core);
+		if (retire.exception.raised) { break; }
 	}
-
-	// log_assert_neqi(trap, MIPS_TRAP_NONE);
 }
