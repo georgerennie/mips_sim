@@ -1,5 +1,5 @@
+#include "common/log.h"
 #include "core.h"
-#include "util/log.h"
 
 inline void writeback(const mem_wb_reg_t* mem_wb, mips_state_t* arch_state) {
 	log_assert_lti(mem_wb->reg, 32);

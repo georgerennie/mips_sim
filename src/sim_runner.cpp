@@ -1,10 +1,10 @@
 #include "sim_runner.hpp"
 #include <iostream>
 #include <vector>
+#include "common/instruction.h"
+#include "common/log.h"
 #include "core/core.h"
 #include "ref_core/ref_core.h"
-#include "util/instruction.h"
-#include "util/log.h"
 
 void SimRunner::run(std::span<uint8_t> instr_mem) {
 	if (config.compare) { return run_compare(instr_mem); }
@@ -22,8 +22,8 @@ mips_config_t SimRunner::make_mips_config(
 }
 
 void SimRunner::log_instructions(
-	std::deque<mips_retire_metadata_t>& instr_queue, size_t max_instrs,
-	std::optional<mips_retire_metadata_t> new_instr) {
+    std::deque<mips_retire_metadata_t>& instr_queue, size_t max_instrs,
+    std::optional<mips_retire_metadata_t> new_instr) {
 	if (new_instr && new_instr->active) { instr_queue.push_back(*new_instr); }
 	if (instr_queue.size() > max_instrs) { instr_queue.pop_front(); }
 

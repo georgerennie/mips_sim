@@ -2,8 +2,8 @@
 // properties with esbmc. Runs on the whole program
 
 #include <stdbool.h>
+#include "common/esbmc_util.h"
 #include "core/core.h"
-#include "util/esbmc_util.h"
 
 #define NUM_INSTRS        10
 #define MEM_SIZE          16

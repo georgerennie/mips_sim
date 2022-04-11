@@ -1,9 +1,9 @@
 #include <fstream>
 #include <iostream>
 #include "assembler.hpp"
+#include "common/log.h"
 #include "include/argparse.hpp"
 #include "sim_runner.hpp"
-#include "util/log.h"
 
 std::vector<uint8_t> assemble_file(const std::string& fn) {
 	std::ifstream file(fn);

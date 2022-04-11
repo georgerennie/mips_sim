@@ -1,5 +1,5 @@
 #include "hazard_detection.h"
-#include "util/log.h"
+#include "common/log.h"
 
 static inline void flush_stage(hazard_flags_t* hazards, mips_core_stage_t stage) {
 	switch (stage) {

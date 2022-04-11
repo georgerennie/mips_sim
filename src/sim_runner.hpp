@@ -5,7 +5,7 @@
 #include <deque>
 #include <optional>
 #include <span>
-#include "util/arch_structs.h"
+#include "common/arch_structs.h"
 
 class SimRunner {
 public:
@@ -32,7 +32,9 @@ private:
 	    std::optional<mips_retire_metadata_t> new_instr);
 
 	template <typename T>
-	void log_core_state(const T& core, std::deque<mips_retire_metadata_t>& instr_queue, std::optional<mips_retire_metadata_t> new_instr) {
+	void log_core_state(
+	    const T& core, std::deque<mips_retire_metadata_t>& instr_queue,
+	    std::optional<mips_retire_metadata_t> new_instr) {
 		log_instructions(instr_queue, 5, new_instr);
 		log_gprs_labelled(&core.state);
 		log_mem_hex(core.config.data_mem);

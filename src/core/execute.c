@@ -1,6 +1,6 @@
+#include "common/log.h"
 #include "core.h"
 #include "forwarding_unit.h"
-#include "util/log.h"
 
 static inline void log_dbg_exec(uint32_t a, const char* op, uint32_t b) {
 	log_dbgi("Executing %lu %s %lu\n", a, op, b);

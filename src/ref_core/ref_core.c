@@ -1,7 +1,7 @@
 #include "ref_core.h"
 #include <inttypes.h>
-#include "util/instruction.h"
-#include "util/log.h"
+#include "common/instruction.h"
+#include "common/log.h"
 
 void ref_core_init(mips_ref_core_t* core, mips_config_t config) {
 	*core = (mips_ref_core_t){

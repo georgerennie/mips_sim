@@ -1,6 +1,6 @@
+#include "common/esbmc_util.h"
+#include "common/log.h"
 #include "core.h"
-#include "util/esbmc_util.h"
-#include "util/log.h"
 
 mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 	mem_wb_reg_t   mem_wb = ex_mem->mem_wb;

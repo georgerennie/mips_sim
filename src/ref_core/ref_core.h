@@ -6,8 +6,8 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include "util/arch_structs.h"
-#include "util/util.h"
+#include "common/arch_structs.h"
+#include "common/util.h"
 
 typedef struct {
 	mips_state_t state;

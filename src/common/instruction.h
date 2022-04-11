@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <inttypes.h>
-#include "util/util.h"
+#include "util.h"
 
 typedef enum {
 	MIPS_OPC_R_FMT = 0x00,

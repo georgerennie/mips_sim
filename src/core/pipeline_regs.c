@@ -1,7 +1,7 @@
 #include "pipeline_regs.h"
 #include <stdarg.h>
-#include "util/instruction.h"
-#include "util/log.h"
+#include "common/instruction.h"
+#include "common/log.h"
 
 static inline void log_reg_name(const char* name, size_t gap) {
 	log_msg("%11s: ", name);

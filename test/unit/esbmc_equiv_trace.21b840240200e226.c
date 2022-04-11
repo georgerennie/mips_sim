@@ -1,7 +1,7 @@
 #include <stdbool.h>
+#include "common/esbmc_util.h"
 #include "core/core.h"
 #include "ref_core/ref_core.h"
-#include "util/esbmc_util.h"
 
 #define MEM_SIZE   4
 #define CYCLES     7

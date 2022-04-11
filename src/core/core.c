@@ -1,6 +1,6 @@
 #include "core.h"
+#include "common/log.h"
 #include "hazard_detection.h"
-#include "util/log.h"
 
 void mips_core_init(mips_core_t* core, mips_config_t config) {
 	*core = (mips_core_t){

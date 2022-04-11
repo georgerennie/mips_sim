@@ -6,9 +6,9 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
+#include "common/arch_structs.h"
+#include "common/util.h"
 #include "pipeline_regs.h"
-#include "util/arch_structs.h"
-#include "util/util.h"
 
 typedef struct {
 	// Architectural state

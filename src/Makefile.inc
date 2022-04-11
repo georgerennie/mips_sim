@@ -1,4 +1,4 @@
-include $(SRC)/util/Makefile.inc
+include $(SRC)/common/Makefile.inc
 include $(SRC)/core/Makefile.inc
 include $(SRC)/ref_core/Makefile.inc
 

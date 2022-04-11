@@ -1,8 +1,8 @@
+#include "common/instruction.h"
+#include "common/log.h"
+#include "common/util.h"
 #include "core.h"
 #include "forwarding_unit.h"
-#include "util/instruction.h"
-#include "util/log.h"
-#include "util/util.h"
 
 static inline uint32_t gpr_read(const mips_state_t* state, uint8_t reg) {
 	log_assert_lti(reg, 32);
