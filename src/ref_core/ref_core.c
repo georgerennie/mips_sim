@@ -67,7 +67,7 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 	const uint32_t z_imm = (uint32_t) (uint16_t) imm; // Zero-extend
 
 	// J type
-	const uint32_t jump_address = EXTRACT_BITS(25, 0, instr);
+	const mips_j_address_t jump_address = EXTRACT_BITS(25, 0, instr);
 
 	switch (opc) {
 		case MIPS_OPC_R_FMT: {

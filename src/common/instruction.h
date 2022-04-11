@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <inttypes.h>
+#include "arch.h"
 #include "util.h"
 
 typedef enum {
@@ -48,21 +49,21 @@ typedef enum {
 } ATTR_PACKED mips_instr_format_t;
 
 typedef struct {
-	uint8_t rs;
-	uint8_t rt;
-	uint8_t rd;
-	uint8_t shamt;
-	uint8_t funct;
+	mips_reg_idx_t rs;
+	mips_reg_idx_t rt;
+	mips_reg_idx_t rd;
+	mips_shamt_t   shamt;
+	mips_funct_t   funct;
 } ATTR_PACKED mips_r_instr_data_t;
 
 typedef struct {
-	uint8_t  rs;
-	uint8_t  rt;
-	uint16_t immediate;
+	mips_reg_idx_t rs;
+	mips_reg_idx_t rt;
+	uint16_t       immediate;
 } ATTR_PACKED mips_i_instr_data_t;
 
 typedef struct {
-	uint32_t address;
+	mips_j_address_t address;
 } ATTR_PACKED mips_j_instr_data_t;
 
 typedef struct {

@@ -33,15 +33,15 @@ hazard_flags_t detect_hazards(
 	// Load/Store data hazard
 	const bool mem_load = regs->ex_mem.access_type == MEM_ACCESS_READ_SIGNED ||
 	                      regs->ex_mem.access_type == MEM_ACCESS_READ_UNSIGNED;
-	const uint8_t mem_wb_reg = regs->ex_mem.mem_wb.reg;
+	const mips_reg_idx_t mem_wb_reg = regs->ex_mem.mem_wb.reg;
 	if (regs->id_ex.reg_rs == mem_wb_reg || regs->id_ex.reg_rt == mem_wb_reg) {
 		if (mem_load) { stall_stage(&hazards, MIPS_STAGE_EX); }
 	}
 
 	// Branch hazard - Branch operand is being calculated in EX so stall
-	const uint8_t ex_wb_reg = regs->id_ex.ex_mem.mem_wb.reg;
-	const uint8_t id_rs     = next_regs->id_ex.reg_rs;
-	const uint8_t id_rt     = next_regs->id_ex.reg_rt;
+	const mips_reg_idx_t ex_wb_reg = regs->id_ex.ex_mem.mem_wb.reg;
+	const mips_reg_idx_t id_rs     = next_regs->id_ex.reg_rs;
+	const mips_reg_idx_t id_rt     = next_regs->id_ex.reg_rt;
 	if (id_rs == ex_wb_reg || id_rt == ex_wb_reg) {
 		if (next_regs->id_ex.eval_branch) { stall_stage(&hazards, MIPS_STAGE_ID); }
 	}

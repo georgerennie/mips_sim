@@ -50,7 +50,7 @@ static int32_t get_int(std::string int_str, const char* line) {
 	return static_cast<int32_t>(std::stoi(int_str));
 }
 
-static uint8_t get_reg(std::string reg_str, const char* line) {
+static mips_reg_idx_t get_reg(std::string reg_str, const char* line) {
 	if (!reg_str.starts_with('$')) {
 		log_err_exit(
 		    "%s Expected \"%s\" to be a register starting with $\n", line, reg_str.c_str());
@@ -66,7 +66,7 @@ static uint8_t get_reg(std::string reg_str, const char* line) {
 		log_err_exit("%s Unrecognised register name \"$%s\"\n", line, reg_str.c_str());
 	}
 
-	return static_cast<uint8_t>(std::distance(std::begin(mips_reg_lookup), reg_it));
+	return static_cast<mips_reg_idx_t>(std::distance(std::begin(mips_reg_lookup), reg_it));
 }
 
 static uint32_t to_binary(const mips_instr_t& instr) {
@@ -232,7 +232,7 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		}
 
 		if (instruction.format == MIPS_INSTR_FORMAT_J) {
-			instruction.j_data.address = address_map[label] >> 2;
+			instruction.j_data.address = static_cast<mips_j_address_t>(address_map[label] >> 2);
 		} else if (instruction.format == MIPS_INSTR_FORMAT_I && !label.empty()) {
 			// Branch instructions
 			uint32_t offset              = address_map[label] - static_cast<uint32_t>(i * 4) - 4;

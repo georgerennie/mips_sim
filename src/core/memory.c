@@ -15,7 +15,7 @@ mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 			mem_wb.metadata.exception.cause =
 			    (ex_mem->access_type == MEM_ACCESS_WRITE) ? MIPS_EXCP_ADDRS : MIPS_EXCP_ADDRL;
 			mem_wb.metadata.exception.bad_v_addr = addr;
-			mem_wb.reg = 0;
+			mem_wb.reg                           = 0;
 			return mem_wb;
 		}
 	}

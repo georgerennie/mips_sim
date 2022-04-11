@@ -21,8 +21,8 @@ typedef struct {
 
 typedef struct {
 	// Data
-	uint8_t  reg; // Register to write to. No write if reg == 0
-	uint32_t result;
+	mips_reg_idx_t reg; // Register to write to. No write if reg == 0
+	uint32_t       result;
 
 	// Metadata
 	mips_pipeline_metadata_t metadata;
@@ -67,9 +67,9 @@ typedef enum {
 
 typedef struct {
 	// Data
-	uint32_t data_rs, data_rt; // Arguments to the ALU
-	uint8_t  reg_rs, reg_rt;   // Registers of data_rs and data_rt for forwarding
-	uint32_t immediate;
+	uint32_t       data_rs, data_rt; // Arguments to the ALU
+	mips_reg_idx_t reg_rs, reg_rt;   // Registers of data_rs and data_rt for forwarding
+	uint32_t       immediate;
 
 	// Branch data is read by hazard detection, not execute
 	bool eval_branch; // Does this instruction evaluate a branch, i.e. need stalling for branch args

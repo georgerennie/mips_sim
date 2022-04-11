@@ -4,9 +4,8 @@
 #include "core.h"
 #include "forwarding_unit.h"
 
-static inline uint32_t gpr_read(const mips_state_t* state, uint8_t reg) {
-	log_assert_lti(reg, 32);
-	return reg == 0 ? 0 : state->gpr[reg];
+static inline uint32_t gpr_read(const mips_state_t* state, mips_reg_idx_t reg) {
+	return reg == (mips_reg_idx_t) 0 ? 0 : state->gpr[reg];
 }
 
 static id_ex_reg_t* raise_exception(id_ex_reg_t* id_ex, mips_exception_cause_t cause) {
@@ -22,12 +21,12 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 	const uint32_t      instr = regs->if_id.metadata.instruction;
 	const mips_opcode_t opc   = EXTRACT_BITS(31, 26, instr);
 	// R/I type
-	const uint8_t rs = EXTRACT_BITS(25, 21, instr);
-	const uint8_t rt = EXTRACT_BITS(20, 16, instr);
+	const mips_reg_idx_t rs = EXTRACT_BITS(25, 21, instr);
+	const mips_reg_idx_t rt = EXTRACT_BITS(20, 16, instr);
 
 	// R type
-	const uint8_t rd = EXTRACT_BITS(15, 11, instr);
-	// const uint8_t shamt = EXTRACT_BITS(10, 6, instr);
+	const mips_reg_idx_t rd = EXTRACT_BITS(15, 11, instr);
+	// const mips_shamt_t shamt = EXTRACT_BITS(10, 6, instr);
 	const mips_funct_t funct = EXTRACT_BITS(5, 0, instr);
 
 	// I type
@@ -36,7 +35,7 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 	const uint32_t z_imm = (uint32_t) (uint16_t) imm; // Zero-extend
 
 	// J type
-	const uint32_t jump_address = EXTRACT_BITS(25, 0, instr);
+	const mips_j_address_t jump_address = EXTRACT_BITS(25, 0, instr);
 
 	// Initialise values to pass down the pipeline
 	id_ex_reg_t id_ex;
@@ -72,7 +71,7 @@ id_ex_reg_t instruction_decode(const mips_pipeline_regs_t* regs, const mips_stat
 	else if (opc == MIPS_OPC_J) {
 		id_ex.branch = true;
 		id_ex.branch_address =
-		    ((regs->if_id.metadata.address + 4) & 0xF0000000) | (jump_address << 2);
+		    ((regs->if_id.metadata.address + 4) & 0xF0000000) | ((uint32_t) jump_address << 2);
 	}
 
 	else {
