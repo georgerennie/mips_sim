@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <deque>
+#include <optional>
 #include <span>
 #include "util/arch_structs.h"
 
@@ -28,7 +29,14 @@ private:
 
 	void log_instructions(
 	    std::deque<mips_retire_metadata_t>& instr_queue, size_t max_instrs,
-	    mips_retire_metadata_t new_instr);
+	    std::optional<mips_retire_metadata_t> new_instr);
+
+	template <typename T>
+	void log_core_state(const T& core, std::deque<mips_retire_metadata_t>& instr_queue, std::optional<mips_retire_metadata_t> new_instr) {
+		log_instructions(instr_queue, 5, new_instr);
+		log_gprs_labelled(&core.state);
+		log_mem_hex(core.config.data_mem);
+	}
 
 	void run_pipeline(std::span<uint8_t> instr_mem);
 	void run_reference(std::span<uint8_t> instr_mem);

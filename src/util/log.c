@@ -12,7 +12,7 @@ inline int log_dbg(const char *format, ...) { return nondet_int(); }
 inline int log_dbgi(const char *format, ...) { return nondet_int(); }
 
 void log_mem_hex(span_t mem) {}
-void log_gprs_labelled(mips_state_t *state) {}
+void log_gprs_labelled(const mips_state_t *state) {}
 
 #else
 
@@ -94,7 +94,7 @@ void log_mem_hex(span_t mem) {
 	}
 }
 
-void log_gprs_labelled(mips_state_t *state) {
+void log_gprs_labelled(const mips_state_t *state) {
 	const uint8_t gprs = 32, row_len = 6;
 
 	for (uint8_t row = 0; row < gprs; row += row_len) {
