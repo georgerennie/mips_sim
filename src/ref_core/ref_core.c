@@ -138,7 +138,8 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 
 		case MIPS_OPC_J: {
 			// Pseudodirect addressing
-			const uint32_t target = ((core->state.pc + 4) & 0xF0000000) | jump_address << 2;
+			const uint32_t target = ((core->state.pc + 4) & 0xF0000000) | (uint32_t) jump_address
+			                                                                  << 2;
 			if (core->config.delay_slots) {
 				core->branch_after = true;
 				core->branch_dest  = target;

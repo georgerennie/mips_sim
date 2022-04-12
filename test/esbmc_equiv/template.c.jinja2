@@ -24,24 +24,37 @@ int main() {
 	uint8_t data_mem[MEM_SIZE];
 	uint8_t ref_data_mem[MEM_SIZE];
 
-	mips_core_init(&core, MAKE_SPAN(instr_mem), MAKE_SPAN(data_mem));
-	ref_core_init(&ref_core, MAKE_SPAN(instr_mem), MAKE_SPAN(ref_data_mem));
+	const bool delay_slots = nondet_bool();
 
-	mips_trap_t trap = false;
+	mips_config_t config = {
+	    .delay_slots = delay_slots,
+	    .instr_mem   = MAKE_SPAN(instr_mem),
+	    .data_mem    = MAKE_SPAN(data_mem),
+	};
+
+	mips_config_t ref_config = {
+	    .delay_slots = delay_slots,
+	    .instr_mem   = MAKE_SPAN(instr_mem),
+	    .data_mem    = MAKE_SPAN(ref_data_mem),
+	};
+
+	mips_core_init(&core, config);
+	ref_core_init(&ref_core, ref_config);
+
+	mips_retire_metadata_t retire = {0};
 	for (size_t i = 0; i < CYCLES; i++) {
-		trap = mips_core_cycle(&core).trap;
-		if (trap != MIPS_TRAP_NONE) { break; }
+		retire = mips_core_cycle(&core);
+		if (retire.exception.raised) { break; }
 	}
 
-	mips_trap_t ref_trap = false;
+	mips_retire_metadata_t ref_retire = {0};
 	for (size_t i = 0; i < REF_CYCLES; i++) {
-		ref_trap = ref_core_cycle(&ref_core);
-		if (ref_trap != MIPS_TRAP_NONE) { break; }
+		ref_retire = ref_core_cycle(&ref_core);
+		if (retire.instruction_number == ref_retire.instruction_number) { break; }
 	}
 
-	log_assert_neqi(trap, MIPS_TRAP_NONE);
-	log_assert_neqi(ref_trap, MIPS_TRAP_NONE);
-	log_assert_eqi(trap, ref_trap);
+	log_assert_eqi(retire.instruction_number, ref_retire.instruction_number);
+
 {% for i in range(32) %}
 	log_assert_eqi(core.state.gpr[{{i}}], ref_core.state.gpr[{{i}}]);
 {%- endfor %}
