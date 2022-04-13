@@ -2,7 +2,7 @@
 TARGET := mips_sim
 CC := clang
 CXX := clang++
-ESBMC := esbmc
+ESBMC ?= esbmc
 
 SRC := src
 TEST := test

@@ -1,3 +1,4 @@
+CORE_SRCS += $(COMMON_SRCS)
 CORE_SRCS += $(SRC)/core/core.c
 CORE_SRCS += $(SRC)/core/instruction_fetch.c
 CORE_SRCS += $(SRC)/core/instruction_decode.c

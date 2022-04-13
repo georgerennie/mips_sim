@@ -3,14 +3,15 @@ UNIT_ARGS ?=
 
 UNIT := $(TEST)/unit
 
-UNIT_SRCS += $(UTIL_SRCS)
+UNIT_SRCS += $(COMMON_SRCS)
 UNIT_SRCS += $(CORE_SRCS)
 UNIT_SRCS += $(REF_CORE_SRCS)
+UNIT_SRCS += $(EQUIV_CHECK_SRCS)
 UNIT_SRCS += $(wildcard $(UNIT)/*.c)
 
 UNIT_BIN := $(BUILD)/unit_tests
 UNIT_BUILD := $(BUILD)/unit
-UNIT_FLAGS += -DUNIT_TEST
+UNIT_FLAGS += -DUNIT_TEST -fsanitize=address
 
 .PHONY: unit
 unit: $(UNIT_BIN)

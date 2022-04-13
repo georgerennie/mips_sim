@@ -1,0 +1,3 @@
+EQUIV_CHECK_SRCS += $(CORE_SRCS)
+EQUIV_CHECK_SRCS += $(REF_CORE_SRCS)
+EQUIV_CHECK_SRCS += $(SRC)/equiv_check/equiv_check.c

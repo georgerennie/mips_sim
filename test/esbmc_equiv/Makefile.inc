@@ -12,15 +12,18 @@ ESBMC_EQUIV_PY := $(ESBMC_EQUIV)/esbmc_equiv.py
 
 ESBMC_EQUIV_FLAGS += $(ESBMC_FLAGS)
 ESBMC_EQUIV_FLAGS += --memory-leak-check --overflow-check --struct-fields-check
+ESBMC_EQUIV_FLAGS += --initialize-nondet-variables
 ESBMC_EQUIV_FLAGS += --interval-analysis --add-symex-value-sets
-ESBMC_EQUIV_FLAGS += --max-k-step 32 --k-step 10
-ESBMC_EQUIV_FLAGS += --incremental-bmc
+ESBMC_EQUIV_FLAGS += --max-k-step 64 --k-step 32
+ESBMC_EQUIV_FLAGS += --incremental-bmc --unroll-loops
 ESBMC_EQUIV_FLAGS += --witness-output $(ESBMC_EQUIV_GRAPHML)
+ESBMC_EQUIV_FLAGS += -DESBMC_MAX_MEM=8
 
-ESBMC_EQUIV_SRCS += $(UTIL_SRCS) $(CORE_SRCS) $(REF_CORE_SRCS)
+ESBMC_EQUIV_SRCS += $(EQUIV_CHECK_SRCS)
 
 .PHONY: esbmc_equiv
 esbmc_equiv: $(ESBMC_EQUIV_MAIN) $(ESBMC_EQUIV_SRCS)
+	@rm -f $(ESBMC_EQUIV_GRAPHML)
 	@$(ESBMC) $^ $(ESBMC_EQUIV_FLAGS) || \
 		python3 $(ESBMC_EQUIV_PY) -c $(ESBMC_EQUIV_CYCLES) \
 			-r $(ESBMC_EQUIV_REF_CYCLES) -g $(ESBMC_EQUIV_GRAPHML) \

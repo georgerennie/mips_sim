@@ -1,4 +1,4 @@
-UTIL_SRCS += $(SRC)/common/util.c
-UTIL_SRCS += $(SRC)/common/log.c
-UTIL_SRCS += $(SRC)/common/instruction.c
-UTIL_SRCS += $(SRC)/common/arch.c
+COMMON_SRCS += $(SRC)/common/util.c
+COMMON_SRCS += $(SRC)/common/log.c
+COMMON_SRCS += $(SRC)/common/instruction.c
+COMMON_SRCS += $(SRC)/common/arch.c
