@@ -11,7 +11,9 @@ UNIT_SRCS += $(wildcard $(UNIT)/*.c)
 
 UNIT_BIN := $(BUILD)/unit_tests
 UNIT_BUILD := $(BUILD)/unit
-UNIT_FLAGS += -DUNIT_TEST -fsanitize=address
+
+UNIT_FLAGS += -g3 -O1
+UNIT_FLAGS += -DUNIT_TEST -fsanitize=memory -fsanitize-memory-track-origins
 
 .PHONY: unit
 unit: $(UNIT_BIN)

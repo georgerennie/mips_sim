@@ -88,6 +88,8 @@ void equiv_check_cores(const mips_core_t* sim_core, const mips_ref_core_t* ref_c
 void equiv_check_exceptions(
     const mips_exception_t* sim_exception, const mips_exception_t* ref_exception) {
 	log_assert_eqi(sim_exception->raised, ref_exception->raised);
+	if (!sim_exception->raised) { return; }
+
 	log_assert_eqi(sim_exception->cause, ref_exception->cause);
 	if (sim_exception->cause == MIPS_EXCP_ADDRL || sim_exception->cause == MIPS_EXCP_ADDRS) {
 		log_assert_eqi(sim_exception->bad_v_addr, ref_exception->bad_v_addr);

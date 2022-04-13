@@ -28,6 +28,11 @@ def read_graphml_vals(graphml_path):
         matches = list(map(lambda v: (int(v[0]), int(v[1])), matches))
 
     assert len(matches) > 0, "No matches were found in the graphml file"
+    deduped_matches = dict()
+    for k, v in matches:
+        deduped_matches[k] = v
+
+    matches = list(deduped_matches.items())
     matches.sort(key=lambda v: v[0])
 
     assert matches[0][0] == 0, "graphml assignments must start at idx 0"
