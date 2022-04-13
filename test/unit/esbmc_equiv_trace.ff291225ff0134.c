@@ -1,31 +1,37 @@
 #include <stdbool.h>
-#include "core/core.h"
-#include "ref_core/ref_core.h"
 #include "common/esbmc_util.h"
+#include "core/core.h"
 #include "equiv_check/equiv_check.h"
+#include "ref_core/ref_core.h"
 
 #define MEM_SIZE   4
-#define CYCLES     {{ cycles }}
-#define REF_CYCLES {{ ref_cycles }}
+#define CYCLES     7
+#define REF_CYCLES 3
 
 #ifdef UNIT_TEST
-#include "unit/test.h"
-DEFINE_TEST({{ test_name }}) {
+	#include "unit/test.h"
+DEFINE_TEST(traceff291225ff0134) {
 #else
 int main() {
 #endif
 	mips_core_t     core;
 	mips_ref_core_t ref_core;
 
-	uint8_t instr_mem[{{instr_bytes[-1][0] + 1}}] = {0};
-{% for key, value in instr_bytes %}
-	instr_mem[{{key}}] = {{ value }};
-{%- endfor %}
+	uint8_t instr_mem[8] = {0};
 
-	uint8_t data_mem[MEM_SIZE] = {0};
+	instr_mem[0] = 255;
+	instr_mem[1] = 255;
+	instr_mem[2] = 41;
+	instr_mem[3] = 18;
+	instr_mem[4] = 37;
+	instr_mem[5] = 255;
+	instr_mem[6] = 1;
+	instr_mem[7] = 52;
+
+	uint8_t data_mem[MEM_SIZE]     = {0};
 	uint8_t ref_data_mem[MEM_SIZE] = {0};
 
-	const bool delay_slots = nondet_bool();
+	const bool delay_slots = 1;
 
 	mips_config_t config = {
 	    .delay_slots = delay_slots,
@@ -48,8 +54,8 @@ int main() {
 
 	mips_retire_metadata_t retire = {0};
 	for (size_t i = 0; i < CYCLES; i++) {
-		const memory_access_t access_type = core.regs.ex_mem.access_type;
-		const mips_retire_metadata_t new_retire = mips_core_cycle(&core);
+		const memory_access_t        access_type = core.regs.ex_mem.access_type;
+		const mips_retire_metadata_t new_retire  = mips_core_cycle(&core);
 
 		if (new_retire.active) { retire = new_retire; }
 		if (retire.exception.raised) {
@@ -71,4 +77,3 @@ int main() {
 	equiv_check_retires(&retire, &ref_retire);
 	equiv_check_cores(&core, &ref_core);
 }
-

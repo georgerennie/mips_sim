@@ -19,12 +19,12 @@ def create_output(path, cycles, ref_cycles, instr_bytes, test_name="trace"):
     print("Created new test case at", str(path))
 
 def create_undef_output(path, cycles, ref_cycles, num_instrs, test_name="trace"):
-    instr_bytes = list("nondet_u8()" for _ in range(4 * num_instrs))
+    instr_bytes = list((i, "nondet_u8()") for i in range(4 * num_instrs))
     create_output(path, cycles, ref_cycles, instr_bytes, test_name)
 
 def read_graphml_vals(graphml_path):
     with open(graphml_path, "r") as f:
-        matches = re.findall(r"instr_mem\[(\d+)\]\s*=\s*([^;]+)", f.read())
+        matches = re.findall(r"instr_mem\[(\d+)\]\s*=\s*(-?\d+)", f.read())
         matches = list(map(lambda v: (int(v[0]), int(v[1])), matches))
 
     assert len(matches) > 0, "No matches were found in the graphml file"
@@ -34,14 +34,7 @@ def read_graphml_vals(graphml_path):
 
     matches = list(deduped_matches.items())
     matches.sort(key=lambda v: v[0])
-
-    assert matches[0][0] == 0, "graphml assignments must start at idx 0"
-    assert matches[-1][0] == len(matches) - 1, "graphml assignments must be to consecutive bytes"
-
-    keys = set(map(lambda v: v[0], matches))
-    assert len(matches) == len(keys), "graphml assignments must be to consecutive bytes"
-
-    return list(map(lambda v: v[1], matches))
+    return matches
 
 def main():
     parser = argparse.ArgumentParser(description="Create ESBMC/Directed equivalence tests")
@@ -65,7 +58,7 @@ def main():
     else:
         instr_bytes = read_graphml_vals(args.graphml_path)
         if args.add_id:
-            id = "".join(map(lambda i: "{0:02x}".format(i), instr_bytes))
+            id = "".join(map(lambda i: "{0:02x}".format(i[1]), instr_bytes))
             args.output = args.output.with_suffix("." + id + ".c")
             create_output(args.output, args.cycles, args.ref_cycles, instr_bytes, "trace" + id)
         else:

@@ -13,7 +13,9 @@ UNIT_BIN := $(BUILD)/unit_tests
 UNIT_BUILD := $(BUILD)/unit
 
 UNIT_FLAGS += -g3 -O1
-UNIT_FLAGS += -DUNIT_TEST -fsanitize=memory -fsanitize-memory-track-origins
+UNIT_FLAGS += -DUNIT_TEST
+UNIT_FLAGS += -fsanitize=memory -fsanitize-memory-track-origins
+# UNIT_FLAGS += -fsanitize=address
 
 .PHONY: unit
 unit: $(UNIT_BIN)
