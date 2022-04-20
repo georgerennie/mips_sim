@@ -49,6 +49,7 @@ void SimRunner::log_exception(mips_retire_metadata_t& metadata) {
 	log_msg("    Cause: %s\n", mips_exception_name(metadata.exception.cause));
 	log_msg("    EPC: 0x%08x\n", metadata.address);
 	log_msg("    Bad VAddr: 0x%08x\n", metadata.exception.bad_v_addr);
+	log_msg("%d instructions executed in %d cycles\n", metadata.instruction_number, metadata.cycle);
 }
 
 void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) {
