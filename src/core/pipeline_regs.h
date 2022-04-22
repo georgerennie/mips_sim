@@ -58,6 +58,8 @@ typedef enum {
 	ALU_OP_ADD,
 	ALU_OP_AND,
 	ALU_OP_OR,
+
+	ALU_OP_MAX,
 } ATTR_PACKED alu_op_t;
 
 typedef enum {
@@ -119,6 +121,7 @@ void log_pipeline_regs(const mips_pipeline_regs_t* regs);
 const char* mem_access_to_str(memory_access_t access);
 const char* alu_op_to_str(alu_op_t op);
 const char* alu_src_to_str(alu_src_t src);
+const char* mips_stage_to_str(mips_core_stage_t stage);
 
 void pipeline_metadata_init(mips_pipeline_metadata_t* metadata);
 void if_id_reg_init(if_id_reg_t* if_id);

@@ -53,6 +53,9 @@ void log_pipeline_regs(const mips_pipeline_regs_t* regs) {
 	log_reg_dec(
 	    "stalled", 0, 4, !if_id_meta->active, !id_ex_meta->active, !ex_mem_meta->active,
 	    !mem_wb_meta->active);
+	log_reg_dec(
+	    "exception", 0, 4, if_id_meta->exception.raised, id_ex_meta->exception.raised,
+	    ex_mem_meta->exception.raised, mem_wb_meta->exception.raised);
 	log_reg_hex(
 	    "instruction", 0, 4, if_id_meta->instruction, id_ex_meta->instruction,
 	    ex_mem_meta->instruction, mem_wb_meta->instruction);
@@ -100,6 +103,7 @@ const char* alu_op_to_str(alu_op_t op) {
 		case ALU_OP_ADD: return "add";
 		case ALU_OP_AND: return "and";
 		case ALU_OP_OR: return "or";
+		default: return "unknown";
 	}
 }
 
@@ -107,6 +111,17 @@ const char* alu_src_to_str(alu_src_t src) {
 	switch (src) {
 		case ALU_SRC_DATA_B: return "data b";
 		case ALU_SRC_IMM: return "imm";
+	}
+}
+
+const char* mips_stage_to_str(mips_core_stage_t stage) {
+	switch (stage) {
+		case MIPS_STAGE_IF: return "IF";
+		case MIPS_STAGE_ID: return "ID";
+		case MIPS_STAGE_EX: return "EX";
+		case MIPS_STAGE_MEM: return "MEM";
+		case MIPS_STAGE_WB: return "WB";
+		default: return "Unknown";
 	}
 }
 

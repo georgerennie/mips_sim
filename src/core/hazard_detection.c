@@ -5,7 +5,9 @@ static inline void flush_stage(hazard_flags_t* hazards, mips_core_stage_t stage)
 	switch (stage) {
 		case MIPS_STAGE_IF:
 		case MIPS_STAGE_ID:
-		case MIPS_STAGE_EX: hazards->flushes[stage] = true; break;
+		case MIPS_STAGE_EX:
+			if (!hazards->stalls[stage]) { hazards->flushes[stage] = true; }
+			break;
 		default: log_assert_fail("Cannot flush stage %d\n", stage); break;
 	}
 }
@@ -34,7 +36,7 @@ hazard_flags_t detect_hazards(
 	const bool mem_load = regs->ex_mem.access_type == MEM_ACCESS_READ_SIGNED ||
 	                      regs->ex_mem.access_type == MEM_ACCESS_READ_UNSIGNED;
 	const mips_reg_idx_t mem_wb_reg = regs->ex_mem.mem_wb.reg;
-	if (regs->id_ex.reg_rs == mem_wb_reg || regs->id_ex.reg_rt == mem_wb_reg) {
+	if ((regs->id_ex.reg_rs == mem_wb_reg || regs->id_ex.reg_rt == mem_wb_reg) && mem_wb_reg != 0) {
 		if (mem_load) { stall_stage(&hazards, MIPS_STAGE_EX); }
 	}
 
@@ -42,12 +44,12 @@ hazard_flags_t detect_hazards(
 	const mips_reg_idx_t ex_wb_reg = regs->id_ex.ex_mem.mem_wb.reg;
 	const mips_reg_idx_t id_rs     = next_regs->id_ex.reg_rs;
 	const mips_reg_idx_t id_rt     = next_regs->id_ex.reg_rt;
-	if (id_rs == ex_wb_reg || id_rt == ex_wb_reg) {
+	if ((id_rs == ex_wb_reg || id_rt == ex_wb_reg) && ex_wb_reg != 0) {
 		if (next_regs->id_ex.eval_branch) { stall_stage(&hazards, MIPS_STAGE_ID); }
 	}
 
 	// Branch hazard - Branch operand is being loaded from memory
-	if (id_rs == mem_wb_reg || id_rs == mem_wb_reg) {
+	if ((id_rs == mem_wb_reg || id_rt == mem_wb_reg) && mem_wb_reg != 0) {
 		if (next_regs->id_ex.eval_branch && mem_load) { stall_stage(&hazards, MIPS_STAGE_ID); }
 	}
 
@@ -58,7 +60,6 @@ hazard_flags_t detect_hazards(
 
 	// Flush on exceptions
 	if (next_regs->id_ex.ex_mem.mem_wb.metadata.exception.raised) {
-		flush_stage(&hazards, MIPS_STAGE_IF);
 		stall_stage(&hazards, MIPS_STAGE_IF);
 	}
 	if (next_regs->ex_mem.mem_wb.metadata.exception.raised) {
