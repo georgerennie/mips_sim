@@ -139,8 +139,9 @@ void SimRunner::run_compare(std::span<uint8_t> instr_mem) const {
 				log_exception(retire);
 			}
 			equiv_check_retires(&retire, &ref_retire);
-			equiv_check_cores(&core, &ref_core);
+			equiv_check_gprs(&core, &ref_core);
 		}
+		equiv_check_cores(&core, &ref_core);
 		return;
 	}
 
@@ -158,10 +159,11 @@ void SimRunner::run_compare(std::span<uint8_t> instr_mem) const {
 		if (retire.exception.raised || retire.active) {
 			const auto ref_retire = ref_core_cycle(&ref_core);
 			equiv_check_retires(&retire, &ref_retire);
-			equiv_check_cores(&core, &ref_core);
+			equiv_check_gprs(&core, &ref_core);
 		}
 	}
 	log_exception(retire);
+	equiv_check_cores(&core, &ref_core);
 }
 
 inline void SimRunner::wait_for_input() { std::cin.get(); }
