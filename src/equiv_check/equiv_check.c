@@ -56,10 +56,11 @@ static void equiv_check_mems_named(const span_t sim_mem, const span_t ref_mem, c
 	for (uint32_t i = 0; i < ESBMC_MAX_MEM; i++) {
 		if (i == sim_mem.size) { break; }
 #endif
+
 		log_assert_fmt(
 		    sim_mem.data[i] == ref_mem.data[i],
 		    "(%s) sim_mem.data[0x%08x]: 0x%08x, ref_mem.data[0x%08x]: 0x%08x\n", name, i,
-		    sim_mem.data[i], i, sim_mem.data[i]);
+		    sim_mem.data[i], i, ref_mem.data[i]);
 	}
 }
 

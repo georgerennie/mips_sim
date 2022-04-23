@@ -19,6 +19,7 @@ extern "C" {
 
 #define ATTR_PACKED __attribute__((__packed__))
 #define ATTR_UNUSED __attribute__((unused))
+#define UNREACHABLE __builtin_unreachable();
 #ifndef ESBMC
 	#define ATTR_FALLTHROUGH __attribute__((fallthrough))
 #else

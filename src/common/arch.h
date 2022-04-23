@@ -15,12 +15,14 @@ extern "C" {
 // NOTE: ESBMC currently doesn't properly align _ExtInt fields in structs, so
 // this must be set to uint8_t for correct compilation currently
 // This has been raised as an issue at https://github.com/esbmc/esbmc/issues/673
-typedef uint8_t mips_reg_idx_t;
+typedef uint8_t  mips_reg_idx_t;
+typedef uint8_t  mips_shamt_t;
+typedef uint32_t mips_j_address_t;
 #else
 typedef unsigned _ExtInt(5) mips_reg_idx_t;
-#endif
 typedef unsigned _ExtInt(5) mips_shamt_t;
 typedef unsigned _ExtInt(26) mips_j_address_t;
+#endif
 
 // -------- Architectural State ------------------------------------------------
 

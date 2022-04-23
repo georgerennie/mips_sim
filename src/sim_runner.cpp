@@ -45,10 +45,14 @@ void SimRunner::log_instructions(
 
 void SimRunner::log_exception(mips_retire_metadata_t& metadata) {
 	log_assert(metadata.exception.raised);
+	const auto cause = metadata.exception.cause;
+
 	log_msg("Halted due to exception:\n");
-	log_msg("    Cause: %s\n", mips_exception_name(metadata.exception.cause));
+	log_msg("    Cause: %s\n", mips_exception_name(cause));
 	log_msg("    EPC: 0x%08x\n", metadata.address);
-	log_msg("    Bad VAddr: 0x%08x\n", metadata.exception.bad_v_addr);
+	if (cause == MIPS_EXCP_ADDRL || cause == MIPS_EXCP_ADDRS) {
+		log_msg("    Bad VAddr: 0x%08x\n", metadata.exception.bad_v_addr);
+	}
 	log_msg("%d instructions executed in %d cycles\n", metadata.instruction_number, metadata.cycle);
 }
 

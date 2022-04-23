@@ -1,4 +1,5 @@
 #include "common/log.h"
+#include "common/util.h"
 #include "core.h"
 #include "forwarding_unit.h"
 
@@ -16,6 +17,7 @@ static inline uint32_t compute_alu_op(alu_op_t op, uint32_t a, uint32_t b) {
 
 		default: log_assert_fail("Unrecognised ALU operation %d\n", op); break;
 	}
+	UNREACHABLE;
 }
 
 ex_mem_reg_t execute(const mips_pipeline_regs_t* regs) {
