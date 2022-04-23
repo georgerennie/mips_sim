@@ -11,6 +11,12 @@ std::vector<uint8_t> assemble_file(const std::string& fn) {
 	return Assembler::assemble(file);
 }
 
+// https://stackoverflow.com/questions/20446201/how-to-check-if-string-ends-with-txt
+bool has_suffix(const std::string& str, const std::string& suffix) {
+	return str.size() >= suffix.size() &&
+	       str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
 int main(int argc, char* argv[]) {
 	argparse::ArgumentParser program("mips_sim");
 
@@ -61,6 +67,9 @@ int main(int argc, char* argv[]) {
 	config.compare     = program.get<bool>("--compare");
 	config.delay_slots = program.get<bool>("--delay-slots");
 	config.mem_size    = program.get<uint32_t>("--mem-size");
+
+	// Allow delay slots to be inferred from the file extension
+	if (has_suffix(program.get("input_file"), ".delay.asm")) { config.delay_slots = true; }
 
 	SimRunner sim(std::move(config));
 	auto      instr_mem = assemble_file(program.get("input_file"));

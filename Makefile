@@ -28,8 +28,9 @@ ESBMC_FLAGS += -Wno-implicit-fallthrough
 ESBMC_FLAGS += -DESBMC --memlimit 10g
 
 ############## Pretty Printing #################################################
-GREEN_ANSI := \033[0;32m
-NC_ANSI := \033[0m
+GREEN_ANSI := \033[32m
+MAG_ANSI   := \033[35m
+NC_ANSI    := \033[0m
 
 define setup_target
 	@echo -e "--- $(GREEN_ANSI)Building $(1)$(NC_ANSI)"
