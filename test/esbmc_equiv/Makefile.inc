@@ -12,7 +12,6 @@ ESBMC_EQUIV_PY := $(ESBMC_EQUIV)/esbmc_equiv.py
 
 ESBMC_EQUIV_FLAGS += $(ESBMC_FLAGS)
 ESBMC_EQUIV_FLAGS += --memory-leak-check --overflow-check --struct-fields-check
-ESBMC_EQUIV_FLAGS += --initialize-nondet-variables
 ESBMC_EQUIV_FLAGS += --interval-analysis --add-symex-value-sets
 ESBMC_EQUIV_FLAGS += --max-k-step 64 --k-step 32
 ESBMC_EQUIV_FLAGS += --incremental-bmc --unroll-loops
