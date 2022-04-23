@@ -16,13 +16,13 @@ typedef struct test_def_t {
 void test_add_test_def(test_def_t* test);
 
 #define DEFINE_TEST(NAME)                                         \
-	static void NAME();                                           \
+	static void test_##NAME();                                    \
                                                                   \
 	static const char test_name_##NAME[] = #NAME;                 \
                                                                   \
 	static test_def_t test_def_##NAME = {                         \
 	    .name      = test_name_##NAME,                            \
-	    .entry     = NAME,                                        \
+	    .entry     = test_##NAME,                                 \
 	    .next_test = NULL,                                        \
 	};                                                            \
                                                                   \
@@ -30,6 +30,6 @@ void test_add_test_def(test_def_t* test);
 		test_add_test_def(&test_def_##NAME);                      \
 	}                                                             \
                                                                   \
-	static void NAME()
+	static void test_##NAME()
 
 #endif
