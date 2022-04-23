@@ -11,6 +11,7 @@ class SimRunner {
 public:
 	struct Config {
 		bool step;        // Single step through simulation
+		bool quiet;       // Don't print output
 		bool ref_core;    // Execute on reference core instead of pipelined core
 		bool compare;     // Compare outputs of reference core and pipelined core
 		bool delay_slots; // Emulate delay slots
@@ -25,14 +26,14 @@ public:
 private:
 	Config config;
 
-	mips_config_t make_mips_config(std::span<uint8_t> instr_mem, std::span<uint8_t> data_mem);
+	mips_config_t make_mips_config(std::span<uint8_t> instr_mem, std::span<uint8_t> data_mem) const;
 
-	void log_instructions(
+	static void log_instructions(
 	    std::deque<mips_retire_metadata_t>& instr_queue, size_t max_instrs,
 	    std::optional<mips_retire_metadata_t> new_instr);
 
 	template <typename T>
-	void log_core_state(
+	static void log_core_state(
 	    const T& core, std::deque<mips_retire_metadata_t>& instr_queue,
 	    const std::optional<mips_retire_metadata_t>& new_instr) {
 		log_instructions(instr_queue, 5, new_instr);
@@ -40,14 +41,14 @@ private:
 		log_mem_hex(core.config.data_mem);
 	}
 
-	void log_exception(mips_retire_metadata_t& metadata);
+	static void log_exception(mips_retire_metadata_t& metadata);
 
-	void run_pipeline(std::span<uint8_t> instr_mem);
-	void run_reference(std::span<uint8_t> instr_mem);
-	void run_compare(std::span<uint8_t> instr_mem);
+	void run_pipeline(std::span<uint8_t> instr_mem) const;
+	void run_reference(std::span<uint8_t> instr_mem) const;
+	void run_compare(std::span<uint8_t> instr_mem) const;
 
-	void wait_for_input();
-	void clear_screen();
+	static void wait_for_input();
+	static void clear_screen();
 };
 
 #endif

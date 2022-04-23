@@ -31,9 +31,6 @@ typedef struct {
 
 void mips_core_init(mips_core_t* core, mips_config_t config);
 
-// Execute instructions until one generates a trap
-// mips_retire_metadata_t mips_core_run(mips_core_t* core);
-
 // Execute until one new instruction retires
 mips_retire_metadata_t mips_core_run_one(mips_core_t* core);
 

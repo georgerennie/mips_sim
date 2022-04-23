@@ -17,13 +17,6 @@ void mips_core_init(mips_core_t* core, mips_config_t config) {
 	pipeline_regs_init(&core->regs);
 }
 
-// mips_retire_metadata_t mips_core_run(mips_core_t* core) {
-//     for (;;) {
-//         // TODO: Catch traps here
-//         mips_core_cycle(core);
-//     }
-// }
-
 mips_retire_metadata_t mips_core_run_one(mips_core_t* core) {
 	while (true) {
 		mips_retire_metadata_t retire = mips_core_cycle(core);

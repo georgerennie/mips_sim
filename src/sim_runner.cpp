@@ -4,6 +4,7 @@
 #include "common/instruction.h"
 #include "common/log.h"
 #include "core/core.h"
+#include "equiv_check/equiv_check.h"
 #include "ref_core/ref_core.h"
 
 void SimRunner::run(std::span<uint8_t> instr_mem) {
@@ -13,7 +14,7 @@ void SimRunner::run(std::span<uint8_t> instr_mem) {
 }
 
 mips_config_t SimRunner::make_mips_config(
-    std::span<uint8_t> instr_mem, std::span<uint8_t> data_mem) {
+    std::span<uint8_t> instr_mem, std::span<uint8_t> data_mem) const {
 	mips_config_t mips_config;
 	mips_config.delay_slots = config.delay_slots;
 	mips_config.instr_mem   = make_c_span(instr_mem);
@@ -56,7 +57,7 @@ void SimRunner::log_exception(mips_retire_metadata_t& metadata) {
 	log_msg("%d instructions executed in %d cycles\n", metadata.instruction_number, metadata.cycle);
 }
 
-void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) {
+void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) const {
 	mips_core_t          core;
 	std::vector<uint8_t> data_mem(config.mem_size, 0);
 	mips_core_init(&core, make_mips_config(instr_mem, data_mem));
@@ -64,9 +65,11 @@ void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) {
 
 	if (!config.step) {
 		while (!retire.exception.raised) { retire = mips_core_run_one(&core); }
-		log_gprs_labelled(&core.state);
-		log_mem_hex(core.config.data_mem);
-		log_exception(retire);
+		if (!config.quiet) {
+			log_gprs_labelled(&core.state);
+			log_mem_hex(core.config.data_mem);
+			log_exception(retire);
+		}
 		return;
 	}
 
@@ -84,7 +87,7 @@ void SimRunner::run_pipeline(std::span<uint8_t> instr_mem) {
 	log_exception(retire);
 }
 
-void SimRunner::run_reference(std::span<uint8_t> instr_mem) {
+void SimRunner::run_reference(std::span<uint8_t> instr_mem) const {
 	mips_ref_core_t      ref_core;
 	std::vector<uint8_t> data_mem(config.mem_size, 0);
 	ref_core_init(&ref_core, make_mips_config(instr_mem, data_mem));
@@ -92,9 +95,11 @@ void SimRunner::run_reference(std::span<uint8_t> instr_mem) {
 
 	if (!config.step) {
 		while (!retire.exception.raised) { retire = ref_core_cycle(&ref_core); }
-		log_gprs_labelled(&ref_core.state);
-		log_mem_hex(ref_core.config.data_mem);
-		log_exception(retire);
+		if (!config.quiet) {
+			log_gprs_labelled(&ref_core.state);
+			log_mem_hex(ref_core.config.data_mem);
+			log_exception(retire);
+		}
 		return;
 	}
 
@@ -110,7 +115,7 @@ void SimRunner::run_reference(std::span<uint8_t> instr_mem) {
 	log_exception(retire);
 }
 
-void SimRunner::run_compare(std::span<uint8_t> instr_mem) {
+void SimRunner::run_compare(std::span<uint8_t> instr_mem) const {
 	mips_core_t     core;
 	mips_ref_core_t ref_core;
 
@@ -119,12 +124,44 @@ void SimRunner::run_compare(std::span<uint8_t> instr_mem) {
 
 	mips_core_init(&core, make_mips_config(instr_mem, pipeline_data_mem));
 	ref_core_init(&ref_core, make_mips_config(instr_mem, ref_data_mem));
+	equiv_check_cores(&core, &ref_core);
 
-	// TODO: Define how compare works, for both stepped and normal mode
-	// for (size_t i = 0; i < 10000; i++) {
-	//     const auto core_retire = mips_core_run_one(&core);
-	//     const auto ref_retire  = ref_core_cycle(&ref_core);
-	// }
+	mips_retire_metadata_t retire = {};
+
+	if (!config.step) {
+		while (!retire.exception.raised) {
+			retire                = mips_core_run_one(&core);
+			const auto ref_retire = ref_core_cycle(&ref_core);
+
+			if (!config.quiet && retire.exception.raised) {
+				log_gprs_labelled(&core.state);
+				log_mem_hex(core.config.data_mem);
+				log_exception(retire);
+			}
+			equiv_check_retires(&retire, &ref_retire);
+			equiv_check_cores(&core, &ref_core);
+		}
+		return;
+	}
+
+	std::deque<mips_retire_metadata_t> last_instructions;
+	clear_screen();
+	log_pipeline_regs(&core.regs);
+	log_core_state(core, last_instructions, std::nullopt);
+	while (!retire.exception.raised) {
+		wait_for_input();
+		clear_screen();
+		retire = mips_core_cycle(&core);
+		log_pipeline_regs(&core.regs);
+		log_core_state(core, last_instructions, retire);
+
+		if (retire.exception.raised || retire.active) {
+			const auto ref_retire = ref_core_cycle(&ref_core);
+			equiv_check_retires(&retire, &ref_retire);
+			equiv_check_cores(&core, &ref_core);
+		}
+	}
+	log_exception(retire);
 }
 
 inline void SimRunner::wait_for_input() { std::cin.get(); }

@@ -1,6 +1,10 @@
 #ifndef EQUIV_CHECK_H
 #define EQUIV_CHECK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "common/arch.h"
 #include "core/core.h"
 #include "ref_core/ref_core.h"
@@ -18,5 +22,9 @@ void equiv_check_exceptions(
     const mips_exception_t* sim_exception, const mips_exception_t* ref_exception);
 void equiv_check_retires(
     const mips_retire_metadata_t* sim_retire, const mips_retire_metadata_t* ref_retire);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

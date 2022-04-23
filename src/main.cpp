@@ -21,6 +21,11 @@ int main(int argc, char* argv[]) {
 	    .default_value(false)
 	    .implicit_value(true);
 
+	program.add_argument("-q", "--quiet")
+	    .help("don't print the output state, just check assertions")
+	    .default_value(false)
+	    .implicit_value(true);
+
 	program.add_argument("-r", "--ref-core")
 	    .help("run simulation using single cycle reference model")
 	    .default_value(false)
@@ -51,6 +56,7 @@ int main(int argc, char* argv[]) {
 
 	SimRunner::Config config;
 	config.step        = program.get<bool>("--step");
+	config.quiet       = program.get<bool>("--quiet");
 	config.ref_core    = program.get<bool>("--ref-core");
 	config.compare     = program.get<bool>("--compare");
 	config.delay_slots = program.get<bool>("--delay-slots");
