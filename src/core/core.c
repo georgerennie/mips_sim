@@ -1,5 +1,6 @@
 #include "core.h"
 #include "common/log.h"
+#include "forwarding_unit.h"
 #include "hazard_detection.h"
 
 void mips_core_init(mips_core_t* core, mips_config_t config) {
@@ -41,6 +42,12 @@ mips_retire_metadata_t mips_core_cycle(mips_core_t* core) {
 	next_regs.id_ex = instruction_decode(&core->regs, &core->state);
 
 	// Execute
+	// Always updated forwarded values, this means that if EX is stalled, it
+	// still reads the correct value out
+	core->regs.id_ex.data_rs =
+	    get_fwd_value(&core->regs, core->regs.id_ex.reg_rs, core->regs.id_ex.data_rs);
+	core->regs.id_ex.data_rt =
+	    get_fwd_value(&core->regs, core->regs.id_ex.reg_rt, core->regs.id_ex.data_rt);
 	next_regs.ex_mem = execute(&core->regs);
 
 	// Memory Access
