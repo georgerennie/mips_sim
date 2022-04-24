@@ -70,8 +70,6 @@ typedef struct {
 } mips_exception_t;
 
 // This is included for observability, not operation of the pipeline
-// TODO: This is all being passed down the pipeline at the moment, but a lot of
-// it is only generated in WB, this is unecessary
 typedef struct {
 	uint32_t instruction;
 	uint32_t address;

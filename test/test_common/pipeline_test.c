@@ -176,7 +176,6 @@ void id_test_j_type(mips_j_address_t address) {
 
 	log_assert_eqi(id_ex.branch, true);
 	log_assert_eqi(id_ex.eval_branch, false);
-	// TODO: Is this right?
 	log_assert_eqi(
 	    id_ex.branch_address,
 	    ((regs.if_id.metadata.address + 4) & 0xF0000000) | ((uint32_t) address << 2));

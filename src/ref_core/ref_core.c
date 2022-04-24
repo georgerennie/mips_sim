@@ -90,7 +90,6 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 		case MIPS_OPC_ORI: *rt = *rs | z_imm; break;
 
 		case MIPS_OPC_LHU: {
-			// TODO: Trap on invalid access (page fault or unaligned)
 			const uint32_t load_address = *rs + s_imm;
 			// Trap on invalid access (unaligned or page fault)
 			if (load_address % 2 != 0 || load_address + 1 >= core->config.data_mem.size) {
