@@ -97,11 +97,16 @@ void equiv_check_exceptions(
 	}
 }
 
-void equiv_check_retires(
+void equiv_check_retires_pic(
     const mips_retire_metadata_t* sim_retire, const mips_retire_metadata_t* ref_retire) {
 	log_assert_eqi(sim_retire->active, ref_retire->active);
-	log_assert_eqi(sim_retire->address, ref_retire->address);
 	log_assert_eqi(sim_retire->instruction, ref_retire->instruction);
-	log_assert_eqi(sim_retire->instruction_number, ref_retire->instruction_number);
 	equiv_check_exceptions(&sim_retire->exception, &ref_retire->exception);
+}
+
+void equiv_check_retires(
+    const mips_retire_metadata_t* sim_retire, const mips_retire_metadata_t* ref_retire) {
+	log_assert_eqi(sim_retire->address, ref_retire->address);
+	log_assert_eqi(sim_retire->instruction_number, ref_retire->instruction_number);
+	equiv_check_retires_pic(sim_retire, ref_retire);
 }

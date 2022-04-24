@@ -20,6 +20,11 @@ void equiv_check_cores(const mips_core_t* sim_core, const mips_ref_core_t* ref_c
 
 void equiv_check_exceptions(
     const mips_exception_t* sim_exception, const mips_exception_t* ref_exception);
+
+// Position independent check - i.e. dont check that address/instruction number are the
+// same
+void equiv_check_retires_pic(
+    const mips_retire_metadata_t* sim_retire, const mips_retire_metadata_t* ref_retire);
 void equiv_check_retires(
     const mips_retire_metadata_t* sim_retire, const mips_retire_metadata_t* ref_retire);
 

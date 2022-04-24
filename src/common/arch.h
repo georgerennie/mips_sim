@@ -50,6 +50,8 @@ typedef struct {
 
 // Only a subset of MIPS interrupts are implemented
 typedef enum {
+	MIPS_EXCP_NONE = 0,
+
 	MIPS_EXCP_ADDRL = 4,  // Incorrect load/instruction fetch address
 	MIPS_EXCP_ADDRS = 5,  // Incorrect store address
 	MIPS_EXCP_BREAK = 9,  // Breakpoint
@@ -57,6 +59,7 @@ typedef enum {
 	MIPS_EXCP_OVF   = 12, // Overflow
 } ATTR_PACKED mips_exception_cause_t;
 
+const char* mips_excp_cause_to_str(mips_exception_cause_t exception);
 const char* mips_exception_name(mips_exception_cause_t exception);
 
 // Coprocessor 0 is used for tracking exceptions. Only a limited number of its

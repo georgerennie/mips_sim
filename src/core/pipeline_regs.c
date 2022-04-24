@@ -53,9 +53,11 @@ void log_pipeline_regs(const mips_pipeline_regs_t* regs) {
 	log_reg_dec(
 	    "stalled", 0, 4, !if_id_meta->active, !id_ex_meta->active, !ex_mem_meta->active,
 	    !mem_wb_meta->active);
-	log_reg_dec(
-	    "exception", 0, 4, if_id_meta->exception.raised, id_ex_meta->exception.raised,
-	    ex_mem_meta->exception.raised, mem_wb_meta->exception.raised);
+	log_reg_str(
+	    "exception", 0, 4, mips_excp_cause_to_str(if_id_meta->exception.cause),
+	    mips_excp_cause_to_str(id_ex_meta->exception.cause),
+	    mips_excp_cause_to_str(ex_mem_meta->exception.cause),
+	    mips_excp_cause_to_str(mem_wb_meta->exception.cause));
 	log_reg_hex(
 	    "instruction", 0, 4, if_id_meta->instruction, id_ex_meta->instruction,
 	    ex_mem_meta->instruction, mem_wb_meta->instruction);
@@ -131,6 +133,7 @@ void pipeline_metadata_init(mips_pipeline_metadata_t* metadata) {
 	metadata->active      = false;
 
 	metadata->exception.raised = false;
+	metadata->exception.cause  = MIPS_EXCP_NONE;
 }
 
 void if_id_reg_init(if_id_reg_t* if_id) { pipeline_metadata_init(&if_id->metadata); }

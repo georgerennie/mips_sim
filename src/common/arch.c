@@ -1,6 +1,17 @@
 #include "arch.h"
 #include "log.h"
 
+const char* mips_excp_cause_to_str(mips_exception_cause_t exception) {
+	switch (exception) {
+		case MIPS_EXCP_ADDRL: return "addrl";
+		case MIPS_EXCP_ADDRS: return "addrs";
+		case MIPS_EXCP_BREAK: return "break";
+		case MIPS_EXCP_RI: return "ri";
+		case MIPS_EXCP_OVF: return "ovf";
+		default: return "";
+	}
+}
+
 const char* mips_exception_name(mips_exception_cause_t exception) {
 	switch (exception) {
 		case MIPS_EXCP_ADDRL: return "invalid load address";
