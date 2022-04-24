@@ -43,8 +43,9 @@ include $(SRC)/Makefile.inc
 # Include test config rules
 include $(TEST)/Makefile.inc
 
-.PHONY: build
+.PHONY: build short_tests
 build: build_cli
+short_tests: unit esbmc_unit asm_test
 
 .PHONY: clean
 clean:
