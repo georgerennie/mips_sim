@@ -104,7 +104,7 @@ static void log_err_instr_args(
 std::vector<uint8_t> assemble(std::istream& assembly) {
 	// The string is the label that instruction jumps to in the case of a j instr
 	std::vector<std::pair<mips_instr_t, std::string>> instructions;
-	uint32_t                                          address = 0x00000000;
+	uint32_t                                          address = TEXT_BASE_ADDR;
 	std::map<std::string, uint32_t>                   address_map;
 
 	size_t line_num = 1;
@@ -235,7 +235,8 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 			instruction.j_data.address = static_cast<mips_j_address_t>(address_map[label] >> 2);
 		} else if (instruction.format == MIPS_INSTR_FORMAT_I && !label.empty()) {
 			// Branch instructions
-			uint32_t offset              = address_map[label] - static_cast<uint32_t>(i * 4) - 4;
+			uint32_t offset =
+			    address_map[label] - static_cast<uint32_t>(i * 4) - 4 - TEXT_BASE_ADDR;
 			instruction.i_data.immediate = static_cast<uint16_t>(offset >> 2);
 		}
 

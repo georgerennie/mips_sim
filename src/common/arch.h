@@ -9,6 +9,9 @@ extern "C" {
 #include <stdbool.h>
 #include "util.h"
 
+// -------- Instruction memory address -----------------------------------------
+#define TEXT_BASE_ADDR 0x3000U
+
 // -------- Fixed width integers -----------------------------------------------
 
 #ifdef ESBMC

@@ -7,7 +7,7 @@ void mips_core_init(mips_core_t* core, mips_config_t config) {
 	*core = (mips_core_t){
 	    .state =
 	        {
-	            .pc  = 0,
+	            .pc  = TEXT_BASE_ADDR,
 	            .gpr = {0},
 	        },
 

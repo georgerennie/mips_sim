@@ -7,7 +7,7 @@ void ref_core_init(mips_ref_core_t* core, mips_config_t config) {
 	*core = (mips_ref_core_t){
 	    .state =
 	        {
-	            .pc  = 0,
+	            .pc  = TEXT_BASE_ADDR,
 	            .gpr = {0},
 	        },
 
@@ -30,17 +30,19 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 	};
 	core->cycle++;
 
-	if (core->state.pc >= core->config.instr_mem.size) {
+	const uint32_t instr_addr = core->state.pc - TEXT_BASE_ADDR;
+
+	if (instr_addr >= core->config.instr_mem.size) {
 		metadata.exception.raised     = true;
 		metadata.exception.cause      = MIPS_EXCP_ADDRL;
 		metadata.exception.bad_v_addr = core->state.pc;
 		return metadata;
 	}
 
-	uint32_t instr = *span_e(core->config.instr_mem, core->state.pc + 3);
-	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 2) << 8;
-	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 1) << 16;
-	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc) << 24;
+	uint32_t instr = *span_e(core->config.instr_mem, instr_addr + 3);
+	instr |= (uint32_t) *span_e(core->config.instr_mem, instr_addr + 2) << 8;
+	instr |= (uint32_t) *span_e(core->config.instr_mem, instr_addr + 1) << 16;
+	instr |= (uint32_t) *span_e(core->config.instr_mem, instr_addr) << 24;
 	metadata.instruction = instr;
 	uint32_t next_pc     = core->branch_after ? core->branch_dest : core->state.pc + 4;
 	core->branch_after   = false;
