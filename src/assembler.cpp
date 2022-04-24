@@ -240,13 +240,13 @@ std::vector<uint8_t> assemble(std::istream& assembly) {
 		}
 
 		const auto binary_instruction = to_binary(instruction);
-		// Little endian
+		// Big endian
 		binary.insert(
 		    binary.end(), {
-		                      static_cast<uint8_t>(binary_instruction),
-		                      static_cast<uint8_t>(binary_instruction >> 8),
-		                      static_cast<uint8_t>(binary_instruction >> 16),
 		                      static_cast<uint8_t>(binary_instruction >> 24),
+		                      static_cast<uint8_t>(binary_instruction >> 16),
+		                      static_cast<uint8_t>(binary_instruction >> 8),
+		                      static_cast<uint8_t>(binary_instruction),
 		                  });
 	}
 

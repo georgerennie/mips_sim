@@ -37,10 +37,10 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 		return metadata;
 	}
 
-	uint32_t instr = *span_e(core->config.instr_mem, core->state.pc);
-	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 1) << 8;
-	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 2) << 16;
-	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 3) << 24;
+	uint32_t instr = *span_e(core->config.instr_mem, core->state.pc + 3);
+	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 2) << 8;
+	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc + 1) << 16;
+	instr |= (uint32_t) *span_e(core->config.instr_mem, core->state.pc) << 24;
 	metadata.instruction = instr;
 	uint32_t next_pc     = core->branch_after ? core->branch_dest : core->state.pc + 4;
 	core->branch_after   = false;
@@ -100,8 +100,8 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 				return metadata;
 			}
 
-			*rt = (uint32_t) INSERT_BITS(7, 0, *span_e(core->config.data_mem, load_address)) |
-			      (uint32_t) INSERT_BITS(15, 8, *span_e(core->config.data_mem, load_address + 1));
+			*rt = (uint32_t) INSERT_BITS(15, 8, *span_e(core->config.data_mem, load_address)) |
+			      (uint32_t) INSERT_BITS(7, 0, *span_e(core->config.data_mem, load_address + 1));
 		} break;
 
 		case MIPS_OPC_BEQ:
@@ -127,8 +127,8 @@ mips_retire_metadata_t ref_core_cycle(mips_ref_core_t* core) {
 				metadata.exception.bad_v_addr = store_address;
 				return metadata;
 			}
-			*span_e(core->config.data_mem, store_address)     = EXTRACT_BITS(7, 0, *rt);
-			*span_e(core->config.data_mem, store_address + 1) = EXTRACT_BITS(15, 8, *rt);
+			*span_e(core->config.data_mem, store_address)     = EXTRACT_BITS(15, 8, *rt);
+			*span_e(core->config.data_mem, store_address + 1) = EXTRACT_BITS(7, 0, *rt);
 		} break;
 
 		case MIPS_OPC_J: {

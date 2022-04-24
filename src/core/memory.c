@@ -26,8 +26,8 @@ mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 			log_assert_eqi(bytes, 2);
 
 			// Load 2 bytes from memory little endian
-			uint32_t load_val = (uint32_t) INSERT_BITS(7, 0, *span_e(data_mem, addr)) |
-			                    (uint32_t) INSERT_BITS(15, 8, *span_e(data_mem, addr + 1));
+			uint32_t load_val = (uint32_t) INSERT_BITS(15, 8, *span_e(data_mem, addr)) |
+			                    (uint32_t) INSERT_BITS(7, 0, *span_e(data_mem, addr + 1));
 			mem_wb.result = load_val;
 		} break;
 
@@ -35,8 +35,8 @@ mem_wb_reg_t memory(const ex_mem_reg_t* ex_mem, span_t data_mem) {
 			// Currently only SH is supported
 			log_assert_eqi(bytes, 2);
 
-			*span_e(data_mem, addr)     = EXTRACT_BITS(7, 0, ex_mem->data_rt);
-			*span_e(data_mem, addr + 1) = EXTRACT_BITS(15, 8, ex_mem->data_rt);
+			*span_e(data_mem, addr)     = EXTRACT_BITS(15, 8, ex_mem->data_rt);
+			*span_e(data_mem, addr + 1) = EXTRACT_BITS(7, 0, ex_mem->data_rt);
 			mem_wb.reg                  = 0;
 		} break;
 

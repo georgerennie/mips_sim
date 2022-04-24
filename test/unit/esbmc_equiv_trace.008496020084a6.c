@@ -19,14 +19,14 @@ int main() {
 
 	uint8_t instr_mem[8] = {0};
 
-	instr_mem[0] = 2;
-	instr_mem[1] = 0;
-	instr_mem[2] = 132;
-	instr_mem[3] = 150;
-	instr_mem[4] = 2;
-	instr_mem[5] = 0;
-	instr_mem[6] = 132;
-	instr_mem[7] = 166;
+	instr_mem[3] = 2;
+	instr_mem[2] = 0;
+	instr_mem[1] = 132;
+	instr_mem[0] = 150;
+	instr_mem[7] = 2;
+	instr_mem[6] = 0;
+	instr_mem[5] = 132;
+	instr_mem[4] = 166;
 
 	uint8_t data_mem[MEM_SIZE]     = {0};
 	uint8_t ref_data_mem[MEM_SIZE] = {0};

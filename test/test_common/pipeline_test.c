@@ -235,8 +235,8 @@ void mem_test_read(uint32_t mem_size, uint16_t value, uint32_t address) {
 	// Little endian
 	if ((uint64_t) address + 1 < mem_size) {
 		// Only tests half word reads
-		data_mem[address]     = EXTRACT_BITS(7, 0, value);
-		data_mem[address + 1] = EXTRACT_BITS(15, 8, value);
+		data_mem[address]     = EXTRACT_BITS(15, 8, value);
+		data_mem[address + 1] = EXTRACT_BITS(7, 0, value);
 	}
 
 	const ex_mem_reg_t ex_mem = {
@@ -277,8 +277,8 @@ void mem_test_write(uint32_t mem_size, uint16_t value, uint32_t address) {
 	}
 
 	log_assert_eqi(mem_wb.metadata.exception.raised, false);
-	log_assert_eqi(data_mem[address], EXTRACT_BITS(7, 0, value));
-	log_assert_eqi(data_mem[address + 1], EXTRACT_BITS(15, 8, value));
+	log_assert_eqi(data_mem[address], EXTRACT_BITS(15, 8, value));
+	log_assert_eqi(data_mem[address + 1], EXTRACT_BITS(7, 0, value));
 }
 
 // -------- Writeback tests ----------------------------------------------------

@@ -7,7 +7,7 @@
 
 namespace Assembler {
 
-// Produce little endian binary from assembly
+// Produce big endian binary from assembly
 std::vector<uint8_t> assemble(std::istream& assembly);
 
 }; // namespace Assembler
