@@ -80,14 +80,15 @@ mips_retire_metadata_t mips_core_cycle(mips_core_t* core) {
 		core->state.pc += 4;
 	}
 
+	const bool             retire_active = retiring_stage.active || retiring_stage.exception.raised;
 	mips_retire_metadata_t retiring_instruction = {
 	    .instruction = retiring_stage.instruction,
 	    .address     = retiring_stage.address,
-	    .active      = retiring_stage.active,
+	    .active      = retire_active,
 	    .exception   = retiring_stage.exception,
 
 	    .cycle              = core->cycle,
-	    .instruction_number = retiring_stage.active ? core->instruction_number++ : 0,
+	    .instruction_number = retire_active ? core->instruction_number++ : 0,
 	};
 
 	core->cycle++;
