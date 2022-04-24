@@ -11,6 +11,11 @@ std::vector<uint8_t> assemble_file(const std::string& fn) {
 	return Assembler::assemble(file);
 }
 
+std::vector<uint8_t> read_binary(const std::string& fn) {
+	std::ifstream file(fn, std::ios::binary);
+	return std::vector<uint8_t>(std::istreambuf_iterator<char>(file), {});
+}
+
 // https://stackoverflow.com/questions/20446201/how-to-check-if-string-ends-with-txt
 bool has_suffix(const std::string& str, const std::string& suffix) {
 	return str.size() >= suffix.size() &&
@@ -20,7 +25,12 @@ bool has_suffix(const std::string& str, const std::string& suffix) {
 int main(int argc, char* argv[]) {
 	argparse::ArgumentParser program("mips_sim");
 
-	program.add_argument("input_file").help("path to an assembly file to execute");
+	program.add_argument("input_file").help("path to a file to execute");
+
+	program.add_argument("-b", "--binary")
+	    .help("execute a big endian binary")
+	    .default_value(false)
+	    .implicit_value(true);
 
 	program.add_argument("-s", "--step")
 	    .help("single step through the simulation")
@@ -72,6 +82,7 @@ int main(int argc, char* argv[]) {
 	if (has_suffix(program.get("input_file"), ".delay.asm")) { config.delay_slots = true; }
 
 	SimRunner sim(std::move(config));
-	auto      instr_mem = assemble_file(program.get("input_file"));
+	auto      instr_mem = program.get<bool>("--binary") ? read_binary(program.get("input_file"))
+	                                                    : assemble_file(program.get("input_file"));
 	sim.run(instr_mem);
 }
