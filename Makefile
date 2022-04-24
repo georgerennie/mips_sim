@@ -6,6 +6,7 @@ ESBMC ?= esbmc
 
 SRC := src
 TEST := test
+SHOWCASE := showcase_program
 BUILD := build
 
 CC_INCLUDES += -I$(SRC) -I$(TEST)
@@ -42,6 +43,8 @@ endef
 include $(SRC)/Makefile.inc
 # Include test config rules
 include $(TEST)/Makefile.inc
+# Include showcase program rules
+include $(SHOWCASE)/Makefile.inc
 
 .PHONY: build short_tests
 build: build_cli
