@@ -56,8 +56,8 @@ hazard_flags_t detect_hazards(
 	}
 
 	// Jump/Branch control hazard - pc is updated in core.c
-	if (regs->id_ex.branch) {
-		if (!config->delay_slots) { flush_stage(&hazards, MIPS_STAGE_ID); }
+	if (next_regs->id_ex.branch) {
+		if (!config->delay_slots) { flush_stage(&hazards, MIPS_STAGE_IF); }
 	}
 
 	// Flush on exceptions
