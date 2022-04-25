@@ -11,6 +11,7 @@ extern "C" {
 
 typedef enum {
 	MIPS_OPC_R_FMT = 0x00,
+	MIPS_OPC_BREAK = 0x00,
 
 	MIPS_OPC_ADDU  = 0x00,
 	MIPS_OPC_ADDIU = 0x09,

@@ -16,7 +16,7 @@ namespace Assembler {
 static const std::map<std::string, std::tuple<mips_instr_format_t, mips_opcode_t, mips_funct_t>>
     opc_lookup = {
         {"nop", {MIPS_INSTR_FORMAT_R, MIPS_OPC_R_FMT, MIPS_FUNCT_NOP}},
-        {"break", {MIPS_INSTR_FORMAT_R, MIPS_OPC_R_FMT, MIPS_FUNCT_BREAK}},
+        {"break", {MIPS_INSTR_FORMAT_R, MIPS_OPC_BREAK, MIPS_FUNCT_BREAK}},
 
         {"addu", {MIPS_INSTR_FORMAT_R, MIPS_OPC_ADDU, MIPS_FUNCT_ADDU}},
         {"addiu", {MIPS_INSTR_FORMAT_I, MIPS_OPC_ADDIU, MIPS_FUNCT_NOP}},
