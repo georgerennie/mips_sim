@@ -22,9 +22,9 @@ typedef uint8_t  mips_reg_idx_t;
 typedef uint8_t  mips_shamt_t;
 typedef uint32_t mips_j_address_t;
 #else
-typedef unsigned _ExtInt(5) mips_reg_idx_t;
-typedef unsigned _ExtInt(5) mips_shamt_t;
-typedef unsigned _ExtInt(26) mips_j_address_t;
+typedef unsigned _BitInt(5) mips_reg_idx_t;
+typedef unsigned _BitInt(5) mips_shamt_t;
+typedef unsigned _BitInt(26) mips_j_address_t;
 #endif
 
 // -------- Architectural State ------------------------------------------------
